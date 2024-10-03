@@ -1,7 +1,7 @@
 import os
 
 from antechamber_interface import Antechamber
-from gaussian_writer import GaussianInput, GaussianWriter
+from gaussian import GaussianInput, GaussianWriter, GaussianReader
 from coordinates import Coordinates
 
 

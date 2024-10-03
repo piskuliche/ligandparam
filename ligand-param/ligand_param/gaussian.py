@@ -107,6 +107,68 @@ class GaussianInput:
             print(line)
 
 
+class GaussianReader:
+    """ Class to read Gaussian log files """
+    def __init__(self, filename):
+        """
+        Initialize the class with a filename
+        """
+        self.filename = filename
+        return
+    
+    def read_log(self):
+        """ Read the Gaussian log file, and extract information from it.
+
+        This is adapted from ReadGauOutput in Tim's parmutils package.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        atn : list
+            A list of atomic symbols
+        coords : list
+            A list of atomic coordinates
+        charge : int
+            The charge of the molecule
+        multiplicity : int
+            The multiplicity of the molecule
+
+        """
+        atn, coords = [], []
+        charge, multiplicity = 0, 1
+        readflag = False
+        with open(self.filename,'r') as f:
+            arc = ""
+            for line in f:
+                # Document whatever this is
+                if readflag:
+                    arc += line.strip()
+                if '1\\1\\' in line:
+                    arc=line.strip()
+                    readflag=True
+                if '\\\\@' in arc:
+                    readflag=False
+                    break
+            secs = arc.split("\\\\")
+        try:
+            data = [ sub.split(",") for sub in secs[3].split("\\") ]
+            charge = int( data[0][0] )
+            multiplicity = int( data[0][1] )
+            for i in range( len(data) - 1):
+                atn.append(data[i+1][0])
+                if len(data[i+1]) == 5:
+                    coords.append([float(data[i+1][2]), float(data[i+1][3]), float(data[i+1][4])])
+                else:
+                    coords.append([float(data[i+1][1]), float(data[i+1][2]), float(data[i+1][3])])
+        except:
+            raise IOError("Error reading log file")
+        
+        print(f"Found {len(atn)} atoms.")
+
+        return atn, coords, charge, multiplicity
 
 
 if __name__ == "__main__":
@@ -120,3 +182,8 @@ if __name__ == "__main__":
     new_write.add_block(test)
     new_write.add_block(test)
     new_write.write(dry_run=True)
+
+    read_test = GaussianReader("F3KRP.log")
+    read_test.read_log()
+
+
