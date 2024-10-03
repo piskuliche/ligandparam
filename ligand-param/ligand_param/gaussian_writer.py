@@ -2,18 +2,52 @@ import numpy as np
 
 
 class GaussianWriter:
+    """ Class to write Gaussian input files """
     def __init__(self, filename):
+        """ Initialize the class with a filename
+        
+        Parameters
+        ----------
+        filename : str
+            The name of the file to write
+        
+        Returns
+        -------
+        None
+        
+        """
         self.filename = filename
         self.nlinks = 0
         self.links = []
         return
     
-    def write(self):
-        pass
+    def write(self, dry_run=False):
+        """ Write the Gaussian input file 
+        
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, the file will not be written to disk
+        
+        Returns
+        -------
+        None
+        
+        """
+        if dry_run: 
+            self.print()
+            return True
+
+        with open(self.filename, 'w') as f:
+            for link in self.links:
+                for line in link.generate_block():
+                    f.write(line)
+
+        return True
 
     def print(self):
         for linkno, link in enumerate(self.links):
-            print("--Link1--")
+            if linkno == 1: print("--Link1--")
             link.print()
     
     def add_block(self, block):
