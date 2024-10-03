@@ -23,5 +23,5 @@ class GaussianInput:
 
 
 if __name__ == "__main__":
-    test = Gaussian(FCCALC=True)
+    test = GaussianInput(FCCALC=True)
     test.__str__()
