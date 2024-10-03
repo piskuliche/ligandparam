@@ -62,8 +62,9 @@ class Parametrization:
         ante = Antechamber()
         ante.call(i=self.pdb_filename, fi = 'pdb',
                   o=self.base_name+'.mol2', fo = 'mol2',
-                  c=self.atom_type, nc=self.net_charge, 
-                  run=False)
+                  c='bcc', nc=self.net_charge, 
+                  pf='y', at=self.atom_type,
+                  run=True)
         
         header = [f'%NPROC={self.nproc}', f'%MEM={self.mem}', '%CHK='+self.base_name+'.antechamber.chk']
         gau = GaussianWriter(self.base_name+'.com')
@@ -75,7 +76,7 @@ class Parametrization:
                                     header=header))
         gau.add_block(GaussianInput(command=f"#P {self.theory['low']} GEOM(AllCheck) Guess(Read) NoSymm Pop=mk IOp(6/33=2) GFInput GFPrint", 
                                     header=header))
-        gau.write(dry_run=True)
+        gau.write(dry_run=False)
     
     
 
