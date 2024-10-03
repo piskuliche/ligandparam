@@ -92,7 +92,7 @@ class GaussianInput:
         if self.header:
             for line in self.header:
                 lines.append(line)
-        lines.append(f"{self.command}")
+        lines.append(f"{self.command}\n")
         lines.append("Gaussian Calculation\n")
         lines.append(f"{self.charge} {self.multiplicity}")
         if self.elements is not None:
@@ -119,4 +119,4 @@ if __name__ == "__main__":
     new_write = GaussianWriter("test.com")
     new_write.add_block(test)
     new_write.add_block(test)
-    new_write.print()
+    new_write.write(dry_run=True)
