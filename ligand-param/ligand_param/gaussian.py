@@ -54,6 +54,11 @@ class GaussianWriter:
         if isinstance(block, GaussianInput):
             self.nlinks += 1
             self.links.append(block)
+    
+    def get_run_command(self, extension='.com'):
+        if extension not in self.filename:
+            raise ValueError("Extension does not match filename.")
+        return f"g16 < self.filename > {self.filename.strip(extension)}.log"
 
 class GaussianInput:
     """ Class to represent a Gaussian LINK1 block """
@@ -105,6 +110,8 @@ class GaussianInput:
     def print(self):
         for line in self.generate_block():
             print(line)
+
+
 
 
 class GaussianReader:
