@@ -15,3 +15,6 @@ class Coordinates:
     @staticmethod
     def rotate(axis=[0,0,1], angle=0.0):
         pass
+
+def Rotate(coords, alpha=0.0, beta=0.0):
+    pass
