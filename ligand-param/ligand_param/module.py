@@ -2,6 +2,7 @@ import os
 
 from antechamber_interface import Antechamber
 from gaussian_writer import GaussianInput, GaussianWriter
+from coordinates import Coordinates
 
 
 
@@ -53,7 +54,11 @@ class Parametrization:
         -------
         None
         """
-        
+        coor = Coordinates(self.pdb_filename, filetype='pdb')
+        coords = coor.get_coordinates()
+        elements = coor.get_elements()
+
+
         ante = Antechamber()
         ante.call(i=self.pdb_filename, fi = 'pdb',
                   o=self.base_name+'.mol2', fo = 'mol2',
@@ -63,6 +68,8 @@ class Parametrization:
         header = [f'%NPROC={self.nproc}', f'%MEM={self.mem}', '%CHK='+self.base_name+'.antechamber.chk']
         gau = GaussianWriter(self.base_name+'.com')
         gau.add_block(GaussianInput(command=f"#P {self.theory['low']} OPT(CalcFC)",
+                                    initial_coordinates = coords,
+                                    elements = elements,
                                     header=header))
         gau.add_block(GaussianInput(command=f"#P {self.theory['high']} OPT(CalcFC) GEOM(ALLCheck) Guess(Read)", 
                                     header=header))
@@ -70,10 +77,10 @@ class Parametrization:
                                     header=header))
         gau.write(dry_run=True)
     
+    
 
 class FreeLigand(Parametrization):
-    def new():
-        pass
+    pass
 
 class ProteinLigand(Parametrization):
     def new():
