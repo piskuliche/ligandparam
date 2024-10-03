@@ -1,4 +1,4 @@
-class GaussianInputBlock:
+class GaussianInput:
     """ Class to represent a Gaussian LINK1 block """
     def __init__(self, command="# HF/6-31G* SCF=QC", elements = None, initial_coordinates=None, charge=0, multiplicity=1, **kwargs):
         self.kwargs = kwargs
@@ -23,5 +23,5 @@ class GaussianInputBlock:
 
 
 if __name__ == "__main__":
-    test = GaussianInputBlock(FCCALC=True)
+    test = Gaussian(FCCALC=True)
     test.__str__()
