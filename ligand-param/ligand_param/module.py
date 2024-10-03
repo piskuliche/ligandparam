@@ -2,7 +2,7 @@ import os
 
 from antechamber_interface import Antechamber
 from gaussian import GaussianInput, GaussianWriter, GaussianReader
-from coordinates import Coordinates
+from coordinates import Coordinates, rotate
 
 
 
@@ -10,7 +10,7 @@ class Parametrization:
     """An example class that represents a simple entity."""
 
 
-    def __init__(self, pdb_file, netcharge=None, atom_type=None, theory_low='HF/6-31G*', theory_high='PBE1PBE/6-31G*', nproc=6, mem='8GB'):
+    def __init__(self, pdb_file, netcharge=None, atom_type=None, theory_low='HF/6-31G*', theory_high='PBE1PBE/6-31G*', nproc=6, mem='8GB', interactive=False):
         """Initialize the class with a PDB file and a net charge.
 
         Parameters
@@ -29,6 +29,7 @@ class Parametrization:
         
         self.nproc = nproc
         self.mem = mem
+        self.interactive=interactive
 
         # Set None behavior
         if self.net_charge is None:
@@ -40,11 +41,14 @@ class Parametrization:
         # Set the base name
         self.base_name = self.pdb_filename.strip('.pdb')
 
+        # Things set later
+        self.init_gaus_run = None
+
         return
     
     def initialize(self):
         """
-        Initialize the ligand parameterization process.
+        Initialize the ligand parameterization process. This involves
         
         Parameters
         ----------
@@ -64,7 +68,7 @@ class Parametrization:
                   o=self.base_name+'.mol2', fo = 'mol2',
                   c='bcc', nc=self.net_charge, 
                   pf='y', at=self.atom_type,
-                  run=True)
+                  run=False)
         
         header = [f'%NPROC={self.nproc}', f'%MEM={self.mem}', '%CHK='+self.base_name+'.antechamber.chk']
         gau = GaussianWriter(self.base_name+'.com')
@@ -77,6 +81,50 @@ class Parametrization:
         gau.add_block(GaussianInput(command=f"#P {self.theory['low']} GEOM(AllCheck) Guess(Read) NoSymm Pop=mk IOp(6/33=2) GFInput GFPrint", 
                                     header=header))
         gau.write(dry_run=False)
+        self.init_gaus_run = gau
+        
+
+    def run_gaussian(self, alpha=[0,30,60,90,120,150,180], beta=[0,30,60,90], dry_run=False):
+        if self.init_gaus_run is None:
+            raise ValueError("Gaussian input file not initialized.")
+        
+        run_apply = os.system
+        if dry_run:
+            run_apply = print
+        
+        if not os.path.exists('./gaussianCalcs'):
+            os.mkdir('./gaussianCalcs')
+        run_apply(f'cp {self.base_name}.com ./gaussianCalcs/')
+        run_apply(f'cd ./gaussianCalcs')
+        run_apply(f'{self.init_gaus_run.get_run_command()}')
+        for alp in alpha:
+            for bet in beta:
+                #TODO: add elements and header, and make sure they are consistent between steps. Probably initialized with class
+                newgau = GaussianWriter(self.base_name+f'_rot_{alp}_{bet}.com')
+                newcoords = rotate(coords, alpha=alp, beta=bet)
+                newgau.add_block(GaussianInput(command=f"#P {self.theory['low']} OPT(CalcFC)",
+                                    initial_coordinates = newcoords,
+                                    elements = elements,
+                                    header=header))
+                run_apply(newgau.get_run_command())
+
+        return
+
+    def fit_resp(self):
+        pass
+
+    def correct_charge(self):
+        pass
+
+    def correct_atom_types(self):
+        pass
+
+    def write_parameters(self):
+        pass 
+
+
+
+
     
     
 
