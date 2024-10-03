@@ -11,3 +11,6 @@ class Coordinates:
 
     def get_elements(self):
         return [atom.element for atom in self.u.atoms]
+    
+    def rotate(self, axis, angle):
+        pass
