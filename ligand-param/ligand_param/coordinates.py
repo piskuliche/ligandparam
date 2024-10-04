@@ -56,7 +56,7 @@ class Coordinates:
             self.original_coords = coords
         return
 
-    def rotate(self, alpha=0.0, beta=0.0, use_original=False):
+    def rotate(self, alpha=0.0, beta=0.0, gamma=0.0):
         """ Rotate the coordinates 
         
         Parameters
@@ -68,10 +68,21 @@ class Coordinates:
         use_original : bool, optional
             If True, the rotation will be applied to the new coordinates
         """
-        output_coords = None
-        if use_original is True:
-            output_coords = self.original_coords
-        return output_coords
+
+        x, y, z = [1, 0, 0], [0, 1, 0], [0, 0, 1]
+        
+        self.u.atoms.positions = self.original_coords
+
+        rotated = mda.transformations.rotate(angle=alpha, direction=x)
+        self.u.atoms.positions = rotated
+
+        rotated = mda.transformations.rotate(angle=beta, direction=y)
+        self.u.atoms.positions = rotated
+
+        rotated = mda.transformations.rotate(angle=gamma, direction=z)
+        self.u.atoms.positions = rotated
+        return self.get_coordinates()
+
 
 def Rotate(coords, alpha=0.0, beta=0.0):
     pass
