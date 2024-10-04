@@ -1,3 +1,5 @@
+import MDAnalysis.transformations
+
 import MDAnalysis as mda
 import numpy as np
 
@@ -57,7 +59,9 @@ class Coordinates:
         return
 
     def rotate(self, alpha=0.0, beta=0.0, gamma=0.0):
-        """ Rotate the coordinates 
+        """ Rotate the coordinates around specific axes around the center of mass.
+
+        The rotation is done in the order alpha, beta, gamma, and the rotation is done around the center of mass.
         
         Parameters
         ----------
@@ -70,17 +74,21 @@ class Coordinates:
         """
 
         x, y, z = [1, 0, 0], [0, 1, 0], [0, 0, 1]
-        
+        ts = self.u.trajectory.ts
+
         self.u.atoms.positions = self.original_coords
+        com = self.u.atoms.center_of_mass()
 
-        rotated = mda.transformations.rotate(angle=alpha, direction=x)
+        rotated = mda.transformations.rotate.rotateby(angle=alpha, direction=x, point=com)(ts)
         self.u.atoms.positions = rotated
 
-        rotated = mda.transformations.rotate(angle=beta, direction=y)
+        rotated = mda.transformations.rotate.rotateby(angle=beta, direction=y, point=com)(ts)
         self.u.atoms.positions = rotated
 
-        rotated = mda.transformations.rotate(angle=gamma, direction=z)
+        rotated = mda.transformations.rotate.rotateby(angle=gamma, direction=z, point=com)(ts)
         self.u.atoms.positions = rotated
+
+        print(np.shape(self.get_coordinates()))
         return self.get_coordinates()
 
 

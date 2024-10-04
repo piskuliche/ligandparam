@@ -41,7 +41,7 @@ class GaussianWriter:
         with open(self.filename, 'w') as f:
             for link in self.links:
                 for line in link.generate_block():
-                    f.write(line)
+                    f.write(f"{line}\n")
 
         return True
 

@@ -2,7 +2,7 @@ import os
 
 from antechamber_interface import Antechamber
 from gaussian import GaussianInput, GaussianWriter, GaussianReader
-from coordinates import Coordinates, rotate
+from coordinates import Coordinates
 
 
 
@@ -128,18 +128,19 @@ class Parametrization:
         run_apply(f'cd ./gaussianCalcs')
         run_apply(f'{self.init_gaus_run.get_run_command()}')
         _, tmp_coords, _, _ = GaussianReader(self.base_name+'.log').read_log()
-        self.coord_object.update_coords(tmp_coords)
+        self.coord_object.update_coordinates(tmp_coords)
 
         # Loop over the alpha and beta angles
         for alp in alpha:
             for bet in beta:
                 #TODO: add elements and header, and make sure they are consistent between steps. Probably initialized with class
-                newgau = GaussianWriter(self.base_name+f'_rot_{alp}_{bet}.com')
+                newgau = GaussianWriter('gaussianCalcs/'+self.base_name+f'_rot_{alp}_{bet}.com')
                 
                 newgau.add_block(GaussianInput(command=f"#P {self.theory['low']} OPT(CalcFC)",
-                                    initial_coordinates = newcoords,
-                                    elements = elements,
-                                    header=header))
+                                    initial_coordinates = self.coord_object.rotate(alpha=alp, beta=bet),
+                                    elements = self.coord_object.get_elements(),
+                                    header=self.header))
+                newgau.write(dry_run=False)
                 run_apply(newgau.get_run_command())
 
         return
@@ -188,4 +189,5 @@ if __name__ == "__main__":
     print(test.atom_type)
 
     test.initialize()
+    test.run_gaussian(dry_run=True)
 
