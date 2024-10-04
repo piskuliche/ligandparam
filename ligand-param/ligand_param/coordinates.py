@@ -37,7 +37,7 @@ class Coordinates:
 
         return [atom.element for atom in self.u.atoms]
     
-    def update_coordinateS(self, coords, original=False):
+    def update_coordinates(self, coords, original=False):
         """ Updates the coordinates
 
         Parameters
