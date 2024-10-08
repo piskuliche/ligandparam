@@ -1,12 +1,16 @@
 import os
 
 from antechamber_interface import Antechamber
-from gaussian import GaussianInput, GaussianWriter, GaussianReader
+from gaussianIO import GaussianInput, GaussianWriter, GaussianReader
 from coordinates import Coordinates
+from driver import Driver
+from stageinitialize import StageInitialize
+from stagegaussian import StageGaussian
+from stagegausrotation import StageGaussianRotation
+from stagegaussiantomol2 import StageGaussiantoMol2
 
 
-
-class Parametrization:
+class Parametrization(Driver):
     """An example class that represents a simple entity."""
 
 
@@ -20,6 +24,7 @@ class Parametrization:
         netcharge : int, optional
             The net charge of the ligand.
         """
+        super().__init__()
         # Inputs
         self.pdb_filename = pdb_file
         self.net_charge = netcharge
@@ -46,6 +51,7 @@ class Parametrization:
         self.coord_object = None
 
         self._generate_header(nproc, mem)
+        self.coord_object = self.initial_coordinates()
 
         return
     
@@ -57,6 +63,7 @@ class Parametrization:
         directory in the same directory if it doesn't exist yet. 
         
         Parameters
+     H -4.13200  4.46700 -0.47700 
         ----------
         None
         
@@ -144,6 +151,13 @@ class Parametrization:
                 run_apply(newgau.get_run_command())
 
         return
+    
+    def initial_coordinates(self):
+        try:
+            coord_object = Coordinates(self.pdb_filename, filetype='pdb')
+            return coord_object
+        except FileExistsError:
+            raise FileExistsError(f"ERROR: File {self.pdb_filename} does not exist.")
 
     def fit_resp(self):
         pass
@@ -183,11 +197,17 @@ class RNALigand(Parametrization):
 if __name__ == "__main__":
 
     test = FreeLigand('FBKRP.pdb', netcharge=0)
-
+    """
     print(test.pdb_filename)
     print(test.net_charge)
     print(test.atom_type)
 
     test.initialize()
     test.run_gaussian(dry_run=True)
+    """
+    test.add_stage(StageInitialize("Initialize", base_name="FBKRP"))
+    test.add_stage(StageGaussian("Minimize", base_cls=test))
+    test.add_stage(StageGaussianRotation("Rotation1", base_cls=test))
+    test.add_stage(StageGaussiantoMol2("GaussianToMol2", base_cls=test, dry_run=True))
+    test.execute(dry_run=False)
 
