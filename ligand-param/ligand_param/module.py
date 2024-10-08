@@ -8,6 +8,7 @@ from stageinitialize import StageInitialize
 from stagegaussian import StageGaussian
 from stagegausrotation import StageGaussianRotation
 from stagegaussiantomol2 import StageGaussiantoMol2
+from stagenormalizecharges import StageNormalizeCharges
 
 
 class Parametrization(Driver):
@@ -211,5 +212,6 @@ if __name__ == "__main__":
     #test.add_stage(StageGaussian("Minimize", base_cls=test))
     #test.add_stage(StageGaussianRotation("Rotation1", base_cls=test))
     #test.add_stage(StageGaussiantoMol2("GaussianToMol2", base_cls=test))
+    test.add_stage(StageNormalizeCharges("NormalizeCharges", mol2file=test.base_name+"log.mol2", netcharge=0.0))
     test.execute(dry_run=False)
 
