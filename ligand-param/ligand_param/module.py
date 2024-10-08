@@ -207,9 +207,9 @@ if __name__ == "__main__":
     test.initialize()
     test.run_gaussian(dry_run=True)
     """
-    test.add_stage(StageInitialize("Initialize", base_name="FBKRP"))
-    test.add_stage(StageGaussian("Minimize", base_cls=test))
-    test.add_stage(StageGaussianRotation("Rotation1", base_cls=test))
-    test.add_stage(StageGaussiantoMol2("GaussianToMol2", base_cls=test, dry_run=True))
+    #test.add_stage(StageInitialize("Initialize", base_name="FBKRP"))
+    #test.add_stage(StageGaussian("Minimize", base_cls=test))
+    #test.add_stage(StageGaussianRotation("Rotation1", base_cls=test))
+    #test.add_stage(StageGaussiantoMol2("GaussianToMol2", base_cls=test))
     test.execute(dry_run=False)
 

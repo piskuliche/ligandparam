@@ -31,7 +31,7 @@ class StageInitialize(AbstractStage):
     def execute(self, dry_run=False):
         ante = Antechamber()
         ante.call(i=self.base_name+'.pdb', fi='pdb',
-                  o=self.base_name+'.mol2', fo='mol2',
+                  o=self.base_name+'.antechamber.mol2', fo='mol2',
                   c='bcc', nc=self.net_charge,
                   pf='y', at=self.atom_type,
                   run=(not dry_run))
