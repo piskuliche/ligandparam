@@ -12,6 +12,7 @@ class Driver:
     
     def execute(self, dry_run=False):
         for stage in self.stages:
-            stage.execute(dry_run=dry_run)
+            stage._execute(dry_run=dry_run)
         return
+    
     

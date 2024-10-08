@@ -9,6 +9,9 @@ from stagegaussian import StageGaussian
 from stagegausrotation import StageGaussianRotation
 from stagegaussiantomol2 import StageGaussiantoMol2
 from stagenormalizecharges import StageNormalizeCharges
+from stagelazyresp import StageLazyResp
+from stageparmchk import StageParmChk
+from stageleap import StageLeap
 
 
 class Parametrization(Driver):
@@ -68,6 +71,15 @@ class Parametrization(Driver):
         return
 
     
+class LazyLigand(Parametrization):
+    def setup(self):
+        self.stages = [
+            StageInitialize("Initialize", base_name="FBKRP"),
+            StageGaussian("Minimize", base_cls=self),
+            StageLazyResp("LazyResp", base_cls=self),
+            StageParmChk("ParmChk", base_cls=self),
+            StageLeap("Leap", base_cls=self)
+        ]
 
 class FreeLigand(Parametrization):
     pass
@@ -84,7 +96,8 @@ class RNALigand(Parametrization):
 
 if __name__ == "__main__":
 
-    test = FreeLigand('FBKRP.pdb', netcharge=0)
+    test = LazyLigand('FBKRP.pdb', netcharge=0)
+    test.setup()
     """
     print(test.pdb_filename)
     print(test.net_charge)
@@ -97,6 +110,6 @@ if __name__ == "__main__":
     #test.add_stage(StageGaussian("Minimize", base_cls=test))
     #test.add_stage(StageGaussianRotation("Rotation1", base_cls=test))
     #test.add_stage(StageGaussiantoMol2("GaussianToMol2", base_cls=test))
-    test.add_stage(StageNormalizeCharges("NormalizeCharges", mol2file=test.base_name+"log.mol2", netcharge=0.0))
+    #test.add_stage(StageNormalizeCharges("NormalizeCharges", mol2file=test.base_name+"log.mol2", netcharge=0.0))
     test.execute(dry_run=False)
 

@@ -1,7 +1,7 @@
 
 from abc import abstractmethod
 from abstractstage import AbstractStage
-from antechamber_interface import Antechamber
+from interfaces import Antechamber
 
 class StageInitialize(AbstractStage):
     def __init__(self, name, base_name=None, net_charge=None, atom_type=None) -> None:
@@ -29,6 +29,7 @@ class StageInitialize(AbstractStage):
         return stage
 
     def execute(self, dry_run=False):
+        print(f"Executing {self.name} with netcharge={self.net_charge}")
         ante = Antechamber()
         ante.call(i=self.base_name+'.pdb', fi='pdb',
                   o=self.base_name+'.antechamber.mol2', fo='mol2',

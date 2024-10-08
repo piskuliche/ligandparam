@@ -1,3 +1,4 @@
+
 class Antechamber:
     def __init__(self):
         print("Antechamber object created")
@@ -17,6 +18,7 @@ class Antechamber:
         None
             
         """
+        raise DeprecationWarning("This method is deprecated. Use the call method in the SimpleInterface class")
         import subprocess
         run=False
         if "run" in kwargs:

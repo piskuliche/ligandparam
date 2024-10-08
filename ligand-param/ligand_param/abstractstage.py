@@ -15,3 +15,9 @@ class AbstractStage(metaclass=ABCMeta):
 
     def append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return self._append_stage(stage)
+    
+    def _execute(self, dry_run=False) -> None:
+        print("************************************")
+        print(f"Executing {self.name}")
+        print("************************************")
+        self.execute(dry_run=dry_run)
