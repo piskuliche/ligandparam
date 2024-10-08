@@ -176,6 +176,8 @@ class GaussianReader:
         print(f"Found {len(atn)} atoms.")
 
         return atn, coords, charge, multiplicity
+    
+
 
 
 if __name__ == "__main__":
