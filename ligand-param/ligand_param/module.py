@@ -71,6 +71,7 @@ class Parametrization(Driver):
         -------
         None
         """
+        raise NotImplementedError("This function should be implemented in a subclass.")
         # Grab the Coordinates from the PDB file
         try:
             self.coord_object = Coordinates(self.pdb_filename, filetype='pdb')
@@ -121,6 +122,7 @@ class Parametrization(Driver):
         -------
         None
         """
+        raise NotImplementedError("This function should be implemented in a subclass.")
         if self.init_gaus_run is None:
             raise ValueError("Gaussian input file not initialized.")
         
