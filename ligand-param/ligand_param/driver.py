@@ -15,15 +15,3 @@ class Driver:
             stage.execute(dry_run=dry_run)
         return
     
-
-if __name__ == "__main__":
-
-    driver = Driver()
-    driver.add_stage(StageInitialize("Initialize", base_name="F3KRP"))
-    driver.add_stage(StageGaussianRotation("Rotation1", alpha=0.0, beta=0.0))
-    driver.add_stage(StageGaussianRotation("Rotation2", alpha=0.1, beta=0.1))
-    driver.execute()
-    
-    print("Done!")
-    
-    exit(0)
