@@ -1,24 +1,29 @@
 import os
 
-from antechamber_interface import Antechamber
-from gaussianIO import GaussianInput, GaussianWriter, GaussianReader
-from coordinates import Coordinates
-from driver import Driver
-from stageinitialize import StageInitialize
-from stagegaussian import StageGaussian
-from stagegausrotation import StageGaussianRotation
-from stagegaussiantomol2 import StageGaussiantoMol2
-from stagenormalizecharges import StageNormalizeCharges
-from stagelazyresp import StageLazyResp
-from stageparmchk import StageParmChk
-from stageleap import StageLeap
+from ligand_param.antechamber_interface import Antechamber
+from ligand_param.gaussianIO import GaussianInput, GaussianWriter, GaussianReader
+from ligand_param.coordinates import Coordinates
+from ligand_param.driver import Driver
+from ligand_param.stageinitialize import StageInitialize
+from ligand_param.stagegaussian import StageGaussian
+from ligand_param.stagegausrotation import StageGaussianRotation
+from ligand_param.stagegaussiantomol2 import StageGaussiantoMol2
+from ligand_param.stagenormalizecharges import StageNormalizeCharges
+from ligand_param.stagelazyresp import StageLazyResp
+from ligand_param.stageparmchk import StageParmChk
+from ligand_param.stageleap import StageLeap
 
 
 class Parametrization(Driver):
-    """An example class that represents a simple entity."""
+    """This is the base class for all parametrizations, that is a sub class of the Driver class (located in Driver.py).
+    
+    The rough approach to using this class is to generate a new Parametrization class, and then generate self.stages as a list of stages that you want to run.
 
 
-    def __init__(self, pdb_file, netcharge=None, atom_type=None, theory_low='HF/6-31G*', theory_high='PBE1PBE/6-31G*', nproc=6, mem='8GB', interactive=False):
+    """
+
+
+    def __init__(self, pdb_file, netcharge=0.0, atom_type=None, theory_low='HF/6-31G*', theory_high='PBE1PBE/6-31G*', nproc=6, mem='8GB'):
         """Initialize the class with a PDB file and a net charge.
 
         Parameters
@@ -27,6 +32,8 @@ class Parametrization(Driver):
             The path to a PDB file containing the ligand structure.
         netcharge : int, optional
             The net charge of the ligand.
+        atom_type : str, optional
+
         """
         super().__init__()
         # Inputs
@@ -36,26 +43,20 @@ class Parametrization(Driver):
         self.theory={"low":theory_low, 
                      "high":theory_high}
         
+        # Settings for Processor Environment
         self.nproc = nproc
         self.mem = mem
-        self.interactive=interactive
 
-        # Set None behavior
-        if self.net_charge is None:
-            self.net_charge = 0.0
-
-        if self.atom_type is None:
-            self.atom_type = 'gaff2'
 
         # Set the base name
         self.base_name = self.pdb_filename.strip('.pdb')
 
-        # Things set later
-        self.init_gaus_run = None
-        self.coord_object = None
-
+        # Generate the Coordinates
         self._generate_header(nproc, mem)
         self.coord_object = self.initial_coordinates()
+
+        # Print out information for the user.
+        self.print_info()
 
         return
     
@@ -69,12 +70,25 @@ class Parametrization(Driver):
     def _generate_header(self, nproc, mem):
         self.header = [f'%NPROC={nproc}', f'%MEM={mem}']
         return
+    
+    def print_info(self):
+        print(f"New Parametrization for {self.pdb_filename}")
+        print("*******************************")
+        print("User supplied parameters:")
+        print(f"Net charge: {self.net_charge}")
+        print(f"Atom type: {self.atom_type}")
+        print(f"Low level QM Theory: {self.theory['low']}")
+        print(f"High level QM Theory: {self.theory['high']}")
+        print(f"Number of processors: {self.nproc}")
+        print(f"Memory: {self.mem}")
+
+
 
     
 class LazyLigand(Parametrization):
     def setup(self):
         self.stages = [
-            StageInitialize("Initialize", base_name="FBKRP"),
+            StageInitialize("Initialize", base_cls=self),
             StageGaussian("Minimize", base_cls=self),
             StageLazyResp("LazyResp", base_cls=self),
             StageParmChk("ParmChk", base_cls=self),
@@ -98,18 +112,5 @@ if __name__ == "__main__":
 
     test = LazyLigand('FBKRP.pdb', netcharge=0)
     test.setup()
-    """
-    print(test.pdb_filename)
-    print(test.net_charge)
-    print(test.atom_type)
-
-    test.initialize()
-    test.run_gaussian(dry_run=True)
-    """
-    #test.add_stage(StageInitialize("Initialize", base_name="FBKRP"))
-    #test.add_stage(StageGaussian("Minimize", base_cls=test))
-    #test.add_stage(StageGaussianRotation("Rotation1", base_cls=test))
-    #test.add_stage(StageGaussiantoMol2("GaussianToMol2", base_cls=test))
-    #test.add_stage(StageNormalizeCharges("NormalizeCharges", mol2file=test.base_name+"log.mol2", netcharge=0.0))
     test.execute(dry_run=False)
 

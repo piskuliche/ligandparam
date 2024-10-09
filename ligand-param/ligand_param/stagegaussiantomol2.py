@@ -1,7 +1,7 @@
 import MDAnalysis as mda
 
-from abstractstage import AbstractStage
-from antechamber_interface import Antechamber
+from ligand_param.abstractstage import AbstractStage
+from ligand_param.interfaces import Antechamber
 
 class StageGaussiantoMol2(AbstractStage):
     def __init__(self, name, base_cls=None, dry_run = None) -> None:

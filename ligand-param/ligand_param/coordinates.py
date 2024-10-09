@@ -1,10 +1,24 @@
-import MDAnalysis.transformations
 
 import MDAnalysis as mda
 import numpy as np
 
 class Coordinates:
+    """ A class to handle the coordinates of a structure. 
+    
+    This class is a wrapper around the MDAnalysis Universe class, and provides a simple interface to 
+    manipulate the coordinates of a structure.
+    
+    """
     def __init__(self, filename, filetype='pdb'):
+        """ Initialize the coordinates object.
+        
+        Parameters
+        ----------
+        filename : str
+            The filename of the structure to read in
+        filetype : str, optional
+            The filetype of the structure to read in
+        """
         self.filename = filename
         self.u = mda.Universe(filename)
         self.original_coords = self.get_coordinates()
@@ -72,6 +86,7 @@ class Coordinates:
         use_original : bool, optional
             If True, the rotation will be applied to the new coordinates
         """
+        import MDAnalysis.transformations
 
         x, y, z = [1, 0, 0], [0, 1, 0], [0, 0, 1]
         ts = self.u.trajectory.ts

@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 class AbstractStage(metaclass=ABCMeta):
+    """ This is an abstract class for all the stages. """
     @abstractmethod
     def __init__(self, name, **kwargs) -> None:
         pass
