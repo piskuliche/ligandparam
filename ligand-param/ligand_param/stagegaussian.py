@@ -35,7 +35,7 @@ class StageGaussian(AbstractStage):
         if not has_run:
             gau_run = Gaussian()
             gau_run.call(inp_pipe=f'gaussianCalcs/{self.base_cls.base_name}.com', 
-                         out_pipe=f'{self.base_cls.base_name}.log', dry_run=True)
+                         out_pipe=f'{self.base_cls.base_name}.log', dry_run=dry_run)
             return
 
         return
