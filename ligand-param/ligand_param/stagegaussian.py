@@ -1,3 +1,5 @@
+import os
+
 import MDAnalysis as mda
 
 from ligand_param.abstractstage import AbstractStage
@@ -26,6 +28,8 @@ class StageGaussian(AbstractStage):
                                     header=stageheader))
         gau.add_block(GaussianInput(command=f"#P {self.base_cls.theory['low']} GEOM(AllCheck) Guess(Read) NoSymm Pop=mk IOp(6/33=2) GFInput GFPrint", 
                                     header=stageheader))
+        if not os.path.exists(f'gaussianCalcs'):
+            os.mkdir('gaussianCalcs')
         has_run = gau.write(dry_run=dry_run)
 
         if not has_run:
