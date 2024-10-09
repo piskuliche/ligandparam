@@ -45,7 +45,9 @@ class GaussianWriter:
             return False
 
         with open(self.filename, 'w') as f:
-            for link in self.links:
+            for i, link in enumerate(self.links):
+                if i > 0:
+                    f.write("--Link1--\n")
                 for line in link.generate_block():
                     f.write(f"{line}\n")
 
