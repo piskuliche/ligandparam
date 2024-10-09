@@ -42,7 +42,6 @@ class StageGaussian(AbstractStage):
             gau_run.call(inp_pipe=self.base_cls.base_name+'.com', 
                          out_pipe=self.base_cls.base_name+'.log',
                          dry_run=dry_run)
-            return
         os.chdir('..')
 
         return

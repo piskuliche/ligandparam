@@ -1,0 +1,4 @@
+loadamberparams FBKRP.frcmod
+mol = loadmol2 FBKRP.resp.mol2
+saveOff mol FBKRP.off
+quit
