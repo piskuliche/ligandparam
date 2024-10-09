@@ -32,16 +32,16 @@ class StageGaussian(AbstractStage):
         if not os.path.exists(f'gaussianCalcs'):
             os.mkdir('gaussianCalcs')
 
-        os.chdir('gaussianCalcs')
+
 
         has_run = gau.write(dry_run=dry_run)
 
+        os.chdir('gaussianCalcs')
         if not has_run:
             gau_run = Gaussian()
             gau_run.call(inp_pipe=f'{self.base_cls.base_name}.com', 
                          out_pipe=f'{self.base_cls.base_name}.log', dry_run=dry_run)
             return
-        
         os.chdir('..')
 
         return
