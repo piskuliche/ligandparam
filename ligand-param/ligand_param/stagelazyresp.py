@@ -1,8 +1,8 @@
 import MDAnalysis as mda
 import numpy as np
 
-from abstractstage import AbstractStage
-from interfaces import Antechamber
+from ligand_param.abstractstage import AbstractStage
+from ligand_param.interfaces import Antechamber
 
 class StageLazyResp(AbstractStage):
 

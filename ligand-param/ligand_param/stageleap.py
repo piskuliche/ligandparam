@@ -1,6 +1,6 @@
-from abstractstage import AbstractStage
-from leapIO import LeapWriter
-from interfaces import Leap
+from ligand_param.abstractstage import AbstractStage
+from ligand_param.leapIO import LeapWriter
+from ligand_param.interfaces import Leap
 
 class StageLeap(AbstractStage):
     
@@ -24,7 +24,7 @@ class StageLeap(AbstractStage):
             leapgen.add_line(f"loadamberparams {self.base_cls.base_name}.frcmod")
             leapgen.add_line(f"mol = loadmol2 {self.base_cls.base_name}.resp.mol2")
             leapgen.add_line(f"saveOff mol {self.base_cls.base_name}.off")
-            leapgen.add_line("quit")
+            leapgen.add_line("quit")s
             leapgen.write()
 
             leap = Leap()

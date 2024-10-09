@@ -1,8 +1,8 @@
 import MDAnalysis as mda
 
-from abstractstage import AbstractStage
-from coordinates import Coordinates
-from gaussianIO import GaussianWriter, GaussianInput
+from ligand_param.abstractstage import AbstractStage
+from ligand_param.coordinates import Coordinates
+from ligand_param.gaussianIO import GaussianWriter, GaussianInput
 
 
 class StageGaussian(AbstractStage):
