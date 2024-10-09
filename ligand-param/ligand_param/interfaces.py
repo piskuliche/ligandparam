@@ -24,9 +24,9 @@ class SimpleInterface:
         command = [self.method]
         for key, value in kwargs.items():
             if key is "inp_pipe":
-                command.append(f'<', str(value))
+                command.extend(f'<', str(value))
             elif key is "out_pipe":
-                command.append(f'>', str(value))
+                command.extend(f'>', str(value))
             else:
                 if value is not None:
                     command.extend([f'-{key}', str(value)])
