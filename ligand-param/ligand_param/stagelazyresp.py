@@ -23,5 +23,5 @@ class StageLazyResp(AbstractStage):
                   o=self.base_cls.base_name+'.resp.mol2', fo='mol2',
                   gv=0, c='resp',
                   nc=self.base_cls.net_charge,
-                  at='gaff2')
+                  at='gaff2', dry_run = dry_run)
         return

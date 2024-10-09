@@ -29,4 +29,4 @@ class StageInitialize(AbstractStage):
                   o=self.base_cls.base_name+'.antechamber.mol2', fo='mol2',
                   c='bcc', nc=self.base_cls.net_charge,
                   pf='y', at=self.base_cls.atom_type,
-                  run=(not dry_run))
+                  dry_run = dry_run)

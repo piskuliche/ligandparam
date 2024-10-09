@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 
 
@@ -36,14 +38,18 @@ class GaussianWriter:
         """
         if dry_run: 
             self.print()
-            return True
+            return False
+        
+        if os.path.exists(self.filename.strip('.com')+'.log'):
+            print(f"File {self.filename.strip('.com')+'.log'} already exists. Exiting.")
+            return False
 
         with open(self.filename, 'w') as f:
             for link in self.links:
                 for line in link.generate_block():
                     f.write(f"{line}\n")
 
-        return True
+        return False
 
     def print(self):
         for linkno, link in enumerate(self.links):

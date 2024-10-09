@@ -16,19 +16,24 @@ class SimpleInterface:
     
     def call(self, **kwargs):
         import subprocess
-        run = False
-        if "run" in kwargs:
-            run = kwargs['run']
-            del kwargs['run']
+        dry_run = False
+        if "dry_run" in kwargs:
+            dry_run = kwargs['dry_run']
+            del kwargs['dry_run']
     
         command = [self.method]
         for key, value in kwargs.items():
-            if value is not None:
-                command.extend([f'-{key}', str(value)])
-        if run:
-            subprocess.run(command)
-        else:
+            if key is "inp_pipe":
+                command.append(f'< {value}')
+            elif key is "out_pipe":
+                command.append(f'> {value}')
+            else:
+                if value is not None:
+                    command.extend([f'-{key}', str(value)])
+        if dry_run:
             print(command)
+        else:
+            subprocess.run(command)
         return
    
 class Antechamber(SimpleInterface):
@@ -47,4 +52,10 @@ class Leap(SimpleInterface):
     """ This class is a simple interface to call the Leap program. """
     def __init__(self) -> None:
         self.set_method('tleap')
+        return
+
+class Gaussian(SimpleInterface):
+    """ This class is a simple interface to call the Gaussian program. """
+    def __init__(self) -> None:
+        self.set_method('g16')
         return

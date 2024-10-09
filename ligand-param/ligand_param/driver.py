@@ -9,7 +9,12 @@ class Driver:
     
     def execute(self, dry_run=False):
         for stage in self.stages:
-            stage._execute(dry_run=dry_run)
+            try:
+                stage._execute(dry_run=dry_run)
+            except Exception as e:
+                print(f"Error in stage {stage.name}: {e}")
+                print("Exiting")
+                raise e
         return
     
     

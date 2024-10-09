@@ -23,7 +23,7 @@ class Parametrization(Driver):
     """
 
 
-    def __init__(self, pdb_file, netcharge=0.0, atom_type=None, theory_low='HF/6-31G*', theory_high='PBE1PBE/6-31G*', nproc=6, mem='8GB'):
+    def __init__(self, pdb_file, netcharge=0.0, atom_type=None, theory_low='HF/6-31G*', theory_high='PBE1PBE/6-31G*', nproc=6, mem='8GB', leaprc = []):
         """Initialize the class with a PDB file and a net charge.
 
         Parameters
@@ -47,6 +47,10 @@ class Parametrization(Driver):
         self.nproc = nproc
         self.mem = mem
 
+        self.leaprc = []
+        if not leaprc:
+            self.leaprc = ['leaprc.gaff2']
+
 
         # Set the base name
         self.base_name = self.pdb_filename.strip('.pdb')
@@ -58,6 +62,10 @@ class Parametrization(Driver):
         # Print out information for the user.
         self.print_info()
 
+        return
+    
+    def add_leaprc(self, leaprc):
+        self.leaprc.append(leaprc)
         return
     
     def initial_coordinates(self):

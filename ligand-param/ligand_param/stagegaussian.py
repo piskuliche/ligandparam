@@ -3,7 +3,7 @@ import MDAnalysis as mda
 from ligand_param.abstractstage import AbstractStage
 from ligand_param.coordinates import Coordinates
 from ligand_param.gaussianIO import GaussianWriter, GaussianInput
-
+from ligand_param.interfaces import Gaussian
 
 class StageGaussian(AbstractStage):
     def __init__(self, name, base_cls=None) -> None:
@@ -26,7 +26,12 @@ class StageGaussian(AbstractStage):
                                     header=stageheader))
         gau.add_block(GaussianInput(command=f"#P {self.base_cls.theory['low']} GEOM(AllCheck) Guess(Read) NoSymm Pop=mk IOp(6/33=2) GFInput GFPrint", 
                                     header=stageheader))
-        gau.write(dry_run=dry_run)
+        has_run = gau.write(dry_run=dry_run)
 
-        self.init_gaus_run = gau
+        if not has_run:
+            gau_run = Gaussian()
+            gau_run.call(inp_pipe=f'gaussianCalcs/{self.base_cls.base_name}.com', 
+                         out_pipe=f'{self.base_cls.base_name}.log', dry_run=True)
+            return
+
         return
