@@ -17,7 +17,6 @@ class StageGaussian(AbstractStage):
         return stage
 
     def execute(self, dry_run=False):
-        print(f"Executing stage {self.name}")
         stageheader = self.base_cls.header.append(f"%chk={self.base_cls.base_name}.antechamber.chk")
         gau = GaussianWriter(f'gaussianCalcs/{self.base_cls.base_name}.com')
         gau.add_block(GaussianInput(command=f"#P {self.base_cls.theory['low']} OPT(CalcFC)",
@@ -28,8 +27,10 @@ class StageGaussian(AbstractStage):
                                     header=stageheader))
         gau.add_block(GaussianInput(command=f"#P {self.base_cls.theory['low']} GEOM(AllCheck) Guess(Read) NoSymm Pop=mk IOp(6/33=2) GFInput GFPrint", 
                                     header=stageheader))
+        
         if not os.path.exists(f'gaussianCalcs'):
             os.mkdir('gaussianCalcs')
+
         has_run = gau.write(dry_run=dry_run)
 
         if not has_run:
