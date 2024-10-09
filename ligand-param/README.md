@@ -1,13 +1,16 @@
-# My Python Package
+# Ligand Parametrization
 
 ## Overview
-This is a Python package designed to provide [brief description of the package functionality].
+This is a Python package designed to provide a simple workflow for ligand parameterization. It automates many of the 
+key features encountered by users, including...
 
 ## Installation
-To install the package, you can use pip:
+To install the package, do the following
 
 ```
-pip install my-python-package
+cd ligand_param
+pip install .
+cd -
 ```
 
 ## Requirements
@@ -36,3 +39,9 @@ If you would like to contribute to this project, please fork the repository and 
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## TO DO
+
+- Fix issue where gaussian does not run with subprocess.run -> this seems to be a bigger issue.\
+- Add support for multistate resp fitting
+- Add support for 
