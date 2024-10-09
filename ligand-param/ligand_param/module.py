@@ -89,6 +89,8 @@ class Parametrization(Driver):
         print(f"High level QM Theory: {self.theory['high']}")
         print(f"Number of processors: {self.nproc}")
         print(f"Memory: {self.mem}")
+        print("Gaussian header is:")
+        print(self.header)
 
 
 
