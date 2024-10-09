@@ -22,18 +22,24 @@ class SimpleInterface:
             del kwargs['dry_run']
     
         command = [self.method]
+        shell=False
         for key, value in kwargs.items():
             if key is "inp_pipe":
                 command.extend([f'<', str(value)])
+                shell=True
             elif key is "out_pipe":
                 command.extend([f'>', str(value)])
+                shell=True
             else:
                 if value is not None:
                     command.extend([f'-{key}', str(value)])
+
         if dry_run:
             print(command)
         else:
-            subprocess.run(command)
+            print("Executing command")
+            subprocess.run(command, shell=shell)
+            print(f"Command {command} executed")
         return
    
 class Antechamber(SimpleInterface):
