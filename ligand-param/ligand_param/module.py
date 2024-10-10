@@ -1,17 +1,12 @@
 import os
 
-from ligand_param.antechamber_interface import Antechamber
-from ligand_param.gaussianIO import GaussianInput, GaussianWriter, GaussianReader
-from ligand_param.coordinates import Coordinates
+from ligand_param.io.coordinates import Coordinates
 from ligand_param.driver import Driver
-from ligand_param.stageinitialize import StageInitialize
-from ligand_param.stagegaussian import StageGaussian
-from ligand_param.stagegausrotation import StageGaussianRotation
-from ligand_param.stagegaussiantomol2 import StageGaussiantoMol2
-from ligand_param.stagenormalizecharges import StageNormalizeCharges
-from ligand_param.stagelazyresp import StageLazyResp
-from ligand_param.stageparmchk import StageParmChk
-from ligand_param.stageleap import StageLeap
+from ligand_param.stages.initialize import StageInitialize
+from ligand_param.stages.gaussian import StageGaussian, StageGaussianRotation, StageGaussiantoMol2
+from ligand_param.stages.fixcharge import StageNormalizeCharges
+from ligand_param.stages.resp import StageLazyResp
+from ligand_param.stages.leap import StageLeap
 
 
 class Parametrization(Driver):

@@ -1,4 +1,3 @@
-
 import MDAnalysis as mda
 import numpy as np
 
@@ -107,5 +106,3 @@ class Coordinates:
         return self.get_coordinates()
 
 
-def Rotate(coords, alpha=0.0, beta=0.0):
-    pass
