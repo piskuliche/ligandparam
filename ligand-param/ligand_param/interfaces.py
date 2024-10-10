@@ -65,3 +65,47 @@ class Gaussian(SimpleInterface):
     def __init__(self) -> None:
         self.set_method('g16')
         return
+    
+    def call(self, **kwargs):
+        """ This function calls the Gaussian program with the specified arguments,
+        however, it works slightly differently than the other interfaces. The Gaussian
+        interface for some reason isn't compatible with the subprocess.run() function
+        so we instead write a bash script to call the program and then execute the script."""
+        import subprocess
+        dry_run = False
+        if "dry_run" in kwargs:
+            dry_run = kwargs['dry_run']
+            del kwargs['dry_run']
+    
+        command = [self.method]
+        shell=False
+        for key, value in kwargs.items():
+            if key is "inp_pipe":
+                command.extend([f'<', str(value)])
+                shell=True
+            elif key is "out_pipe":
+                command.extend([f'>', str(value)])
+                shell=True
+            else:
+                if value is not None:
+                    command.extend([f'-{key}', str(value)])
+        self.write_bash(' '.join(command))
+        bashcommand = 'bash temp_gaussian_sub.sh'
+        if dry_run:
+            print(bashcommand)
+        else:
+            print("Executing command")
+            subprocess.run(bashcommand, shell=shell)
+            print(f"Command {bashcommand} executed")
+        return
+    
+    def write_bash(self, command):
+        """ This function writes a bash script to call the Gaussian program
+        with the specified arguments. """
+        with open('temp_gaussian_sub.sh', 'w') as f:
+            f.write('#!/bin/bash\n\n')
+            f.write(command)
+        return
+    
+
+            
