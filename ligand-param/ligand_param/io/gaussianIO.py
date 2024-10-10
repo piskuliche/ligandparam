@@ -40,6 +40,7 @@ class GaussianWriter:
             self.print()
             return False
         
+        # TODO: Probably should move this functionality to the actual gaussian stage.
         if os.path.exists(self.filename.strip('.com')+'.log'):
             print(f"File {self.filename.strip('.com')+'.log'} already exists. Exiting.")
             return False

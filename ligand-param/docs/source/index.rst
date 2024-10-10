@@ -10,7 +10,7 @@ Welcome to ligand_param's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+   module
 
 Indices and tables
 ==================

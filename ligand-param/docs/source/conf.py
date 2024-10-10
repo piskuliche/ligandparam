@@ -43,9 +43,11 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx.ext.autosectionlabel",
+    "numpydoc"
 ]
 
 autosectionlabel_prefix_document = True
+autoclass_content = "both"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

@@ -89,8 +89,10 @@ class Gaussian(SimpleInterface):
             else:
                 if value is not None:
                     command.extend([f'-{key}', str(value)])
+                    
         self.write_bash(' '.join(command))
         bashcommand = 'bash temp_gaussian_sub.sh'
+
         if dry_run:
             print(bashcommand)
         else:
