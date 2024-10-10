@@ -7,6 +7,7 @@ from ligand_param.stages.gaussian import StageGaussian, StageGaussianRotation, S
 from ligand_param.stages.fixcharge import StageNormalizeCharges
 from ligand_param.stages.resp import StageLazyResp
 from ligand_param.stages.leap import StageLeap
+from ligand_param.stages.parmchk import StageParmChk
 
 
 class Parametrization(Driver):
