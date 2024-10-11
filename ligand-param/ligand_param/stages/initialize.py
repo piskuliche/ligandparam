@@ -13,15 +13,36 @@ class StageInitialize(AbstractStage):
 
     """
     def __init__(self, name, base_cls=None) -> None:
+        """ Initialize the StageInitialize class. 
+        
+        Parameters
+        ----------
+        name : str
+            The name of the stage
+        base_cls : Ligand
+            The base class of the ligand
+        """
         self.name = name
         self.base_cls = base_cls
         
         return
     
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
+        """ Appends the stage. """
         return stage
 
     def _execute(self, dry_run=False):
+        """ Execute the Gaussian calculations.
+        
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, the stage will not be executed, but the function will print the commands that would
+        
+        Returns
+        -------
+        None
+        """
         ante = Antechamber()
         ante.call(i=self.base_cls.base_name+'.pdb', fi='pdb',
                   o=self.base_cls.base_name+'.antechamber.mol2', fo='mol2',
@@ -30,4 +51,5 @@ class StageInitialize(AbstractStage):
                   dry_run = dry_run)
         
     def _clean(self):
+        """ Clean the files generated during the stage. """
         raise NotImplementedError("clean method not implemented")
