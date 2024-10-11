@@ -7,6 +7,10 @@ class GaussianWriter:
     """ Class to write Gaussian input files """
     def __init__(self, filename):
         """ Initialize the class with a filename
+
+        The filename selected will be the name of the Gaussian input file that is written to 
+        disk. The class also initializes the number of links to zero, and creates an empty list
+        to store the GaussianInput objects.
         
         Parameters
         ----------
@@ -24,7 +28,11 @@ class GaussianWriter:
         return
     
     def write(self, dry_run=False):
-        """ Write the Gaussian input file 
+        """ Write the Gaussian input file to a file
+
+        This function writes the Gaussian input file to disk. If dry_run is set to True, the file will not be written
+        to disk, but will be printed to the screen instead. This is useful for debugging. The file is written in the
+        Gaussian input file format, with the LINK1 blocks separated by the --Link1-- delimiter.
         
         Parameters
         ----------
@@ -55,16 +63,61 @@ class GaussianWriter:
         return False
 
     def print(self):
+        """ Print the Gaussian input file to the screen
+
+        This function prints the Gaussian input file to the screen. This is useful for debugging, or for
+        checking the contents of the file before writing it to disk.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        """
         for linkno, link in enumerate(self.links):
             if linkno == 1: print("--Link1--")
             link.print()
     
     def add_block(self, block):
+        """ Add a GaussianInput block to the GaussianWriter
+        
+        This function adds a GaussianInput block to the GaussianWriter. This block will be written to the
+        Gaussian input file when the write() function is called.
+        
+        Parameters
+        ----------
+        block : GaussianInput
+            The GaussianInput block to add to the GaussianWriter
+        
+        Returns
+        -------
+        None
+        
+        """
         if isinstance(block, GaussianInput):
             self.nlinks += 1
             self.links.append(block)
     
     def get_run_command(self, extension='.com'):
+        """ Get the command to run the Gaussian input file
+        
+        This function returns a string that can be used to run the Gaussian input file. This is useful for
+        debugging, or for running the Gaussian input file from a script.
+        
+        Parameters
+        ----------
+        extension : str, optional
+            The extension of the Gaussian input file
+        
+        Returns
+        -------
+        str
+            The command to run the Gaussian input file
+        
+        """
         if extension not in self.filename:
             raise ValueError("Extension does not match filename.")
         return f"g16 < self.filename > {self.filename.strip(extension)}.log"
@@ -72,7 +125,24 @@ class GaussianWriter:
 class GaussianInput:
     """ Class to represent a Gaussian LINK1 block """
     def __init__(self, command="# HF/6-31G* OPT", elements=None, initial_coordinates=None, charge=0, multiplicity=1, header=None):
+        """ Initialize a Gaussian block with the specified parameters.
 
+        Parameters
+        ----------
+        command : str, optional
+            The command for the Gaussian calculation
+        elements : list, optional
+            A list of atomic symbols
+        initial_coordinates : np.array, optional
+            A numpy array of atomic coordinates
+        charge : int, optional
+            The charge of the molecule
+        multiplicity : int, optional
+            The multiplicity of the molecule
+        header : list, optional
+            A list of strings to be included in the header of the Gaussian input file
+
+        """
 
         if initial_coordinates is not None:
             assert elements is not None, "Elements must be specified if coordinates are provided"
@@ -92,7 +162,10 @@ class GaussianInput:
         return
     
     def generate_block(self):
-        """ Print the Gaussian input block with the information stored in the class
+        """ Generates the gaussina input block as a list of strings
+
+        This function generates the Gaussian input block as a list of strings. This is useful for writing
+        the block to a file, or printing it to the screen.
         
         Parameters
         ----------
@@ -135,7 +208,9 @@ class GaussianReader:
     def read_log(self):
         """ Read the Gaussian log file, and extract information from it.
 
-        This is adapted from ReadGauOutput in Tim's parmutils package.
+        This is adapted from ReadGauOutput in Tim Giese's parmutils package. This reads the 
+        shebang at the end of the file, which contains information about the calculation final
+        results. This works by parsing based on the \\ delimiter in this section.
 
         Parameters
         ----------
@@ -152,10 +227,16 @@ class GaussianReader:
         multiplicity : int
             The multiplicity of the molecule
 
+        To Do
+        -----
+        - Add error handling for missing data
+        - Check that this reads only the FINAL geometry
+
         """
         atn, coords = [], []
         charge, multiplicity = 0, 1
         readflag = False
+        # Open the Gaussian log file
         with open(self.filename,'r') as f:
             arc = ""
             for line in f:

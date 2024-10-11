@@ -7,6 +7,8 @@ from ligand_param.io.coordinates import Coordinates
 from ligand_param.io.gaussianIO import GaussianWriter, GaussianInput
 from ligand_param.interfaces import Gaussian, Antechamber
 
+
+
 class StageGaussian(AbstractStage):
     def __init__(self, name, base_cls=None) -> None:
         self.name = name
