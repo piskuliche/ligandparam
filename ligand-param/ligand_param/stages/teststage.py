@@ -9,6 +9,9 @@ class TestStage(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
-    def execute(self, dry_run=False):
+    def _execute(self, dry_run=False):
         print("This worked!")
         return
+
+    def _clean(self):
+        raise NotImplementedError("clean method not implemented")

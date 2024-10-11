@@ -16,10 +16,13 @@ class StageParmChk(AbstractStage):
         return stage
 
 
-    def execute(self, dry_run=False):
+    def _execute(self, dry_run=False):
         print(f"Executing {self.name} with netcharge={self.base_cls.net_charge}")
         parm = ParmChk()
         parm.call(i=self.base_cls.base_name+'.resp.mol2', f="mol2",
                   o=self.base_cls.base_name+'.frcmod', 
                   s=2, dry_run = dry_run)
         return
+    
+    def _clean(self):
+        raise NotImplementedError("clean method not implemented")

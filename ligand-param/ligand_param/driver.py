@@ -51,11 +51,33 @@ class Driver:
         """
         for stage in self.stages:
             try:
-                stage._execute(dry_run=dry_run)
+                stage.execute(dry_run=dry_run)
             except Exception as e:
                 print(f"Error in stage {stage.name}: {e}")
                 print("Exiting")
                 raise e
         return
+    
+    def clean(self):
+        """ Clean up the files created by the stages. 
+        
+        This function cleans up the files created by the stages. The stages are executed in the
+        reverse order that they were added to the list. If a stage fails, the function will print an error message and
+        exit and be skipped.
+
+        Returns
+        -------
+        None
+        """
+
+        for stage in reversed(self.stages):
+            try:
+                stage._clean()
+            except Exception as e:
+                print(f"Error in stage {stage.name}: {e}")
+                print("Exiting")
+                raise e
+        return
+
     
     

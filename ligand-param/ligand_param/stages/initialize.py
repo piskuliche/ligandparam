@@ -21,10 +21,13 @@ class StageInitialize(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
-    def execute(self, dry_run=False):
+    def _execute(self, dry_run=False):
         ante = Antechamber()
         ante.call(i=self.base_cls.base_name+'.pdb', fi='pdb',
                   o=self.base_cls.base_name+'.antechamber.mol2', fo='mol2',
                   c='bcc', nc=self.base_cls.net_charge,
                   pf='y', at=self.base_cls.atom_type,
                   dry_run = dry_run)
+        
+    def _clean(self):
+        raise NotImplementedError("clean method not implemented")

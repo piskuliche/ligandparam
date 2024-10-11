@@ -16,7 +16,7 @@ class StageLazyResp(AbstractStage):
         return stage
 
 
-    def execute(self, dry_run=False):
+    def _execute(self, dry_run=False):
         print(f"Executing {self.name} with netcharge={self.base_cls.net_charge}")
         ante = Antechamber()
         ante.call(i=f"gaussianCalcs/{self.base_cls.base_name}.log", fi='gout',
@@ -25,3 +25,6 @@ class StageLazyResp(AbstractStage):
                   nc=self.base_cls.net_charge,
                   at='gaff2', dry_run = dry_run)
         return
+    
+    def _clean(self):
+        raise NotImplementedError("clean method not implemented")

@@ -24,7 +24,7 @@ class StageNormalizeCharges(AbstractStage):
         return stage
 
 
-    def execute(self, dry_run=False):
+    def _execute(self, dry_run=False):
         print(f"Executing {self.name} with netcharge={self.netcharge}")
         u = mda.Universe(self.mol2file)
         total_charge = sum(u.atoms.charges)
@@ -37,6 +37,9 @@ class StageNormalizeCharges(AbstractStage):
 
         total_charge = sum(u.atoms.charges)
         print("Total charge after normalization: ", total_charge)
+
+    def _clean(self):
+        raise NotImplementedError("clean method not implemented")
 
 
     def normalize_charges(self, charges, netcharge):
