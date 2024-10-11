@@ -76,6 +76,7 @@ class StageGaussian(AbstractStage):
         if not os.path.exists(f'gaussianCalcs'):
             os.mkdir('gaussianCalcs')
 
+        gau_complete = False    
         # Check if the Gaussian calculation has already been run
         if os.path.exists(f'gaussianCalcs/{self.base_cls.base_name}.log'):
             gau_complete = True
