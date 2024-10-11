@@ -56,8 +56,9 @@ class Parametrization(Driver):
 
 
         # Set the base name
+        print("!!!!! ", self.pdb_filename)
         self.base_name = self.pdb_filename.strip('.pdb')
-
+        print("!!!!! ", self.base_name)
         # Generate the Coordinates
         self._generate_header(nproc, mem)
         self.coord_object = self.initial_coordinates()
