@@ -26,3 +26,10 @@ class AbstractStage(metaclass=ABCMeta):
         print(f"Executing {self.name}")
         print("************************************")
         self._execute(dry_run=dry_run)
+
+    def clean(self) -> None:
+        print("************************************")
+        print(f"Cleaning {self.name}")
+        print("************************************")
+        self._clean()
+        return

@@ -72,7 +72,11 @@ class Driver:
 
         for stage in reversed(self.stages):
             try:
-                stage._clean()
+                stage.clean()
+            except NotImplementedError:
+                print(f"Clean method not implemented for stage {stage.name}")
+                print("Skipping...")
+                continue
             except Exception as e:
                 print(f"Error in stage {stage.name}: {e}")
                 print("Exiting")
