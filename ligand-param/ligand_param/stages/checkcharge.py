@@ -16,6 +16,9 @@ class StageCheckCharge(AbstractStage):
         return stage
 
     def _execute(self, dry_run=False):
+        import warnings 
+        # Supress the inevitable mol2 file warnings.
+        warnings.filterwarnings("ignore")
         u = mda.Universe(self.filename, format=self.filetype)
         total_charge = sum(u.atoms.charges)
         print("Total charge: ", total_charge)
