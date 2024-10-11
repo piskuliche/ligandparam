@@ -66,10 +66,13 @@ class StageGaussian(AbstractStage):
         gau.add_block(GaussianInput(command=f"#P {self.base_cls.theory['low']} OPT(CalcFC)",
                                     initial_coordinates = self.base_cls.coord_object.get_coordinates(),
                                     elements = self.base_cls.coord_object.get_elements(),
+                                    charge = self.base_cls.net_charge,
                                     header=stageheader))
         gau.add_block(GaussianInput(command=f"#P {self.base_cls.theory['high']} OPT(CalcFC) GEOM(ALLCheck) Guess(Read)", 
+                                    charge=self.base_cls.net_charge,
                                     header=stageheader))
         gau.add_block(GaussianInput(command=f"#P {self.base_cls.theory['low']} GEOM(AllCheck) Guess(Read) NoSymm Pop=mk IOp(6/33=2) GFInput GFPrint", 
+                                    charge=self.base_cls.net_charge,
                                     header=stageheader))
         
         # Check if the path exists, and make if needed.
