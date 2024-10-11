@@ -19,7 +19,11 @@ class Parametrization(Driver):
     """
 
 
-    def __init__(self, pdb_file, netcharge=0.0, atom_type=None, theory_low='HF/6-31G*', theory_high='PBE1PBE/6-31G*', nproc=6, mem='8GB', leaprc = []):
+    def __init__(self, pdb_file, netcharge=0.0, atom_type=None, 
+                 theory_low='HF/6-31G*', theory_high='PBE1PBE/6-31G*', 
+                 nproc=6, mem='8GB',
+                leaprc = [],
+                force_gaussian_rerun=False):
         """Initialize the class with a PDB file and a net charge.
 
         Parameters
@@ -38,6 +42,7 @@ class Parametrization(Driver):
         self.atom_type = atom_type
         self.theory={"low":theory_low, 
                      "high":theory_high}
+        self.force_gaussian_rerun = force_gaussian_rerun
         
         # Settings for Processor Environment
         self.nproc = nproc
@@ -87,6 +92,10 @@ class Parametrization(Driver):
         print(f"Memory: {self.mem}")
         print("Gaussian header is:")
         print(self.header)
+        if self.force_gaussian_rerun:
+            print("Forcing Gaussian calculations to rerun.")
+        else
+            print("Defaulting to NOT rerunning Gaussian calculations.")
 
 
 

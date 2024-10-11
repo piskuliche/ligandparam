@@ -37,7 +37,7 @@ class StageGaussian(AbstractStage):
         if os.path.exists(f'gaussianCalcs/{self.base_cls.base_name}.log'):
             gau_complete = True
 
-        if self.base_cls.gaussian_rerun:
+        if self.base_cls.force_gaussian_rerun:
             gau_complete = False
 
         os.chdir('gaussianCalcs')
