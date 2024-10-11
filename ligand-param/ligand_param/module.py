@@ -19,7 +19,7 @@ class Parametrization(Driver):
     """
 
 
-    def __init__(self, pdb_file, netcharge=0.0, atom_type=None, 
+    def __init__(self, pdb_file, netcharge=0.0, atom_type="gaff2", 
                  theory_low='HF/6-31G*', theory_high='PBE1PBE/6-31G*', 
                  nproc=6, mem='8GB',
                 leaprc = [],
@@ -33,6 +33,7 @@ class Parametrization(Driver):
         netcharge : int, optional
             The net charge of the ligand.
         atom_type : str, optional
+            The atom type to use for the ligand. Default is 'gaff2'.
 
         """
         super().__init__()
@@ -43,7 +44,8 @@ class Parametrization(Driver):
         self.theory={"low":theory_low, 
                      "high":theory_high}
         self.force_gaussian_rerun = force_gaussian_rerun
-        
+
+
         # Settings for Processor Environment
         self.nproc = nproc
         self.mem = mem
