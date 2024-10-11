@@ -32,6 +32,7 @@ class Driver:
 
         """
         self.stages.append(stage.append_stage(stage))
+        self.list_stages()
         return
     
     def execute(self, dry_run=False):
@@ -81,6 +82,68 @@ class Driver:
                 print(f"Error in stage {stage.name}: {e}")
                 print("Exiting")
                 raise e
+        return
+    
+    def list_stages(self):
+        """ Print out the list of stages to run. 
+        
+        This function prints out the list of stages that are in the list of stages to run. The stages are printed in the
+        order that they were added to the list.
+
+        Returns
+        -------
+        None
+        """
+        print("********************************")
+        print("List of Stages to Run")
+        for stage in self.stages:
+            print(f"-->{stage.name}")
+        return
+    
+    def remove_stage(self, stage_name):
+        """ Remove a stage from the list of stages to run. 
+        
+        This function removes a stage from the list of stages to run. If the stage is not in the list, the function will
+        print an error message and exit.
+
+        Parameters
+        ----------
+        stage_name : str
+            The name of the stage to remove from the list of stages to run.
+        
+        Returns
+        -------
+        None
+        """
+        for stage in self.stages:
+            if stage.name == stage_name:
+                self.stages.remove(stage)
+                print(f"Stage {stage_name} removed.")
+                self.list_stages()
+                return
+        print(f"Stage {stage_name} not found in list of stages.")
+        return
+    
+    def insert_stage(self, newstage, stage_name):
+        """ Insert a stage into the list of stages to run before the specified stage.
+        
+        This function inserts a stage into the list of stages to run before the specified stage. If the specified stage
+        is not in the list, the function will print an error message and exit.
+        
+        Parameters
+        ----------
+        stage_name : str
+            The name of the stage to insert into the list of stages to run.
+        """
+        idx = -1
+        for stage in self.stages:
+            if stage.name == stage_name:
+                idx = self.stages.index(stage)
+                self.stages.insert(idx, newstage)
+                print(f"Stage {newstage.name} inserted before {stage_name}")
+                self.list_stages()
+                return
+        print(f"Stage {stage_name} not found in list of stages.")
         return
 
     
