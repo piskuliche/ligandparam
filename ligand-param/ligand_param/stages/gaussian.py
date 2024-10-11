@@ -18,7 +18,7 @@ class StageGaussian(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
-    def execute(self, dry_run=False):
+    def _execute(self, dry_run=False):
         stageheader = self.base_cls.header
         stageheader.append(f"%chk={self.base_cls.base_name}.antechamber.chk")
         gau = GaussianWriter(f'gaussianCalcs/{self.base_cls.base_name}.com')
@@ -34,12 +34,15 @@ class StageGaussian(AbstractStage):
         if not os.path.exists(f'gaussianCalcs'):
             os.mkdir('gaussianCalcs')
 
+        if os.path.exists(f'gaussianCalcs/{self.base_cls.base_name}.log'):
+            gau_complete = True
 
-
-        has_run = gau.write(dry_run=dry_run)
+        if self.base_cls.gaussian_rerun:
+            gau_complete = False
 
         os.chdir('gaussianCalcs')
-        if not has_run:
+        if not gau_complete:
+            gau.write(dry_run=dry_run)
             gau_run = Gaussian()
             gau_run.call(inp_pipe=self.base_cls.base_name+'.com', 
                          out_pipe=self.base_cls.base_name+'.log',
@@ -47,6 +50,9 @@ class StageGaussian(AbstractStage):
         os.chdir('..')
 
         return
+    
+    def _clean(self):
+        raise NotImplementedError("clean method not implemented")
     
 class StageGaussianRotation(AbstractStage):
     def __init__(self, name, alpha = [0.0], beta = [0.0], gamma = [0.0], base_cls=None) -> None:
@@ -71,7 +77,7 @@ class StageGaussianRotation(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
-    def execute(self, dry_run=False):
+    def _execute(self, dry_run=False):
         print(f"Executing {self.name} with alpha={self.alpha}, beta={self.beta}, and gamma={self.gamma}")
 
         run_apply = print
@@ -90,6 +96,9 @@ class StageGaussianRotation(AbstractStage):
                     run_apply(newgau.get_run_command())
         
         return
+    
+    def _clean(self):
+        raise NotImplementedError("clean method not implemented")
     
 class StageGaussiantoMol2(AbstractStage):
     def __init__(self, name, base_cls=None, dry_run = None) -> None:
@@ -131,3 +140,6 @@ class StageGaussiantoMol2(AbstractStage):
                   run=(not dry_run))
         
         return
+    
+    def _clean(self):
+        raise NotImplementedError("clean method not implemented")

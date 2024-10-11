@@ -46,12 +46,7 @@ class GaussianWriter:
         """
         if dry_run: 
             self.print()
-            return False
-        
-        # TODO: Probably should move this functionality to the actual gaussian stage.
-        if os.path.exists(self.filename.strip('.com')+'.log'):
-            print(f"File {self.filename.strip('.com')+'.log'} already exists. Exiting.")
-            return False
+            return 
 
         with open(self.filename, 'w') as f:
             for i, link in enumerate(self.links):
@@ -60,7 +55,7 @@ class GaussianWriter:
                 for line in link.generate_block():
                     f.write(f"{line}\n")
 
-        return False
+        return 
 
     def print(self):
         """ Print the Gaussian input file to the screen
