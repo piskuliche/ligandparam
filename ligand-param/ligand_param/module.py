@@ -94,7 +94,7 @@ class Parametrization(Driver):
 class LazyLigand(Parametrization):
     def setup(self):
         self.stages = [
-            #StageInitialize("Initialize", base_cls=self),
+            StageInitialize("Initialize", base_cls=self),
             StageGaussian("Minimize", base_cls=self),
             StageLazyResp("LazyResp", base_cls=self),
             StageParmChk("ParmChk", base_cls=self),
