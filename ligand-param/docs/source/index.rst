@@ -19,3 +19,20 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+Example Script
+==============
+
+.. code-block:: python 
+
+   from ligand_param.module import *
+   from ligand_param.stages.checkcharge import StageCheckCharge
+
+   test = LazyLigand('FBKRP.pdb', netcharge=0,nproc=12,mem='40GB')
+   test.setup()
+   test.list_stages()
+   test.insert_stage(StageCheckCharge("Check1", filename='FBKRP.resp.mol2', filetype='MOL2'),"Leap")
+   test.add_stage(StageCheckCharge("Check2", filename='FBKRP.resp.mol2', filetype='MOL2'))
+   test.remove_stage("Check1")
+   test.execute(dry_run=False)
+   test.clean()
