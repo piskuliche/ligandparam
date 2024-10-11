@@ -4,7 +4,7 @@ import numpy as np
 from ligand_param.stages.abstractstage import AbstractStage
 
 class StageNormalizeCharges(AbstractStage):
-
+    """ This is a class for normalizing charges. """
     def __init__(self, name, mol2file=None, netcharge=None) -> None:
         self.name = name
         if mol2file is None:

@@ -11,6 +11,7 @@ Welcome to ligand_param's documentation!
    :caption: Contents:
 
    module
+   stages
 
 Indices and tables
 ==================

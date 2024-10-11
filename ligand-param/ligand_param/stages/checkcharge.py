@@ -23,7 +23,7 @@ class StageCheckCharge(AbstractStage):
         total_charge = sum(u.atoms.charges)
         print("Total charge: ", total_charge)
         compare_charge = self.netcharge - total_charge
-        if np.round(compare_charge, 2) != 0.0:
+        if np.round(compare_charge, 4) != 0.0:
             print("Error: Total charge does not match the net charge")
             print(f"Net charge: {self.netcharge}, Total charge: {total_charge}")
             print(f"Charge difference: {compare_charge}")
