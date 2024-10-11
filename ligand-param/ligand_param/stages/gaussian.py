@@ -84,11 +84,13 @@ class StageGaussian(AbstractStage):
         # Check if the Gaussian calculation should be rerun
         if self.base_cls.force_gaussian_rerun:
             gau_complete = False
+        
+        if not gau_complete:
+            gau.write(dry_run=dry_run)
 
         # Run the Gaussian calculations in the gaussianCalcs directory
         os.chdir('gaussianCalcs')
         if not gau_complete:
-            gau.write(dry_run=dry_run)
             gau_run = Gaussian()
             gau_run.call(inp_pipe=self.base_cls.base_name+'.com', 
                          out_pipe=self.base_cls.base_name+'.log',
