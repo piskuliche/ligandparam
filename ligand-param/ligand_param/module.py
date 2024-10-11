@@ -94,7 +94,7 @@ class Parametrization(Driver):
         print(self.header)
         if self.force_gaussian_rerun:
             print("Forcing Gaussian calculations to rerun.")
-        else
+        else:
             print("Defaulting to NOT rerunning Gaussian calculations.")
 
 
