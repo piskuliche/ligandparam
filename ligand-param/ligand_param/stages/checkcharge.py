@@ -7,6 +7,8 @@ class StageCheckCharge(AbstractStage):
     """ This is an abstract class for all the stages. """
     def __init__(self, name, filename = None, filetype = None) -> None:
         self.name = name
+        self.filename = filename
+        self.filetype = filetype
         pass
     
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
