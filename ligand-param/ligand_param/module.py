@@ -1,4 +1,5 @@
 import os
+import pathlib
 
 from ligand_param.io.coordinates import Coordinates
 from ligand_param.driver import Driver
@@ -56,9 +57,8 @@ class Parametrization(Driver):
 
 
         # Set the base name
-        print("!!!!! ", self.pdb_filename)
-        self.base_name = self.pdb_filename.strip('.pdb')
-        print("!!!!! ", self.base_name)
+        self.base_name = pathlib.Path(self.pdb_filename).stem
+        
         # Generate the Coordinates
         self._generate_header(nproc, mem)
         self.coord_object = self.initial_coordinates()
@@ -129,7 +129,7 @@ class LazyLigand(Parametrization):
     def setup(self):
         self.stages = [
             StageInitialize("Initialize", base_cls=self),
-            StageGaussian("Minimize", base_cls=self),
+            StageGaussian("Minimize", base_cls=selStageGaussian("Minimize", base_cls=se
             StageLazyResp("LazyResp", base_cls=self),
             StageParmChk("ParmChk", base_cls=self),
             StageLeap("Leap", base_cls=self)
