@@ -51,5 +51,23 @@ class StageInitialize(AbstractStage):
                   dry_run = dry_run)
         
     def _clean(self):
-        """ Clean the files generated during the stage. """
+        """ Clean the files generated during the stalsge. """
         raise NotImplementedError("clean method not implemented")
+    
+"""
+class StageSmilestoPDB(AbstractStage):
+     This class is used to initialize from smiles to pdb.
+    
+    def __init__(self, name, base_cls=None) -> None:
+        pass
+    
+    def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
+        pass
+    
+    def _execute(self, dry_run=False):
+        pass
+    
+    def _clean(self):
+        pass
+    
+    """

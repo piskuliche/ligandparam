@@ -47,3 +47,60 @@ class StageLazyResp(AbstractStage):
     def _clean(self):
         """ Clean the files generated during the stage. """
         raise NotImplementedError("clean method not implemented")
+
+class StageMultiRespFit(AbstractStage):
+    """ This class runs a multi-state resp fitting calculation, based on 
+        multiple gaussian output files. 
+        
+        TODO: Implement this class.
+        TODO: Implement the clean method.
+        TODO: Implement the execute method.
+        TODO: Add a check that a multistate resp fit is possible. 
+        """
+    def __init__(self, name, base_cls=None) -> None:
+        """ Initialize the StageMultiRespFit class.
+
+        Parameters
+        ----------
+        name : str
+            The name of the stage
+        base_cls : Ligand
+            The base class of the ligand
+        """
+        self.name = name
+        self.base_cls = base_cls
+        return
+    
+    def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
+        """ Appends the stage. """
+        return stage
+    
+    def _execute(self, dry_run=False):
+        """Execute a multi-state respfitting calculation.
+
+        if __name__ == "__main__":
+        comp = parmutils.BASH( 12 )
+        model = rf.ResidueResp( comp, 1 )
+
+
+        model.add_state( "$base", "$base.log.mol2", glob.glob("gaussianCalcs/$base_*.log"), qmmask="@*" )
+
+
+        model.multimolecule_fit(True)
+        model.perform_fit("@*",unique_residues=False)
+        #model.preserve_residue_charges_by_shifting()
+        model.print_resp()
+
+
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, the stage will not be executed, but the function will print the commands that would
+
+        """
+        
+        return
+
+    def _clean(self):
+        """ Clean the files generated during the stage. """
+        raise NotImplementedError("clean method not implemented")

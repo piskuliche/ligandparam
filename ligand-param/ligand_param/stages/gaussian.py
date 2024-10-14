@@ -169,17 +169,36 @@ class StageGaussianRotation(AbstractStage):
                     self._print_rotation(a, b, g)
                     test_rotation = self.base_cls.coord_object.rotate(alpha=a, beta=b, gamma=g)
                     store_coords.append(test_rotation)
-                    """
-                    newgau = GaussianWriter('gaussianCalcs/'+self.base_cls.base_name+f'_rot_{a}_{b}_{g}.com')
-                    
-                    newgau.add_block(GaussianInput(command=f"#P {self.base_cls.theory['low']} OPT(CalcFC)",
-                                        initial_coordinates = self.base_cls.coord_object.rotate(alpha=a, beta=b),
+                    # Write a guassian input file
+                    newgau = GaussianWriter(f'gaussianCalcs/{self.base_cls.base_name}_rot_{a}_{b}_{g}.com')
+                    newgau.add_block(GaussianInput(command=f"#P {self.base_cls.theory['low']} OPT(CalcFC) SCF(Conver=6) NoSymm Test Pop=mk IOp(6/33=2) GFInput GFPrint",
+                                        initial_coordinates = test_rotation,
                                         elements = self.base_cls.coord_object.get_elements(),
                                         header=self.base_cls.header))
                     newgau.write(dry_run=dry_run)
-                    run_apply(newgau.get_run_command())
-                    """
+
+        # Write the coordinates to a "trajectory" file
         self.write_rotation(store_coords)
+
+        # Run the Gaussian calculations in the gaussianCalcs directory
+        os.chdir(calc_dir)
+        try:
+            for a in self.alpha:
+                for b in self.beta:
+                    for g in self.gamma:
+                        if dry_run:
+                            print("Dry run: Gaussian calculations not run")
+                            print("Would run the following file:")
+                            print(f'-->{self.base_cls.base_name}_rot_{a}_{b}_{g}.com')
+                        else:
+                            gau_run = Gaussian()
+                            gau_run.call(inp_pipe=f'{self.base_cls.base_name}_rot_{a}_{b}_{g}.com', 
+                                    out_pipe=f'{self.base_cls.base_name}_rot_{a}_{b}_{g}.log',
+                                    dry_run=True)
+        finally:
+            os.chdir(orig_dir)
+
+
 
         return
     
@@ -245,12 +264,16 @@ class StageGaussiantoMol2(AbstractStage):
         if self.dry_run is not None:
             dry_run = self
 
+        logfile = Path(f'gaussianCalcs/{self.base_cls.base_name}.log')
+        if not logfile.exists():
+            print(f"Problem with {logfile}")
+            raise FileNotFoundError(f"Error (Stage {self.name}): Gaussian log file not found")
         # Convert from gaussian to mol2
         ante = Antechamber()
-        ante.call(i=self.base_cls.base_name+'.log', fi='gout',
+        ante.call(i=logfile, fi='gout',
                   o=self.base_cls.base_name+'.tmp1.mol2', fo='mol2',
                   pf='y', at=self.base_cls.atom_type,
-                  run=(not dry_run))
+                  dry_run = dry_run)
 
         # Assign the charges 
         if not dry_run:
@@ -268,7 +291,7 @@ class StageGaussiantoMol2(AbstractStage):
         ante.call(i=self.base_cls.base_name+'.tmp2.mol2', fi='mol2',
                   o=self.base_cls.base_name+'.log.mol2', fo='mol2',
                   pf='y', at=self.base_cls.atom_type,
-                  run=(not dry_run))
+                  dry_run = dry_run)
         
         return
     
