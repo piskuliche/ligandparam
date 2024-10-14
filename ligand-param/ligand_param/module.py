@@ -149,7 +149,8 @@ class FreeLigand(Parametrization):
     3. Minimize the ligand using Gaussian at a high level of theory.
     4. Calculate the RESP charges using Gaussian at the low level of theory.
     """
-    raise NotImplementedError("This class is not yet implemented. For now, use LazyLigand.")
+    def __init__(self):
+        raise NotImplementedError("This class is not yet implemented. For now, use LazyLigand.")
 
 class ProteinLigand(Parametrization):
     def new():
@@ -159,7 +160,13 @@ class RNALigand(Parametrization):
     def new():
         pass
 
-
+class TestParametrization(Parametrization):
+    import warnings
+    warnings.warn("This is a class to test features of this package. Do not use it for real work.")
+    def setup(self):
+        self.stages = [
+            StageInitialize("Initialize", base_cls=self),
+        ]
 
 if __name__ == "__main__":
 
