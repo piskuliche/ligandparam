@@ -167,7 +167,6 @@ class StageGaussianRotation(AbstractStage):
             for b in self.beta:
                 for g in self.gamma:
                     self._print_rotation(a, b, g)
-                    #TODO: add elements and header, and make sure they are consistent between steps. Probably initialized with class
                     test_rotation = self.base_cls.coord_object.rotate(alpha=a, beta=b, gamma=g)
                     store_coords.append(test_rotation)
                     """
@@ -180,7 +179,8 @@ class StageGaussianRotation(AbstractStage):
                     newgau.write(dry_run=dry_run)
                     run_apply(newgau.get_run_command())
                     """
-        
+        self.write_rotation(store_coords)
+
         return
     
     def _print_rotation(self, alpha, beta, gamma):
@@ -190,7 +190,7 @@ class StageGaussianRotation(AbstractStage):
     
     def write_rotation(self, coords):
         """ Write the rotation to a file. """
-
+        print(f"--> Writing rotations to file: gaussianCalcs/{self.base_cls.base_name}_rotations.xyz")
         with open(f'gaussianCalcs/{self.base_cls.base_name}_rotations.xyz', 'w') as file_obj:
             for frame in coords:
                 SimpleXYZ(file_obj, frame)

@@ -85,6 +85,9 @@ class Coordinates:
         use_original : bool, optional
             If True, the rotation will be applied to the new coordinates
         """
+        import warnings
+        warnings.filterwarnings("ignore") # There is a deprecation warning that will eventually break this code, but this is something that is broken in MDAnalysis
+        import MDAnalysis.transformations
 
         x, y, z = [1, 0, 0], [0, 1, 0], [0, 0, 1]
         ts = self.u.trajectory.ts
