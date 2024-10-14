@@ -129,7 +129,7 @@ class LazyLigand(Parametrization):
     def setup(self):
         self.stages = [
             StageInitialize("Initialize", base_cls=self),
-            StageGaussian("Minimize", base_cls=selStageGaussian("Minimize", base_cls=se
+            StageGaussian("Minimize", base_cls=self),
             StageLazyResp("LazyResp", base_cls=self),
             StageParmChk("ParmChk", base_cls=self),
             StageLeap("Leap", base_cls=self)
@@ -158,7 +158,7 @@ class ProteinLigand(Parametrization):
 class RNALigand(Parametrization):
     def new():
         pass
-    
+
 
 
 if __name__ == "__main__":
