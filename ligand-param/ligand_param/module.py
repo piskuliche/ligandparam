@@ -58,7 +58,7 @@ class Parametrization(Driver):
 
         # Set the base name
         self.base_name = pathlib.Path(self.pdb_filename).stem
-        
+
         # Generate the Coordinates
         self._generate_header(nproc, mem)
         self.coord_object = self.initial_coordinates()
@@ -136,7 +136,20 @@ class LazyLigand(Parametrization):
         ]
 
 class FreeLigand(Parametrization):
-    pass
+    """ This is a class for parametrizing a ligand that is free in solution.
+    
+    Thgis class is designed to follow what has been the York group's best practices for parametrizing ligands.
+    If your ligand is weird in any way, you should use a different class. 
+    
+    This class does a parametrization using Gaussian and Antechamber, using also a multi-state RESP calculation.
+    
+    The steps are:
+    1. Initialize the ligand using the PDB file.
+    2. Minimize the ligand using Gaussian at a low level of theory.
+    3. Minimize the ligand using Gaussian at a high level of theory.
+    4. Calculate the RESP charges using Gaussian at the low level of theory.
+    """
+    raise NotImplementedError("This class is not yet implemented. For now, use LazyLigand.")
 
 class ProteinLigand(Parametrization):
     def new():

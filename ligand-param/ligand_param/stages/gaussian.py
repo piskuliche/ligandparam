@@ -1,6 +1,7 @@
 import os
-
 import MDAnalysis as mda
+
+from pathlib import Path
 
 from ligand_param.stages.abstractstage import AbstractStage
 from ligand_param.io.coordinates import Coordinates
@@ -61,7 +62,8 @@ class StageGaussian(AbstractStage):
         stageheader = self.base_cls.header
         stageheader.append(f"%chk={self.base_cls.base_name}.antechamber.chk")
 
-        # Set up the Gaussian Block
+        # Set up the Gaussian Block - it does not yet write anything,
+        # so this part can be set up before the Gaussian calculations are run.
         gau = GaussianWriter(f'gaussianCalcs/{self.base_cls.base_name}.com')
         gau.add_block(GaussianInput(command=f"#P {self.base_cls.theory['low']} OPT(CalcFC)",
                                     initial_coordinates = self.base_cls.coord_object.get_coordinates(),
@@ -152,13 +154,22 @@ class StageGaussianRotation(AbstractStage):
         -------
         """
 
+        # Check if the path exists, and make if needed
+        orig_dir = Path.cwd()
+        calc_dir = Path('gaussianCalcs')
+        if not calc_dir.exists():
+            calc_dir.mkdir()
+
         run_apply = print
 
         for a in self.alpha:
             for b in self.beta:
                 for g in self.gamma:
+
                     #TODO: add elements and header, and make sure they are consistent between steps. Probably initialized with class
-                    newgau = GaussianWriter('gaussianCalcs/'+self.base_cls.base_name+f'_rot_{a}_{b}.com')
+                    test_rotation = self.base_cls.coord_object.rotate(alpha=a, beta=b, gamma=g)
+                    """
+                    newgau = GaussianWriter('gaussianCalcs/'+self.base_cls.base_name+f'_rot_{a}_{b}_{g}.com')
                     
                     newgau.add_block(GaussianInput(command=f"#P {self.base_cls.theory['low']} OPT(CalcFC)",
                                         initial_coordinates = self.base_cls.coord_object.rotate(alpha=a, beta=b),
@@ -166,6 +177,7 @@ class StageGaussianRotation(AbstractStage):
                                         header=self.base_cls.header))
                     newgau.write(dry_run=dry_run)
                     run_apply(newgau.get_run_command())
+                    """
         
         return
     
