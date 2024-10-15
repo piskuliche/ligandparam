@@ -176,7 +176,7 @@ class GaussianInput:
                 lines.append(line)
         lines.append(f"{self.command}\n")
         lines.append("Gaussian Calculation\n")
-        lines.append(f"{self.charge} {self.multiplicity}")
+        lines.append(f"{int(self.charge)} {self.multiplicity}")
         if self.elements is not None:
             for i, element in enumerate(self.elements):
                 lines.append(f"     {element} {self.coords[i][0]: >8.5f} {self.coords[i][1]: >8.5f} {self.coords[i][2]: >8.5f} ")
