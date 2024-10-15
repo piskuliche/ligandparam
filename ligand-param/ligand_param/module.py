@@ -197,8 +197,6 @@ class RNALigand(Parametrization):
         pass
 
 class TestParametrization(Parametrization):
-    import warnings
-    warnings.warn("This is a class to test features of this package. Do not use it for real work.")
     def setup(self):
         self.stages = [
             StageInitialize("Initialize", base_cls=self),
