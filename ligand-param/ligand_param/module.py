@@ -80,7 +80,8 @@ class Parametrization(Driver):
         except FileExistsError:
             raise FileExistsError(f"ERROR: File {self.pdb_filename} does not exist.")
         
-    def _generate_header(self, nproc, mem):from ligand_param.stages.fixcharge import StageNormalizeCharges={mem}']
+    def _generate_header(self, nproc, mem):
+        self.header = [f'%NPROC={nproc}', f'%MEM={mem}']
         return
     
     def print_info(self):
