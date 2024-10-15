@@ -136,7 +136,7 @@ class StageNormalizeCharge(AbstractStage):
         
         TODO: Check what happens when netcharge is nonzero
         TODO: Check what happens when charge difference is larger than the number of atoms
-        
+
         """
         import warnings
         # Supress the inevitable mol2 file warnings.
@@ -148,7 +148,6 @@ class StageNormalizeCharge(AbstractStage):
         total_charge, charge_difference = self.check_charge(u.atoms.charges)
         
         if charge_difference != 0.0:
-            print(f"-> Charge difference is {charge_difference}")
             print("-> Normalizing charges")
             charges = self.normalize(u.atoms.charges, charge_difference)
             new_total, new_diff = self.check_charge(charges)

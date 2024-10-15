@@ -260,7 +260,9 @@ class StageGaussiantoMol2(AbstractStage):
         None
 
         """
-
+        import warnings
+        warnings.filterwarnings("ignore")
+        
         if self.dry_run is not None:
             dry_run = self
 
