@@ -145,12 +145,44 @@ class FreeLigand(Parametrization):
     
     The steps are:
     1. Initialize the ligand using the PDB file.
-    2. Minimize the ligand using Gaussian at a low level of theory.
-    3. Minimize the ligand using Gaussian at a high level of theory.
-    4. Calculate the RESP charges using Gaussian at the low level of theory.
+    2. Normalize the charges to preserve neutrality.
+    3. Minimize the ligand using Gaussian
+        (a) At a low level of theory
+        (b) At a high level of theory
+        (c) Calculate the RESP charges using Gaussian at the low level of theory.
+    4. Rotate the ligand to sample grid-based errors in resp charges
+    5. Add the gaussian charges to a mol2 file.
+    6. Perform a multi-state RESP fit.
+    7. Update the charges in the mol2 file from the multistate fit.
+    8. Normalize the charges to preserve neutrality.
+    9. Update the atom types in the mol2 file to match the gaussian output.
+    10. Use parmchk to generate the frcmod file.
+    11. Generate the lib file with leap.
     """
-    def __init__(self):
-        raise NotImplementedError("This class is not yet implemented. For now, use LazyLigand.")
+    def setup(self):
+        self.stages = [
+            StageInitialize("Initialize", base_cls=self),
+            StageNormalizeCharges("Normalize", base_cls=self, 
+                                orig_mol2=self.base_name+"antechamber.mol2", 
+                                new_mol2=self.base_name+".antechamber.mol2"),
+            StageGaussian("Minimize", base_cls=self),
+            StageGaussianRotation("Rotate", base_cls=self),
+            StageGaussiantoMol2("GrabGaussianCharge", base_cls=self),
+            StageMultiRespFit("MultiRespFit", base_cls=self),
+            StageUpdateCharge("UpdateCharge", base_cls=self,
+                              orig_mol2=self.base_name+".antechamber.mol2",
+                              new_mol2=self.base_name+".resp.mol2",
+                              charge_source="multistate"),
+            StageNormalizeCharges("Normalize", base_cls=self, 
+                                orig_mol2=self.base_name+"resp.mol2", 
+                                new_mol2=self.base_name+".resp.mol2"),
+            StageUpdateTypes("UpdateTypes", base_cls=self,
+                                orig_mol2=self.base_name+'.log.mol2',
+                                to_update=self.base_name+'.resp.mol2',
+                                new_mol2=self.base_name+'.resp.mol2'),
+            StageParmChk("ParmChk", base_cls=self),
+            StageLeap("Leap", base_cls=self)
+        ]
 
 class ProteinLigand(Parametrization):
     def new():
