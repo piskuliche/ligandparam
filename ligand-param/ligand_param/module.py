@@ -8,7 +8,7 @@ from ligand_param.stages.gaussian import StageGaussian, StageGaussianRotation, S
 from ligand_param.stages.resp import StageLazyResp, StageMultiRespFit
 from ligand_param.stages.leap import StageLeap
 from ligand_param.stages.parmchk import StageParmChk
-from ligand_param.stages.charge import StageUpdateCharge, StageNormalizeCharges
+from ligand_param.stages.charge import StageUpdateCharge, StageNormalizeCharge
 from ligand_param.stages.typematching import StageUpdateTypes
 
 
@@ -80,8 +80,7 @@ class Parametrization(Driver):
         except FileExistsError:
             raise FileExistsError(f"ERROR: File {self.pdb_filename} does not exist.")
         
-    def _generate_header(self, nproc, mem):
-        self.header = [f'%NPROC={nproc}', f'%MEM={mem}']
+    def _generate_header(self, nproc, mem):from ligand_param.stages.fixcharge import StageNormalizeCharges={mem}']
         return
     
     def print_info(self):
@@ -163,7 +162,7 @@ class FreeLigand(Parametrization):
     def setup(self):
         self.stages = [
             StageInitialize("Initialize", base_cls=self),
-            StageNormalizeCharges("Normalize", base_cls=self, 
+            StageNormalizeCharge("Normalize", base_cls=self, 
                                 orig_mol2=self.base_name+"antechamber.mol2", 
                                 new_mol2=self.base_name+".antechamber.mol2"),
             StageGaussian("Minimize", base_cls=self),
@@ -177,7 +176,7 @@ class FreeLigand(Parametrization):
                               orig_mol2=self.base_name+".antechamber.mol2",
                               new_mol2=self.base_name+".resp.mol2",
                               charge_source="multistate"),
-            StageNormalizeCharges("Normalize", base_cls=self, 
+            StageNormalizeCharge("Normalize", base_cls=self, 
                                 orig_mol2=self.base_name+"resp.mol2", 
                                 new_mol2=self.base_name+".resp.mol2"),
             StageUpdateTypes("UpdateTypes", base_cls=self,
