@@ -91,7 +91,29 @@ class StageUpdateCharge(AbstractStage):
 
     
 class StageNormalizeCharge(AbstractStage):
+    """ This class normalizes the charges to the net charge. 
+    
+    This class works by calculating the charge difference, and then normalizing the charges
+    based on the overall precision that you select, by adjusting each atom charge by the precision
+    until the charge difference is zero."""
+
     def __init__(self, name, base_cls=None, orig_mol2=None, new_mol2=None, precision=0.0001):
+        """ Initialize the StageNormalizeCharge class.
+        
+        Parameters
+        ----------
+        name : str
+            The name of the stage
+        base_cls : Ligand
+            The base class of the ligand
+        orig_mol2 : str
+            The original mol2 file
+        new_mol2 : str
+            The new mol2 file
+        precision : float
+            The precision of the charge normalization
+
+        """
         self.name = name
         self.base_cls = base_cls
         if orig_mol2 is not None:
@@ -110,7 +132,12 @@ class StageNormalizeCharge(AbstractStage):
         return stage
 
     def _execute(self, dry_run=False):
-        """ Execute the stage. """
+        """ Execute the stage. 
+        
+        TODO: Check what happens when netcharge is nonzero
+        TODO: Check what happens when charge difference is larger than the number of atoms
+        
+        """
         import warnings
         # Supress the inevitable mol2 file warnings.
         warnings.filterwarnings("ignore")
