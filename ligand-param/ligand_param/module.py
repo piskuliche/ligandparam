@@ -163,9 +163,9 @@ class FreeLigand(Parametrization):
     def setup(self):
         self.stages = [
             StageInitialize("Initialize", base_cls=self),
-            StageNormalizeCharge("Normalize", base_cls=self, 
-                                orig_mol2=self.base_name+".antechamber.mol2", 
-                                new_mol2=self.base_name+".antechamber.mol2"),
+            #StageNormalizeCharge("Normalize", base_cls=self, 
+            #                    orig_mol2=self.base_name+".antechamber.mol2", 
+            #                    new_mol2=self.base_name+".antechamber.mol2"),
             StageGaussian("Minimize", base_cls=self),
             StageGaussianRotation("Rotate", base_cls=self,
                                   alpha=[0, 30, 60, 90, 120, 150, 180],
