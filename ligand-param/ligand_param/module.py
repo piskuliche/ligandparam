@@ -5,10 +5,11 @@ from ligand_param.io.coordinates import Coordinates
 from ligand_param.driver import Driver
 from ligand_param.stages.initialize import StageInitialize
 from ligand_param.stages.gaussian import StageGaussian, StageGaussianRotation, StageGaussiantoMol2
-from ligand_param.stages.fixcharge import StageNormalizeCharges
-from ligand_param.stages.resp import StageLazyResp
+from ligand_param.stages.resp import StageLazyResp, StageMultiRespFit
 from ligand_param.stages.leap import StageLeap
 from ligand_param.stages.parmchk import StageParmChk
+from ligand_param.stages.charge import StageUpdateCharge, StageNormalizeCharges
+from ligand_param.stages.typematching import StageUpdateTypes
 
 
 class Parametrization(Driver):
