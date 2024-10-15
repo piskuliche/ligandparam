@@ -1,7 +1,43 @@
+import os
+import copy
+import sys
 
+from collections import defaultdict as ddict
+from io import StringIO as StringIO
+
+
+from ligand_param.multiresp import parmhelper, mdinutils, respfunctions, functions
+from ligand_param.multiresp.intermolequiv import IntermolEquiv
 
 class EndState(object):
+    """ Class to handle the end state of a residue."""
     def __init__(self,parmfile,rstfiles,comp,ires,qmmask=None,theory="PBE0",basis="6-31G*",maxgrad=1.e-6,etol=1.e-4,fitgasphase=False):
+        """ Initialize the EndState object
+
+        Parameters
+        ----------
+        parmfile : str
+            The name of the parameter file (either parm or mol2)
+        rstfiles : list of str
+            A list of files (could be rst or gaussian log files, specifically with .log or .rst7 extensions)
+        comp : BASH
+            The computer object
+        ires : int
+            The residue number
+        qmmask : str, optional
+            The quantum mask. Default is None
+        theory : str
+            The quantum theory used. Default is PBE0
+        basis : str
+            The basis set used. Default is 6-31G*
+        maxgrad : float
+            The maximum gradient. Default is 1.e-6
+        etol : float
+            The energy tolerance. Default is 0.0001
+        fitgasphase : bool
+            If True, fit the gas phase. Default is False
+        
+        """
         self.backbone_restraint=False
         self.sugar_restraint=False
         self.nucleobase_restraint=False
@@ -33,9 +69,9 @@ class EndState(object):
         
                 
         if has_g09:
-            self.parm = parmutils.OpenParm( parmfile, xyz=None )
+            self.parm = parmhelper.OpenParm( parmfile, xyz=None )
         else:
-            self.parm = parmutils.OpenParm( parmfile, xyz=rstfiles[0] )
+            self.parm = parmhelper.OpenParm( parmfile, xyz=rstfiles[0] )
         self.mmcharges = [ a.charge for a in self.parm.atoms ]
         import os.path
         topdir,parmfile = os.path.split( self.parmfile )
@@ -50,7 +86,7 @@ class EndState(object):
         else:
             self.qmmask = qmmask
 
-        self.fsys = parmutils.FragmentedSys( self.parm, self.comp )
+        self.fsys = parmhelper.FragmentedSys( self.parm, self.comp )
         self.fsys.add_fragment( self.qmmask, coef0=1, coef1=1, method="HF" )
         self.fsys.sort()
         #self.fsys.check_overlaps()
@@ -85,35 +121,51 @@ class EndState(object):
 
         
     def set_equiv_atoms(self,sele):
-        idxs = parmutils.GetSelectedAtomIndices(self.parm,sele)
+        """ Set the equivalent atoms for the residue. """
+        idxs = parmhelper.GetSelectedAtomIndices(self.parm,sele)
         self.equiv_atoms.append(idxs)
         
         
     def add_group_restraint(self,cmask,q=None):
+        """ Add a group restraint to the residue. 
+        
+        Parameters
+        ----------
+        cmask : str
+            The mask for the group
+        q : float, optional
+            The charge. Default is None
+        
+        """
         if q is None:
-            grp = parmutils.GetSelectedAtomIndices(self.parm,cmask)
+            grp = parmhelper.GetSelectedAtomIndices(self.parm,cmask)
             grp_charges = [ self.parm.atoms[a].charge for a in grp ]
             q  = sum( grp_charges )
         self.grp_restraints.append( (cmask,q) )
         
 
     def apply_backbone_restraint(self,value=True):
+        """ Apply a backbone restraint to the residue."""
         self.backbone_restraint=value
 
 
     def apply_sugar_restraint(self,value=True):
+        """ Apply a sugar restraint to the residue."""
         self.sugar_restraint=value
 
 
     def apply_nucleobase_restraint(self,value=True):
+        """  Apply a nucleobase restraint to the residue."""
         self.nucleobase_restraint=value
 
 
     def multimolecule_fit(self,value=True):
+        """ Perform a multi-molecule fit"""
         self.multifit = value
 
 
     def write_mdin(self):
+        """ Write the mdin files for the residue."""
 
         has_g09=False
         for rstfile in self.rstfiles:
@@ -125,15 +177,15 @@ class EndState(object):
         self.fsys.check_overlaps()
         self.fsys.redistribute_residue_charges()
         if not os.path.isfile( self.modified_parmfile ):
-            parmutils.SaveParm( self.fsys.parmobj, self.modified_parmfile )
+            parmhelper.SaveParm( self.fsys.parmobj, self.modified_parmfile )
         if self.fitgasphase:
             if not os.path.isfile( self.gasphase_parmfile ):
-                gp = parmutils.CopyParm( self.fsys.parmobj )
-                qmidxs = parmutils.GetSelectedAtomIndices( gp, self.fsys.get_noshake_selection() )
+                gp = parmhelper.CopyParm( self.fsys.parmobj )
+                qmidxs = parmhelper.GetSelectedAtomIndices( gp, self.fsys.get_noshake_selection() )
                 for a in gp.atoms:
                     if a.idx not in qmidxs:
                         a.charge = 0
-                parmutils.SaveParm( gp, self.gasphase_parmfile )
+                parmhelper.SaveParm( gp, self.gasphase_parmfile )
 
 
             
@@ -192,13 +244,22 @@ class EndState(object):
     
 
     def clear_charge_data(self):
+        """ Clear the charge data for the residue."""
         self.charge_data = ddict( list )
 
                 
     def read_next_resp(self,fh):
+        """ Read the next set of RESP charges from the file handle
+        
+        Parameters
+        ----------
+        fh : file handle
+            The file handle to read the charges from
+        
+        """
         import sys
         if True:
-            fit_charges = ReadNextRespCharges( fh )
+            fit_charges = respfunctions.ReadNextRespCharges( fh )
             #print fit_charges
             qm_charges = []
             mm_charges = []
@@ -216,6 +277,7 @@ class EndState(object):
 
                 
     def read_respfile(self):
+        """ Read the resp file """
         import os.path
         self.charge_data = ddict( list )
         mdouts = self.get_mdouts()
@@ -233,6 +295,7 @@ class EndState(object):
                 self.read_next_resp(out)
 
     def preserve_residue_charges_by_shifting(self):
+        """ Preserve the residue charges by shifting """
         for res in self.parm.residues:
             mmq = 0.
             q = 0.
@@ -240,7 +303,7 @@ class EndState(object):
             for a in res.atoms:
                 mmq += self.mmcharges[a.idx]
                 if a.idx in self.frag.atomsel:
-                    avg,std,err = GetAvgStdDevAndErr(self.charge_data[a.idx])
+                    avg,std,err = respfunctions.GetAvgStdDevAndErr(self.charge_data[a.idx])
                     q += avg
                     if a.epsilon > 0.001:
                         n += 1
@@ -256,7 +319,15 @@ class EndState(object):
 
 
     def preserve_mm_charges_by_shifting(self,mm_mask):
-        reset_sele = parmutils.GetSelectedAtomIndices(self.parm,mm_mask)
+        """ Preserve the MM charges by shifting 
+        
+        Parameters
+        ----------
+        mm_mask : str
+            The mask for the MM charges
+        
+        """
+        reset_sele = parmhelper.GetSelectedAtomIndices(self.parm,mm_mask)
         for res in self.parm.residues:
             mmq = 0.
             q   = 0.
@@ -268,7 +339,7 @@ class EndState(object):
                         self.charge_data[a.idx] = [ self.mmcharges[a.idx] ]
                         avg = self.mmcharges[a.idx]
                     else:
-                        avg,std,err = GetAvgStdDevAndErr(self.charge_data[a.idx])
+                        avg,std,err = respfunctions.GetAvgStdDevAndErr(self.charge_data[a.idx])
                     q += avg
                     if a.epsilon > 0.001 and a.idx not in reset_sele:
                         n += 1
@@ -286,8 +357,17 @@ class EndState(object):
                                 
                             
     def print_resp(self,prefix="",fh=sys.stdout):
+        """ Print the RESP charges
+        
+        Parameters
+        ----------
+        prefix : str, optional
+            The prefix. Default is ""
+        fh : file handle, optional
+            The file handle. Default is sys.stdout
+        """
         for a in self.frag.atomsel:
-            q,stddev,stderr = GetAvgStdDevAndErr(self.charge_data[a])
+            q,stddev,stderr = respfunctions.GetAvgStdDevAndErr(self.charge_data[a])
             mm = self.mmcharges[a]
             #res = GetResidueNameFromAtomIdx(self.parm,a,self.unique_residues)
             res = "%3i"%(self.parm.atoms[a].residue.idx+1)
@@ -298,6 +378,14 @@ class EndState(object):
 
 
     def get_mdouts(self):
+        """ Get the mdout files 
+        
+        Returns
+        -------
+        mdouts : list of str
+            The list of mdout files
+        
+        """
         mdouts = []
         for rstfile in self.rstfiles:
             topdir,rst = os.path.split( rstfile.replace(".rst7","") )
@@ -313,6 +401,14 @@ class EndState(object):
 
     
     def perform_fit(self,unique_residues=True):
+        """ Perform the fit
+
+        Parameters
+        ----------
+        unique_residues : bool, optional
+            If True, use unique residues. Default is True
+        
+        """
         if self.multifit:
             equiv = IntermolEquiv(None,unique_residues)
             mdouts = self.get_mdouts()
@@ -333,7 +429,7 @@ class EndState(object):
             inp.close()
 
             print("# EndState.perform_fit writing multifit %s.resp.inp"%(os.path.join(self.topdir,self.base)))
-            WriteFitSh( os.path.join(self.topdir,self.base) )
+            functions.WriteFitSh( os.path.join(self.topdir,self.base) )
         else:
             mdouts = self.get_mdouts()
             body = self.get_resp_body()
@@ -351,10 +447,11 @@ class EndState(object):
                 self.append_esp( esp, mdout )
                 esp.close()
                 
-                WriteFitSh( base )
+                functions.WriteFitSh( base )
         self.read_respfile()
 
     def get_resp_header(self):
+        """ Get the RESP header """
         if self.multifit:
            nmol = len( self.get_mdouts() )
         else:
@@ -372,9 +469,9 @@ class EndState(object):
         equiv_mask=[0]*self.nquant_nlink
         equiv_grps = copy.deepcopy(self.equiv_atoms)
         if self.equiv_hydrogens:
-            equiv_grps += GetEquivHydrogens(self.parm,self.frag.atomsel)
+            equiv_grps += respfunctions.GetEquivHydrogens(self.parm,self.frag.atomsel)
         if self.equiv_nonbridge:
-            equiv_grps += GetEquivNonbridgeOxygens(self.parm,self.frag.atomsel)
+            equiv_grps += respfunctions.GetEquivNonbridgeOxygens(self.parm,self.frag.atomsel)
         for grp in equiv_grps:
             equiv_atms=[]
             for parmidx in grp:
@@ -401,7 +498,7 @@ class EndState(object):
            cons_grps.append( bmask )
 
         for cmask in cons_grps:
-            grp = parmutils.GetSelectedAtomIndices(self.parm,cmask)
+            grp = parmhelper.GetSelectedAtomIndices(self.parm,cmask)
             grp_charges = [ self.parm.atoms[a].charge for a in grp ]
             grp_charge  = sum( grp_charges )
             grp_fit_idxs = []
@@ -414,10 +511,10 @@ class EndState(object):
             for idx in grp_fit_idxs:
                 arr.append(1)
                 arr.append(idx+1)
-            WriteArray8(fh,arr)
+            respfunctions.WriteArray8(fh,arr)
 
         for cmask,grp_charge in self.grp_restraints:
-            grp = parmutils.GetSelectedAtomIndices(self.parm,cmask)
+            grp = parmhelper.GetSelectedAtomIndices(self.parm,cmask)
             grp_fit_idxs = []
             for parmidx in grp:
                 for fitidx in self.parm2fit_map[ parmidx ]:
@@ -429,13 +526,22 @@ class EndState(object):
             for idx in grp_fit_idxs:
                 arr.append(1)
                 arr.append(idx+1)
-            WriteArray8(fh,arr)
+            respfunctions.WriteArray8(fh,arr)
             
         fh.write("\n")
 
         return fh.getvalue()
 
     def append_esp(self,fh,mdout):
+        """ Append the ESP data to the file handle
+        
+        Parameters
+        ----------
+        fh : file handle
+            The file handle to append the ESP data to
+        mdout : str
+            The mdout file
+        """
         out = open(mdout,"r")
         if ".mdout" in mdout:
             found_something = False
@@ -447,7 +553,7 @@ class EndState(object):
             if not found_something:
                 raise Exception("Could not find RESPESP data in %s"%(mdout))
         elif ".log" in mdout: # g09
-            crds,pts,vals = ReadOrMakeGauEsp( mdout, max(4,self.comp.num_nodes) )
+            crds,pts,vals = respfunctions.ReadOrMakeGauEsp( mdout, max(4,self.comp.num_nodes) )
             nat=len(crds)//3
             npt=len(vals)
             fh.write("%5i%5i\n"%(nat,npt))
@@ -459,5 +565,6 @@ class EndState(object):
 
             
     def append_esps(self,fh):
+        """ Append the ESP data to the file handle"""
         for mdout in self.get_mdouts():
             self.append_esp(fh,mdout)

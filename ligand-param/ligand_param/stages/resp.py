@@ -1,8 +1,13 @@
+import glob
+
 import MDAnalysis as mda
 import numpy as np
 
 from ligand_param.stages.abstractstage import AbstractStage
 from ligand_param.interfaces import Antechamber
+
+from ligand_param.multiresp import parmhelper
+from ligand_param.multiresp.residueresp import ResidueResp
 
 class StageLazyResp(AbstractStage):
     """ This class runs a 'lazy' resp calculation based on only
@@ -98,7 +103,16 @@ class StageMultiRespFit(AbstractStage):
             If True, the stage will not be executed, but the function will print the commands that would
 
         """
-        
+        comp = parmhelper.BASH( 12 )
+        model = ResidueResp( comp, 1)
+        model.add_state( self.base_cls.base_name, self.base_cls.base_name+'.log.mol2', 
+                        glob.glob("gaussianCalcs/"+self.base_cls.base_name+"_*.log"), 
+                        qmmask="@*" )
+        model.multimolecule_fit(True)
+        model.perform_fit("@*",unique_residues=False)
+        with open("respfit.out", "w") as f:
+            model.print_resp(fh=f)
+
         return
 
     def _clean(self):
