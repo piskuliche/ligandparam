@@ -88,3 +88,111 @@ class StageUpdateCharge(AbstractStage):
 
     def _clean(self):
         raise NotImplementedError("clean method not implemented")
+
+    
+class StageNormalizeCharge(AbstractStage):
+    def __init__(self, name, base_cls=None, orig_mol2=None, new_mol2=None, precision=0.0001):
+        self.name = name
+        self.base_cls = base_cls
+        if orig_mol2 is not None:
+            self.orig_mol2 = orig_mol2
+        else:
+            raise ValueError("Please provide an original filename.")
+        
+        if new_mol2 is not None:
+            self.new_mol2 = new_mol2
+        else:
+            raise ValueError("Please provide a new filename.")
+        self.precision = precision
+        self.decimals = len(str(precision).split(".")[1])
+
+    def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
+        return stage
+
+    def _execute(self, dry_run=False):
+        """ Execute the stage. """
+        import warnings
+        # Supress the inevitable mol2 file warnings.
+        warnings.filterwarnings("ignore")
+        print("-> Checking charges")
+        print(f"-> Normalizing charges to {self.base_cls.net_charge}")
+        print(f"-> Precision {self.precision} with {self.decimals} decimals")
+        u = mda.Universe(self.orig_mol2, format='mol2')
+        total_charge, charge_difference = self.check_charge(u.atoms.charges)
+        
+        if charge_difference != 0.0:
+            print(f"-> Charge difference is {charge_difference}")
+            print("-> Normalizing charges")
+            charges = self.normalize(u.atoms.charges, charge_difference)
+            new_total, new_diff = self.check_charge(charges)
+            if new_diff != 0.0:
+                raise ValueError("Error: Charge normalization failed.")
+            else:
+                u.atoms.charges = charges
+        else:
+            print("-> Charges are already normalized")
+            return
+        if not dry_run:
+            ag = u.select_atoms("all")
+            ag.write(self.base_cls.base_name + ".tmpnorm.mol2")
+
+        ante = Antechamber()
+        ante.call(i=self.base_cls.base_name + ".tmpnorm.mol2", fi='mol2',
+                  o=self.new_mol2, fo='mol2',
+                  pf='y', at=self.base_cls.atom_type,
+                  dry_run = dry_run)
+
+    def _clean(self):
+        raise NotImplementedError("clean method not implemented")
+
+    def normalize(self, charges, charge_difference):
+        """ This function normalizes the charges to the net charge. 
+        
+        Parameters
+        ----------
+        charges : np.array
+            The charges
+        charge_difference : float
+            The charge difference
+        
+        Returns
+        -------
+        charges : np.array
+            The normalized charges
+        """
+
+        count = np.round(np.abs(charge_difference)/self.precision)
+        adjust = np.round(charge_difference/count, self.decimals)
+        natoms = len(charges)
+        # Choosing charges closest to zero.
+        sorted_indices = np.argsort(np.abs(charges))
+        # Flip the order to choose the largest charges first.
+        sorted_indices = sorted_indices[::-1]
+        for i in range(int(count)):
+            charges[sorted_indices[i]] += adjust
+        return charges
+
+    def check_charge(self, charges):
+        """ This function checks the total charge and the charge difference.
+        
+        Parameters
+        ----------
+        charges : np.array
+            The charges
+        
+        Returns
+        -------
+        total_charge : float
+            The total charge
+        charge_difference : float
+            The charge difference
+        """
+        total_charge = np.round(sum(charges), self.decimals)
+        charge_difference = np.round(self.base_cls.net_charge - total_charge, self.decimals)
+        print(f"-> Total Charge is {total_charge}")
+        print(f"-> Charge difference is {charge_difference}")
+        return total_charge, charge_difference
+
+
+
+
