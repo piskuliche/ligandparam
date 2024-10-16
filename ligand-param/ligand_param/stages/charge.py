@@ -7,7 +7,7 @@ from pathlib import Path
 
 from ligand_param.stages.abstractstage import AbstractStage
 from ligand_param.interfaces import Antechamber
-from ligan_param.io.coordinates import Mol2Writer
+from ligand_param.io.coordinates import Mol2Writer
 
 class StageUpdateCharge(AbstractStage):
     """ This class creates a new mol2 file with updated charges. """
