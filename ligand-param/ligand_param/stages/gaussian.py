@@ -166,7 +166,6 @@ class StageGaussianRotation(AbstractStage):
         for a in self.alpha:
             for b in self.beta:
                 for g in self.gamma:
-                    self._print_rotation(a, b, g)
                     test_rotation = self.base_cls.coord_object.rotate(alpha=a, beta=b, gamma=g)
                     store_coords.append(test_rotation)
                     # Write a guassian input file
@@ -186,6 +185,7 @@ class StageGaussianRotation(AbstractStage):
             for a in self.alpha:
                 for b in self.beta:
                     for g in self.gamma:
+                        self._print_rotation(a, b, g)
                         if dry_run:
                             print("Dry run: Gaussian calculations not run")
                             print("Would run the following file:")
