@@ -171,7 +171,7 @@ class StageGaussianRotation(AbstractStage):
                     store_coords.append(test_rotation)
                     # Write a guassian input file
                     newgau = GaussianWriter(f'gaussianCalcs/{self.base_cls.base_name}_rot_{a}_{b}_{g}.com')
-                    newgau.add_block(GaussianInput(command=f"#P {self.base_cls.theory['low']} OPT(CalcFC) SCF(Conver=6) NoSymm Test Pop=mk IOp(6/33=2) GFInput GFPrint",
+                    newgau.add_block(GaussianInput(command=f"#P {self.base_cls.theory['low']} SCF(Conver=6) NoSymm Test Pop=mk IOp(6/33=2) GFInput GFPrint",
                                         initial_coordinates = test_rotation,
                                         elements = self.base_cls.coord_object.get_elements(),
                                         header=self.base_cls.header))
