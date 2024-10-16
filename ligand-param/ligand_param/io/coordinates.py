@@ -129,7 +129,7 @@ def SimpleXYZ(file_obj, coordinates):
 
 class Mol2Writer:
     """ A class to write a mol2 file. """
-    def __init__(self, u, filename=filename, selection="all"):
+    def __init__(self, u, filename=None, selection="all"):
         """ Initialize the Mol2Writer class.
         
         Parameters
@@ -140,6 +140,8 @@ class Mol2Writer:
             The filename to write to
         """
         self.u = u
+        if not Path(filename).exists():
+            raise FileNotFoundError(f"File {filename} not found.")
         self.filename = filename
         return
     
