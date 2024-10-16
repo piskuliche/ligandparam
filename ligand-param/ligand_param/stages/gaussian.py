@@ -196,7 +196,8 @@ class StageGaussianRotation(AbstractStage):
                             gau_run.call(inp_pipe=f'{self.base_cls.base_name}_rot_{a}_{b}_{g}.com', 
                                     out_pipe=f'{self.base_cls.base_name}_rot_{a}_{b}_{g}.log',
                                     dry_run=dry_run)
-                        rot_count + 
+                        rot_count += 1
+                        self._print_status(rot_count, self.alpha, self.beta, self.gamma)
         finally:
             os.chdir(orig_dir)
 
