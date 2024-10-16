@@ -194,7 +194,7 @@ class StageGaussianRotation(AbstractStage):
                             gau_run = Gaussian()
                             gau_run.call(inp_pipe=f'{self.base_cls.base_name}_rot_{a}_{b}_{g}.com', 
                                     out_pipe=f'{self.base_cls.base_name}_rot_{a}_{b}_{g}.log',
-                                    dry_run=True)
+                                    dry_run=dry_run)
         finally:
             os.chdir(orig_dir)
 
