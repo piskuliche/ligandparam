@@ -285,6 +285,8 @@ class StageGaussiantoMol2(AbstractStage):
 
             ag = u2.select_atoms("all")
             ag.write(self.base_cls.base_name+'.tmp2.mol2')
+            self.remove_blank_lines(self.base_cls.base_name+'.tmp2.mol2')
+
 
         # Use antechamber to clean up the mol2 format
         ante = Antechamber()
@@ -297,3 +299,26 @@ class StageGaussiantoMol2(AbstractStage):
     
     def _clean(self):
         return
+
+    def remove_blank_lines(self, file_path):
+        """ Remove blank lines from a file.
+        
+        Parameters
+        ----------
+        file_path : str
+            The path to the file to remove blank lines from
+        
+        Returns
+        -------
+        None
+        
+        """
+        if Path(file_path).exists():
+            # Read the file and filter out blank lines
+            with open(file_path, 'r') as file:
+                lines = file.readlines()
+                non_blank_lines = [line for line in lines if line.strip()]
+
+            # Write the non-blank lines back to the file
+            with open(file_path, 'w') as file:
+                file.writelines(non_blank_lines)
