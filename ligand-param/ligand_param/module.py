@@ -169,7 +169,7 @@ class FreeLigand(Parametrization):
                               new_mol2=self.base_name+".resp.mol2",
                               charge_source="multistate"),
             StageNormalizeCharge("Normalize", base_cls=self, 
-                                orig_mol2=self.base_name+"resp.mol2", 
+                                orig_mol2=self.base_name+".resp.mol2", 
                                 new_mol2=self.base_name+".resp.mol2"),
             StageUpdateTypes("UpdateTypes", base_cls=self,
                                 orig_mol2=self.base_name+'.log.mol2',
