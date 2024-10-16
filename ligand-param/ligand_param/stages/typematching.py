@@ -5,6 +5,7 @@ from pathlib import Path
 
 from ligand_param.stages.abstractstage import AbstractStage
 from ligand_param.interfaces import Antechamber
+from ligand_param.io.coordinates import Mol2Writer
 
 class StageUpdateTypes(AbstractStage):
     """ This class creates a new mol2 file with updated charges. """
@@ -59,7 +60,7 @@ class StageUpdateTypes(AbstractStage):
                 new_atom.type = orig_atom.type
             
         if not dry_run:
-            unew.atoms.write(self.base_cls.base_name + ".types.mol2")
+            Mol2Writer(universe=unew, filename=f"{self.base_cls.base_name}.types.mol2").write()
 
         ante = Antechamber()
         ante.call(i=self.base_cls.base_name + ".types.mol2", fi='mol2',
