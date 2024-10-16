@@ -198,8 +198,6 @@ class StageGaussianRotation(AbstractStage):
         finally:
             os.chdir(orig_dir)
 
-
-
         return
     
     def _print_rotation(self, alpha, beta, gamma):
