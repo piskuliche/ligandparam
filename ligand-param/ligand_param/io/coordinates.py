@@ -1,6 +1,8 @@
 import MDAnalysis as mda
 import numpy as np
 
+from pathlib import Path
+
 class Coordinates:
     """ A class to handle the coordinates of a structure. 
     
