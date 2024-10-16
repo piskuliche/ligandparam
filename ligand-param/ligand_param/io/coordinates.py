@@ -143,11 +143,12 @@ class Mol2Writer:
         """
         self.u = u
         self.filename = filename
+        self.selection = selection
         return
     
     def _write(self):
         """ Uses MDAnalysis to write the mol2 file. """
-        ag = self.u.select_atoms(selection)
+        ag = self.u.select_atoms(self.selection)
         ag.write(self.filename)
 
     def _remove_blank_lines(self):
