@@ -285,6 +285,8 @@ class StageGaussiantoMol2(AbstractStage):
 
             ag = u2.select_atoms("all")
             ag.write(self.base_cls.base_name+'.tmp2.mol2')
+            # This exists because for some reason antechamber misinterprets
+            # the mol2 file's blank lines in the atoms section.
             self.remove_blank_lines(self.base_cls.base_name+'.tmp2.mol2')
 
 
