@@ -161,7 +161,7 @@ class FreeLigand(Parametrization):
             StageGaussianRotation("Rotate", base_cls=self,
                                   alpha=[0, 30, 60, 90, 120, 150, 180],
                                   beta=[0, 30, 60, 90],
-                                  gamma=[0.0]),
+                                  gamma=[0]),
             StageGaussiantoMol2("GrabGaussianCharge", base_cls=self),
             StageMultiRespFit("MultiRespFit", base_cls=self),
             StageUpdateCharge("UpdateCharge", base_cls=self,
