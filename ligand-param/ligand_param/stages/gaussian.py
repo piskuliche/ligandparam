@@ -106,7 +106,7 @@ class StageGaussian(AbstractStage):
     
     def _clean(self):
         """ Clean the files generated during the stage. """
-        raise NotImplementedError("clean method not implemented")file_path
+        raise NotImplementedError("clean method not implemented")
 
 class StageGaussianRotation(AbstractStage):
     """ This is class to rotate the ligand and run Gaussian calculations of the resp charges
