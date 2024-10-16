@@ -142,8 +142,6 @@ class Mol2Writer:
             The filename to write to
         """
         self.u = u
-        if not Path(filename).exists():
-            raise FileNotFoundError(f"File {filename} not found.")
         self.filename = filename
         return
     
