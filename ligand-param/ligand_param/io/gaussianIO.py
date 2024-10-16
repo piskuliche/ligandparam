@@ -253,8 +253,6 @@ class GaussianReader:
                 atn.append(data[i+1][0])
                 if len(data[i+1]) == 5:
                     coords.append([float(data[i+1][2]), float(data[i+1][3]), float(data[i+1][4])])
-                    print(data[i+1[2]], float(data[i+1][2]))
-                    exit()
                 else:
                     coords.append([float(data[i+1][1]), float(data[i+1][2]), float(data[i+1][3])])
         except:
