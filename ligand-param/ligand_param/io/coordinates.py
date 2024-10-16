@@ -173,6 +173,8 @@ class Mol2Writer:
             # Write the non-blank lines back to the file
             with open(self.filename, 'w') as file:
                 file.writelines(non_blank_lines)
+        else:
+            raise FileNotFoundError(f"File {self.filename} not found.")
 
     def write(self):
         """ Write the mol2 file. 
