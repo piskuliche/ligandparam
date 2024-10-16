@@ -77,7 +77,7 @@ class StageUpdateCharge(AbstractStage):
                 raise ValueError("Number of charges does not match the number of atoms.")
             u.atoms.charges = charges
             # Write the Mol2 temporary file
-            Mol2Writer(u, self.base_cls.base_name + ".tmpresp.mol2", selection="all")._write()
+            Mol2Writer(u, self.base_cls.base_name + ".tmpresp.mol2", selection="all").write()
         
         ante = Antechamber()
         ante.call(i=self.base_cls.base_name + ".tmpresp.mol2", fi='mol2',
