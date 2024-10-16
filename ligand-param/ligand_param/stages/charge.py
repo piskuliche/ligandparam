@@ -7,6 +7,7 @@ from pathlib import Path
 
 from ligand_param.stages.abstractstage import AbstractStage
 from ligand_param.interfaces import Antechamber
+from ligan_param.io.coordinates import Mol2Writer
 
 class StageUpdateCharge(AbstractStage):
     """ This class creates a new mol2 file with updated charges. """
@@ -75,8 +76,8 @@ class StageUpdateCharge(AbstractStage):
             if len(charges) != len(u.atoms):
                 raise ValueError("Number of charges does not match the number of atoms.")
             u.atoms.charges = charges
-            ag = u.select_atoms("all")
-            ag.write(self.base_cls.base_name + ".tmpresp.mol2")
+            # Write the Mol2 temporary file
+            Mol2Writer(u, self.base_cls.base_name + ".tmpresp.mol2", selection="all")._write()
         
         ante = Antechamber()
         ante.call(i=self.base_cls.base_name + ".tmpresp.mol2", fi='mol2',

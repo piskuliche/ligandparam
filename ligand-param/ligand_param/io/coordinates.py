@@ -125,3 +125,63 @@ def SimpleXYZ(file_obj, coordinates):
         file_obj.write(f"{i+1} {coord[0]} {coord[1]} {coord[2]}\n")
     return
 
+
+
+class Mol2Writer:
+    """ A class to write a mol2 file. """
+    def __init__(self, u, filename=filename, selection="all"):
+        """ Initialize the Mol2Writer class.
+        
+        Parameters
+        ----------
+        u : MDAnalysis Universe
+            The universe to write to a mol2 file
+        filename : str
+            The filename to write to
+        """
+        self.u = u
+        self.filename = filename
+        return
+    
+    def _write(self):
+        """ Uses MDAnalysis to write the mol2 file. """
+        ag = self.u.select_atoms(selection)
+        ag.write(self.filename)
+
+    def _remove_blank_lines(self):
+        """ Remove blank lines from a file.
+        
+        Parameters
+        ----------
+        file_path : str
+            The path to the file to remove blank lines from
+        
+        Returns
+        -------
+        None
+        
+        """
+        if Path(self.filename).exists():
+            # Read the file and filter out blank lines
+            with open(self.filename, 'r') as file:
+                lines = file.readlines()
+                non_blank_lines = [line for line in lines if line.strip()]
+
+            # Write the non-blank lines back to the file
+            with open(self.filename, 'w') as file:
+                file.writelines(non_blank_lines)
+
+    def write(self):
+        """ Write the mol2 file. 
+        
+        This uses the _write method to write the mol2 file, and then removes any blank lines from the file.
+        
+        Parameters
+        ----------
+        None
+        
+        """
+        self._write()
+        self._remove_blank_lines()
+        return
+

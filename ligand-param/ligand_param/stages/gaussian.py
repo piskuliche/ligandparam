@@ -4,7 +4,7 @@ import MDAnalysis as mda
 from pathlib import Path
 
 from ligand_param.stages.abstractstage import AbstractStage
-from ligand_param.io.coordinates import Coordinates, SimpleXYZ
+from ligand_param.io.coordinates import Coordinates, SimpleXYZ, Mol2Writer
 from ligand_param.io.gaussianIO import GaussianWriter, GaussianInput
 from ligand_param.interfaces import Gaussian, Antechamber
 
@@ -106,9 +106,7 @@ class StageGaussian(AbstractStage):
     
     def _clean(self):
         """ Clean the files generated during the stage. """
-        raise NotImplementedError("clean method not implemented")
-    
-class StageGaussianRotation(AbstractStage):
+        raise NotImplementedError("clean method not implemented")file_path
     """ This is class to rotate the ligand and run Gaussian calculations of the resp charges
     for each rotated ligand. """
 
@@ -182,6 +180,7 @@ class StageGaussianRotation(AbstractStage):
         # Run the Gaussian calculations in the gaussianCalcs directory
         os.chdir(calc_dir)
         try:
+            rot_count = 0
             for a in self.alpha:
                 for b in self.beta:
                     for g in self.gamma:
@@ -195,6 +194,7 @@ class StageGaussianRotation(AbstractStage):
                             gau_run.call(inp_pipe=f'{self.base_cls.base_name}_rot_{a}_{b}_{g}.com', 
                                     out_pipe=f'{self.base_cls.base_name}_rot_{a}_{b}_{g}.log',
                                     dry_run=dry_run)
+                        rot_count + 
         finally:
             os.chdir(orig_dir)
 
@@ -203,6 +203,25 @@ class StageGaussianRotation(AbstractStage):
     def _print_rotation(self, alpha, beta, gamma):
         """ Print the rotation to the user. """
         print(f"---> Rotation: alpha={alpha}, beta={beta}, gamma={gamma}")
+        return
+
+    def _print_status(self, count, alphas, betas, gammas):
+        """ Print the status of the stage. 
+        
+        Parameters
+        ----------
+        count : int
+            The current count of the rotations
+        alphas : list
+            The list of alpha angles
+        betas : list
+            The list of beta angles
+        gammas : list
+            The list of gamma angles
+        """
+        total_count = len(alphas) * len(betas) * len(gammas)
+        percent = count / total_count * 100
+        print(f"Current Rotation Progress: {percent}")
         return
     
     def write_rotation(self, coords):
@@ -282,12 +301,14 @@ class StageGaussiantoMol2(AbstractStage):
             assert len(u1.atoms) == len(u2.atoms), "Number of atoms in the two files do not match"
 
             u2.atoms.charges = u1.atoms.charges
-
+            """
             ag = u2.select_atoms("all")
             ag.write(self.base_cls.base_name+'.tmp2.mol2')
             # This exists because for some reason antechamber misinterprets
             # the mol2 file's blank lines in the atoms section.
             self.remove_blank_lines(self.base_cls.base_name+'.tmp2.mol2')
+            """
+            Mol2Writer(u2, self.base_cls.base_name+'.tmp2.mol2', selection="all").write()
 
 
         # Use antechamber to clean up the mol2 format
