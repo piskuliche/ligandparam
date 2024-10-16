@@ -121,10 +121,21 @@ class LazyLigand(Parametrization):
     def setup(self):
         self.stages = [
             StageInitialize("Initialize", base_cls=self),
+            StageNormalizeCharge("Normalize1", base_cls=self, 
+                    orig_mol2=self.base_name+".antechamber.mol2", 
+                    new_mol2=self.base_name+".antechamber.mol2"),
             StageGaussian("Minimize", base_cls=self),
             StageLazyResp("LazyResp", base_cls=self),
+            StageNormalizeCharge("Normalize2", base_cls=self, 
+                    orig_mol2=self.base_name+".resp.mol2", 
+                    new_mol2=self.base_name+".resp.mol2"),
+            StageUpdateTypes("UpdateTypes", base_cls=self,
+                    orig_mol2=self.base_name+'.log.mol2',
+                    to_update=self.base_name+'.resp.mol2',
+                    new_mol2=self.base_name+'.resp.mol2'),
             StageParmChk("ParmChk", base_cls=self),
             StageLeap("Leap", base_cls=self)
+
         ]
 
 class FreeLigand(Parametrization):
@@ -159,8 +170,8 @@ class FreeLigand(Parametrization):
             #                    new_mol2=self.base_name+".antechamber.mol2"),
             StageGaussian("Minimize", base_cls=self),
             StageGaussianRotation("Rotate", base_cls=self,
-                                  alpha=[0, 30, 60, 90, 120, 150, 180],
-                                  beta=[0, 30, 60, 90],
+                                  alpha=[0, 30],
+                                  beta=[0],
                                   gamma=[0]),
             StageGaussiantoMol2("GrabGaussianCharge", base_cls=self),
             StageMultiRespFit("MultiRespFit", base_cls=self),
