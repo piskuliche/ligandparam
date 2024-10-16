@@ -12,6 +12,7 @@ Welcome to ligand_param's documentation!
 
    module
    stages
+   multiresp
 
 Indices and tables
 ==================

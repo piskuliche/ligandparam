@@ -40,6 +40,7 @@ release = ligand_param.__version__
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx.ext.autosectionlabel",
@@ -48,6 +49,8 @@ extensions = [
 
 autosectionlabel_prefix_document = True
 autoclass_content = "both"
+
+numpydoc_class_members_toctree = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

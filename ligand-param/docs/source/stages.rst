@@ -4,28 +4,22 @@ stages
 
 
 ligand_param.stages.abstractstage
--------------------------------
+---------------------------------
 
 .. automodule:: ligand_param.stages.abstractstage
    :members:
    :undoc-members:
    :show-inheritance:
 
-ligand_param.stages.checkcharge
+ligand_param.stages.charge
 -------------------------------
 
-.. automodule:: ligand_param.stages.checkcharge
+.. automodule:: ligand_param.stages.charge
    :members:
    :undoc-members:
    :show-inheritance:
 
-   ligand_param.stages.fixcharge
--------------------------------
 
-.. automodule:: ligand_param.stages.fixcharge
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 ligand_param.stages.gaussian
 -------------------------------
