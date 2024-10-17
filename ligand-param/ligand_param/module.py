@@ -183,7 +183,7 @@ class FreeLigand(Parametrization):
                                 orig_mol2=self.base_name+".resp.mol2", 
                                 new_mol2=self.base_name+".resp.mol2"),
             StageUpdate("UpdateTyping", base_cls=self,
-                                orig_mol2=self.base_name+'.log.mol2',
+                                orig_mol2=self.base_name+'.antechamber.mol2',
                                 to_update=self.base_name+'.resp.mol2',
                                 new_mol2=self.base_name+'.resp.mol2', update_names=True, update_types=True),
             StageParmChk("ParmChk", base_cls=self),
