@@ -7,10 +7,10 @@ from ligand_param.stages.abstractstage import AbstractStage
 from ligand_param.interfaces import Antechamber
 from ligand_param.io.coordinates import Mol2Writer
 
-class StageUpdateTypes(AbstractStage):
-    """ This class creates a new mol2 file with updated charges. """
-    def __init__(self, name, base_cls=None, orig_mol2=None, to_update=None, new_mol2=None) -> None:
-        """ Initialize the StageUpdateCharge class.
+class StageUpdate(AbstractStage):
+    """" This class updates either (or both) the atom types and names in a mol2 file to match another mol2 file. """
+    def __init__(self, name, base_cls=None, orig_mol2=None, to_update=None, new_mol2=None, update_names=False, update_types=False) -> None:
+        """ Initialize the StageUpdate class.
         
         Parameters
         ----------
@@ -20,12 +20,14 @@ class StageUpdateTypes(AbstractStage):
             The base class of the ligand
         orig_mol2 : str
             The original mol2 file
+        to_update : str
+            The file to update
         new_mol2 : str
             The new mol2 file
-        charge_source : str
-            The source of the charges
-        charge_column : int
-            The column of the charges
+        update_names : bool
+            If True, update the atom names
+        update_types : bool
+            If True, update the atom types
         """
         self.name = name
         self.base_cls = base_cls
@@ -43,6 +45,9 @@ class StageUpdateTypes(AbstractStage):
             self.new_mol2 = new_mol2
         else:
             raise ValueError("Please provide the new types file.")
+        
+        self.update_names = update_names
+        self.update_types = update_types
 
     
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
@@ -52,12 +57,22 @@ class StageUpdateTypes(AbstractStage):
         import warnings
         # Supress the inevitable mol2 file warnings.
         warnings.filterwarnings("ignore")
+
+        if not self.update_names and not self.update_types:
+            print("No updates requested. Exiting.")
+            return
+
         uorig = mda.Universe(self.orig_mol2, format="mol2")
         unew = mda.Universe(self.to_update, format="mol2")
         for orig_atom, new_atom in zip(uorig.atoms, unew.atoms):
             if orig_atom.type != new_atom.type:
-                print(f"Atom {orig_atom.name} has type {orig_atom.type} and will be updated to {new_atom.type}")
-                new_atom.type = orig_atom.type
+                if self.update_types:
+                    print(f"Atom {orig_atom.name} has type {orig_atom.type} and will be updated to {new_atom.type}")
+                    new_atom.type = orig_atom.type
+            if orig_atom.type != new_atom.type:
+                if self.update_names:
+                    print(f"Atom with {new_atom.name} will be updated to {orig_atom.type}")
+                    new_atom.name = orig_atom.name
             
         if not dry_run:
             Mol2Writer(unew, filename=f"{self.base_cls.base_name}.types.mol2").write()

@@ -9,7 +9,7 @@ from ligand_param.stages.resp import StageLazyResp, StageMultiRespFit
 from ligand_param.stages.leap import StageLeap
 from ligand_param.stages.parmchk import StageParmChk
 from ligand_param.stages.charge import StageUpdateCharge, StageNormalizeCharge
-from ligand_param.stages.typematching import StageUpdateTypes
+from ligand_param.stages.typematching import StageUpdate
 
 
 class Parametrization(Driver):
@@ -129,10 +129,10 @@ class LazyLigand(Parametrization):
             StageNormalizeCharge("Normalize2", base_cls=self, 
                     orig_mol2=self.base_name+".resp.mol2", 
                     new_mol2=self.base_name+".resp.mol2"),
-            StageUpdateTypes("UpdateTypes", base_cls=self,
+            StageUpdate("UpdateTypes", base_cls=self,
                     orig_mol2=self.base_name+'.antechamber.mol2',
                     to_update=self.base_name+'.resp.mol2',
-                    new_mol2=self.base_name+'.resp.mol2'),
+                    new_mol2=self.base_name+'.resp.mol2', update_names=True, update_types=True),
             StageParmChk("ParmChk", base_cls=self),
             StageLeap("Leap", base_cls=self)
 
@@ -182,10 +182,10 @@ class FreeLigand(Parametrization):
             StageNormalizeCharge("Normalize", base_cls=self, 
                                 orig_mol2=self.base_name+".resp.mol2", 
                                 new_mol2=self.base_name+".resp.mol2"),
-            StageUpdateTypes("UpdateTypes", base_cls=self,
+            StageUpdate("UpdateTyping", base_cls=self,
                                 orig_mol2=self.base_name+'.log.mol2',
                                 to_update=self.base_name+'.resp.mol2',
-                                new_mol2=self.base_name+'.resp.mol2'),
+                                new_mol2=self.base_name+'.resp.mol2', update_names=True, update_types=True),
             StageParmChk("ParmChk", base_cls=self),
             StageLeap("Leap", base_cls=self)
         ]
