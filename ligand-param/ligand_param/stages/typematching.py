@@ -69,7 +69,7 @@ class StageUpdate(AbstractStage):
                 if self.update_types:
                     print(f"Atom {orig_atom.name} has type {orig_atom.type} and will be updated to {new_atom.type}")
                     new_atom.type = orig_atom.type
-            if orig_atom.type != new_atom.type:
+            if orig_atom.name != new_atom.name:
                 if self.update_names:
                     print(f"Atom with {new_atom.name} will be updated to {orig_atom.type}")
                     new_atom.name = orig_atom.name
