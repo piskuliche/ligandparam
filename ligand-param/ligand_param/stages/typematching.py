@@ -61,13 +61,19 @@ class StageUpdate(AbstractStage):
         if not self.update_names and not self.update_types:
             print("No updates requested. Exiting.")
             return
+        if self.update_names and self.update_types:
+            print("Both updates requested. This will update both atom names and types.")
+        elif self.update_names:
+            print("Only updating atom names.")
+        elif self.update_types:
+            print("Only updating atom types.")
 
         uorig = mda.Universe(self.orig_mol2, format="mol2")
         unew = mda.Universe(self.to_update, format="mol2")
         for orig_atom, new_atom in zip(uorig.atoms, unew.atoms):
             if orig_atom.type != new_atom.type:
                 if self.update_types:
-                    print(f"Atom {orig_atom.name} has type {orig_atom.type} and will be updated to {new_atom.type}")
+                    print(f"Atom with {orig_atom.name} has type {orig_atom.type} and will be updated to {new_atom.type}")
                     new_atom.type = orig_atom.type
             if orig_atom.name != new_atom.name:
                 if self.update_names:
