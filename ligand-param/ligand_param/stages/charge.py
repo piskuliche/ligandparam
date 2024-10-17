@@ -160,8 +160,7 @@ class StageNormalizeCharge(AbstractStage):
             print("-> Charges are already normalized")
             return
         if not dry_run:
-            ag = u.select_atoms("all")
-            ag.write(self.base_cls.base_name + ".tmpnorm.mol2")
+            Mol2Writer(u, self.base_cls.base_name + ".tmpnorm.mol2", selection="all").write()
 
         ante = Antechamber()
         ante.call(i=self.base_cls.base_name + ".tmpnorm.mol2", fi='mol2',
