@@ -130,7 +130,7 @@ class LazyLigand(Parametrization):
                     orig_mol2=self.base_name+".resp.mol2", 
                     new_mol2=self.base_name+".resp.mol2"),
             StageUpdateTypes("UpdateTypes", base_cls=self,
-                    orig_mol2=self.base_name+'.log.mol2',
+                    orig_mol2=self.base_name+'.antechamber.mol2',
                     to_update=self.base_name+'.resp.mol2',
                     new_mol2=self.base_name+'.resp.mol2'),
             StageParmChk("ParmChk", base_cls=self),
