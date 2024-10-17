@@ -196,7 +196,8 @@ class StageNormalizeCharge(AbstractStage):
         # Flip the order to choose the largest charges first.
         sorted_indices = sorted_indices[::-1]
         for i in range(int(count)):
-            charges[sorted_indices[i]] += adjust
+            atom_idx = i % natoms
+            charges[sorted_indices[atom_idx]] += adjust
         return charges
 
     def check_charge(self, charges):
