@@ -190,7 +190,7 @@ class Mol2Writer:
         self._remove_blank_lines()
         return
     
-def RemoveConnect(self, filename):
+def Remove_PDB_CONECT(self, filename):
     """ Removes CONECT lines from a PDB file.
 
     This script (1) copies the pdb file to a new file (with input_ added to the filename)
