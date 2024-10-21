@@ -75,7 +75,7 @@ class StageUpdate(AbstractStage):
         uorig = mda.Universe(self.orig_mol2, format="mol2")
         unew = mda.Universe(self.to_update, format="mol2")
         if self.update_resname:
-            unew.atoms.resnames = uorig.atoms.resnames
+            unew.residues.resnames = uorig.residues.resnames
         for orig_atom, new_atom in zip(uorig.atoms, unew.atoms):
             if orig_atom.type != new_atom.type:
                 if self.update_types:
