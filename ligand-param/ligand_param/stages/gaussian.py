@@ -33,6 +33,7 @@ class StageGaussian(AbstractStage):
         """
         self.name = name
         self.base_cls = base_cls
+        # No required files for this stage to execute.
         return
     
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
@@ -113,6 +114,21 @@ class StageGaussianRotation(AbstractStage):
     for each rotated ligand. """
 
     def __init__(self, name, alpha = [0.0], beta = [0.0], gamma = [0.0], base_cls=None) -> None:
+        """ Initialize the StageGaussianRotation class.
+        
+        Parameters
+        ----------
+        name : str
+            The name of the stage
+        alpha : list
+            The list of alpha angles to rotate the ligand
+        beta : list
+            The list of beta angles to rotate the ligand
+        gamma : list
+            The list of gamma angles to rotate the ligand
+        base_cls : Ligand
+            The base class of the ligand
+        """
         self.name = name
         self.alpha = alpha
         self.beta = beta
@@ -262,6 +278,9 @@ class StageGaussiantoMol2(AbstractStage):
         self.name = name
         self.base_cls = base_cls
         self.dry_run = dry_run
+
+        self.add_required(f'gaussianCalcs/{self.base_cls.base_name}.log')
+        self.add_required(f'gaussianCalcs/{self.base_cls.base_name}.antechamber.mol2')
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """ Append the stage to the current stage. """

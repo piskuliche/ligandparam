@@ -50,7 +50,6 @@ class StageUpdateCharge(AbstractStage):
                 raise ValueError("ERROR: Please provide a charge column.")
         
         self.add_required(orig_mol2)
-        self.add_required(new_mol2)
         self.add_required(charge_source)
         return
     
@@ -109,6 +108,13 @@ class StageNormalizeCharge(AbstractStage):
         precision : float
             The precision of the charge normalization
 
+        Raises
+        ------
+        ValueError
+            If the original mol2 file is not provided
+        ValueError
+            If the new mol2 file is not provided
+
         """
         self.name = name
         self.base_cls = base_cls
@@ -121,14 +127,23 @@ class StageNormalizeCharge(AbstractStage):
             self.new_mol2 = new_mol2
         else:
             raise ValueError("Please provide a new filename.")
+        
+
         self.precision = precision
         self.decimals = len(str(precision).split(".")[1])
+
+        self.add_required(orig_mol2)
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
     def _execute(self, dry_run=False):
         """ Execute the stage. 
+
+        Raises
+        ------
+        ValueError
+            If the charge normalization fails
         
         TODO: Check what happens when netcharge is nonzero
         TODO: Check what happens when charge difference is larger than the number of atoms
@@ -140,6 +155,7 @@ class StageNormalizeCharge(AbstractStage):
         print("-> Checking charges")
         print(f"-> Normalizing charges to {self.base_cls.net_charge}")
         print(f"-> Precision {self.precision} with {self.decimals} decimals")
+
         u = mda.Universe(self.orig_mol2, format='mol2')
         total_charge, charge_difference = self.check_charge(u.atoms.charges)
         

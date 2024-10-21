@@ -17,6 +17,8 @@ class StageLeap(AbstractStage):
 
         self.name = name
         self.base_cls = base_cls
+        self.add_required(f"{self.base_cls.base_name}.frcmod")
+        self.add_required(f"{self.base_cls.base_name}.resp.mol2")
 
         return
     
