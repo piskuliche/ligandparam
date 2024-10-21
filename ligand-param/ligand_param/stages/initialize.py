@@ -1,5 +1,6 @@
 from ligand_param.stages.abstractstage import AbstractStage
 from ligand_param.interfaces import Antechamber
+from ligand_param.io.coordinates import Remove_PDB_CONECT
 
 class StageInitialize(AbstractStage):
     """ This class is used to initialize from pdb to mol2 file using Antechamber.
@@ -24,6 +25,8 @@ class StageInitialize(AbstractStage):
         """
         self.name = name
         self.base_cls = base_cls
+
+        self.add_required(self.base_cls.pdb_filename)
         
         return
     
@@ -43,6 +46,7 @@ class StageInitialize(AbstractStage):
         -------
         None
         """
+        Remove_PDB_CONECT(self.base_cls.pdb_filename)
         ante = Antechamber()
         ante.call(i=self.base_cls.base_name+'.pdb', fi='pdb',
                   o=self.base_cls.base_name+'.antechamber.mol2', fo='mol2',
@@ -51,7 +55,7 @@ class StageInitialize(AbstractStage):
                   dry_run = dry_run)
         
     def _clean(self):
-        """ Clean the files generated during the stalsge. """
+        """ Clean the files generated during the stage. """
         raise NotImplementedError("clean method not implemented")
     
 """
