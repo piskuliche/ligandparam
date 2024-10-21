@@ -53,7 +53,7 @@ class StageUpdateCharge(AbstractStage):
             else:
                 raise ValueError("Please provide a charge source file.")
             
-            if charge_colunm is not None:
+            if charge_column is not None:
                 self.charge_column = charge_column
             else:
                 raise ValueError("Please provide a charge column.")
