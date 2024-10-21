@@ -281,7 +281,7 @@ class StageGaussiantoMol2(AbstractStage):
         self.dry_run = dry_run
 
         self.add_required(f'gaussianCalcs/{self.base_cls.base_name}.log')
-        self.add_required(f'gaussianCalcs/{self.base_cls.base_name}.antechamber.mol2')
+        self.add_required(f'{self.base_cls.base_name}.antechamber.mol2')
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """ Append the stage to the current stage. """
