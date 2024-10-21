@@ -32,18 +32,9 @@ class StageUpdateCharge(AbstractStage):
         self.name = name
         self.base_cls = base_cls
 
-        if orig_mol2 is not None:
-            self.orig_mol2 = orig_mol2
-        else:
-            self.orig_mol2 = self.base_cls.base_name + ".mol2"
-        
-        if new_mol2 is not None:
-            self.new_mol2 = new_mol2
-        else:
-            self.new_mol2 = self.base_cls.base_name + ".resp.mol2"
-
         if self.orig_mol2 == self.new_mol2:
-            raise ValueError("Original and new mol2 files are the same. Please provide different files.")
+            raise ValueError("ERROR: Original and new mol2 files are the same. Please provide different files.")
+        
         if charge_source is "multistate":
             self.charge_source = "respfit.out"
             self.charge_column = 3
@@ -51,13 +42,17 @@ class StageUpdateCharge(AbstractStage):
             if charge_source is not None:
                 self.charge_source = charge_source
             else:
-                raise ValueError("Please provide a charge source file.")
+                raise ValueError("ERROR: Please provide a charge source file.")
             
             if charge_column is not None:
                 self.charge_column = charge_column
             else:
-                raise ValueError("Please provide a charge column.")
-        pass
+                raise ValueError("ERROR: Please provide a charge column.")
+        
+        self.add_required(orig_mol2)
+        self.add_required(new_mol2)
+        self.add_required(charge_source)
+        return
     
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
@@ -74,7 +69,7 @@ class StageUpdateCharge(AbstractStage):
         if not dry_run:
             u = mda.Universe(self.orig_mol2, format='mol2')
             if len(charges) != len(u.atoms):
-                raise ValueError("Number of charges does not match the number of atoms.")
+                raise ValueError("Error: Number of charges does not match the number of atoms.")
             u.atoms.charges = charges
             # Write the Mol2 temporary file
             Mol2Writer(u, self.base_cls.base_name + ".tmpresp.mol2", selection="all").write()

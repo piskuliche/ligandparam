@@ -25,6 +25,8 @@ class StageInitialize(AbstractStage):
         """
         self.name = name
         self.base_cls = base_cls
+
+        self.add_required(self.base_cls.pdb_filename)
         
         return
     
@@ -53,7 +55,7 @@ class StageInitialize(AbstractStage):
                   dry_run = dry_run)
         
     def _clean(self):
-        """ Clean the files generated during the stalsge. """
+        """ Clean the files generated during the stage. """
         raise NotImplementedError("clean method not implemented")
     
 """
