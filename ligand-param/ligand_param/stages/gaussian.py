@@ -33,6 +33,7 @@ class StageGaussian(AbstractStage):
         """
         self.name = name
         self.base_cls = base_cls
+        self.add_outputs(f'gaussianCalcs/{self.base_cls.base_name}.log')
         # No required files for this stage to execute.
         return
     

@@ -77,4 +77,11 @@ class AbstractStage(metaclass=ABCMeta):
             if not Path(fname).exists():
                 raise FileNotFoundError(f"ERROR: File {fname} not found.")
         return 
+    
+    def _add_outputs(self, outputs):
+        """ Add the outputs to the stage. """
+        if not hasattr(self, 'outputs'):
+            self.outputs = []
+        self.outputs.append(outputs)
+        return
 

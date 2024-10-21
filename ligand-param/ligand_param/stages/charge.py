@@ -51,6 +51,7 @@ class StageUpdateCharge(AbstractStage):
         
         self.add_required(orig_mol2)
         self.add_required(charge_source)
+
         return
     
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
@@ -133,6 +134,7 @@ class StageNormalizeCharge(AbstractStage):
         self.decimals = len(str(precision).split(".")[1])
 
         self.add_required(orig_mol2)
+
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
