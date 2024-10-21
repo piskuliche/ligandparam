@@ -9,7 +9,7 @@ from ligand_param.io.coordinates import Mol2Writer
 
 class StageUpdate(AbstractStage):
     """" This class updates either (or both) the atom types and names in a mol2 file to match another mol2 file. """
-    def __init__(self, name, base_cls=None, orig_mol2=None, to_update=None, new_mol2=None, update_names=False, update_types=False) -> None:
+    def __init__(self, name, base_cls=None, orig_mol2=None, to_update=None, new_mol2=None, update_names=False, update_types=False, update_resname=False) -> None:
         """ Initialize the StageUpdate class.
         
         Parameters
@@ -28,6 +28,8 @@ class StageUpdate(AbstractStage):
             If True, update the atom names
         update_types : bool
             If True, update the atom types
+        update_resname : bool
+            If True, update the residue names (only if another update is requested)
         """
         self.name = name
         self.base_cls = base_cls
@@ -48,6 +50,7 @@ class StageUpdate(AbstractStage):
         
         self.update_names = update_names
         self.update_types = update_types
+        self.update_resname = update_resname
 
     
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
@@ -67,9 +70,12 @@ class StageUpdate(AbstractStage):
             print("Only updating atom names.")
         elif self.update_types:
             print("Only updating atom types.")
+        
 
         uorig = mda.Universe(self.orig_mol2, format="mol2")
         unew = mda.Universe(self.to_update, format="mol2")
+        if self.update_resname:
+            unew.atoms.resnames = uorig.atoms.resnames
         for orig_atom, new_atom in zip(uorig.atoms, unew.atoms):
             if orig_atom.type != new_atom.type:
                 if self.update_types:
