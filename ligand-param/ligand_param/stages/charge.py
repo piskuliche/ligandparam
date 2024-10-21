@@ -32,6 +32,9 @@ class StageUpdateCharge(AbstractStage):
         self.name = name
         self.base_cls = base_cls
 
+        self.orig_mol2 = orig_mol2
+        self.new_mol2 = new_mol2
+
         if self.orig_mol2 == self.new_mol2:
             raise ValueError("ERROR: Original and new mol2 files are the same. Please provide different files.")
         
