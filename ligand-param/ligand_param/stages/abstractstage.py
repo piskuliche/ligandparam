@@ -31,7 +31,7 @@ class AbstractStage(metaclass=ABCMeta):
         self._execute(dry_run=dry_run)
         ending_files = self.list_files_in_directory(".")
         self.new_files = [f for f in ending_files if f not in starting_files]
-        print("Files generated:")
+        print("\nFiles generated:")
         for fnames in self.new_files:
             print(f"------> {fnames}")
         return
