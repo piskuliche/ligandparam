@@ -26,31 +26,21 @@ class AbstractStage(metaclass=ABCMeta):
         print("************************************")
         print(f"Executing {self.name}")
         print("************************************")
-        self.starting_files = self.list_files_in_directory(".")
+        starting_files = self.list_files_in_directory(".")
+        self._check_required()
         self._execute(dry_run=dry_run)
-        self.ending_files = self.list_files_in_directory(".")
+        ending_files = self.list_files_in_directory(".")
+        self.new_files = [f for f in ending_files if f not in starting_files]
+        print("Files generated:")
+        for fnames in self.new_files:
+            print(f"------> {fnames}")
+        return
 
     def clean(self) -> None:
         print("************************************")
         print(f"Cleaning {self.name}")
         print("************************************")
         self._clean()
-        return
-
-    def _add_output(self, file):
-        """ Add an output file to the stage. 
-
-        This is used by different stages to keep track of the output files that
-        it generates. This allows for easy cleaning of the files.
-        
-        Parameters
-        ----------
-        file : str
-            The file to add to the output list.
-        """
-        if self.outputs is None:
-            self.outputs = []
-        self.outputs.append(file)
         return
     
     def list_files_in_directory(self, directory):
@@ -63,4 +53,27 @@ class AbstractStage(metaclass=ABCMeta):
             
         """
         return [f.name for f in Path(directory).iterdir() if f.is_file()]
+
+    def add_required(self, filename):
+        """ Add a required file to the stage. 
+        
+        Parameters
+        ----------
+        filename : str
+            The file to add to the required list.
+        """
+        if not hasattr(self, 'required'):
+            self.required = []
+        self.required.append(filename)
+        return
     
+    def _check_required(self):
+        """ Check if the required files are present. """
+        current_fnames = self.list_files_in_directory(".")
+        if not hasattr(self, 'required'):
+            return 
+        for fname in self.required:
+            if fname not in current_fnames:
+                raise FileNotFoundError(f"ERROR: File {fname} not found.")
+        return 
+
