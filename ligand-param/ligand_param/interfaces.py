@@ -38,7 +38,9 @@ class SimpleInterface:
             print(command)
         else:
             print("Executing command")
-            subprocess.run(command, shell=shell)
+            proc = subprocess.run(command, shell=shell, stdout=subprocess.PIPE)
+            for line in proc.stdout.split('\n'):
+                print(f"output -> {line}")
             print(f"Command {command} executed")
         return
    
