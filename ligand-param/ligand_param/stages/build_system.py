@@ -109,7 +109,7 @@ class StageBuild(AbstractStage):
         aqleap.add_line(f"saveamberparm mol {self.base_cls.base_name}_aq_noions.parm7 {self.base_cls.base_name}_aq_noions.rst7")
         aqleap.add_line("quit")
         # Write the leap input file
-        aqleap.write("")
+        aqleap.write()
         # Call the leap program to run initial check
         leap = Leap()
         leap.call(f="tleap.build.in", dry_run = dry_run)
@@ -120,7 +120,7 @@ class StageBuild(AbstractStage):
             aqleap.add_line(f"addionsrand mol NA {num_NA} CL {num_Cl} 6.0")
             aqleap.add_line(f"saveamberparm mol {self.base_cls.base_name}_aq.parm7 {self.base_cls.base_name}_aq.rst7")
             aqleap.add_line("quit")
-            aqleap.write("")
+            aqleap.write()
             leap = Leap()
             leap.call(f="tleap.build.in", dry_run = dry_run)
 
@@ -139,7 +139,7 @@ class StageBuild(AbstractStage):
         gasleap.add_line(f"saveamberparm mol {self.base_cls.base_name}_gas.parm7 {self.base_cls.base_name}_gas.rst7")
         gasleap.add_line("quit")
         # Write the leap input file
-        gasleap.write("")
+        gasleap.write()
         # Call the leap program
         leap = Leap()
         leap.call(f="tleap.gas.in", dry_run = dry_run)
@@ -178,7 +178,7 @@ class StageBuild(AbstractStage):
         targetleap.add_line(f"saveamberparm mol {self.base_cls.base_name}_target_noions.parm7 {self.base_cls.base_name}_target_noions.rst7")
         targetleap.add_line("quit")
         # Write the leap input file
-        targetleap.write("")
+        targetleap.write()
         # Call the leap program to run initial check
         leap = Leap()
         leap.call(f="tleap.target.in", dry_run = dry_run)
@@ -189,7 +189,7 @@ class StageBuild(AbstractStage):
             targetleap.add_line(f"addionsrand mol NA {num_NA} CL {num_Cl} 6.0")
             targetleap.add_line(f"saveamberparm mol {self.base_cls.base_name}_target.parm7 {self.base_cls.base_name}_target.rst7")
             targetleap.add_line("quit")
-            targetleap.write("")
+            targetleap.write()
             leap = Leap()
             leap.call(f="tleap.target.in", dry_run = dry_run)
     
