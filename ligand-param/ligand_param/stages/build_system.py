@@ -122,7 +122,7 @@ class StageBuild(AbstractStage):
         leap.call(f="tleap.aq.in", dry_run = dry_run)
         num_NA, num_Cl = self.Get_Num_Ions(self.base_cls.base_name+"_aq_noions.parm7")
         # Call the leap program to add ions
-        aqleap.remove("quit")
+        aqleap.remove_line("quit")
         if self.concentration > 0.0:
             aqleap.add_line(f"addionsrand mol NA {num_NA} CL {num_Cl} 6.0")
             aqleap.add_line(f"saveamberparm mol {self.base_cls.base_name}_aq.parm7 {self.base_cls.base_name}_aq.rst7")
@@ -191,7 +191,7 @@ class StageBuild(AbstractStage):
         leap.call(f="tleap.target.in", dry_run = dry_run)
         num_NA, num_Cl = self.Get_Num_Ions(self.base_cls.base_name+"_target_noions.parm7")
         # Call the leap program to add ions
-        targetleap.remove("quit")
+        targetleap.remove_line("quit")
         if self.concentration > 0.0:
             targetleap.add_line(f"addionsrand mol NA {num_NA} CL {num_Cl} 6.0")
             targetleap.add_line(f"saveamberparm mol {self.base_cls.base_name}_target.parm7 {self.base_cls.base_name}_target.rst7")
