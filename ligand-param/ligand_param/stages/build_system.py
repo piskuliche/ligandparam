@@ -17,7 +17,7 @@ class StageBuild(AbstractStage):
         Object of the base class.
 
     """
-    def __init__(self, name, base_cls=None, build_type='aq', target_pdb=None, concentration=0.14) -> None:
+    def __init__(self, name, base_cls=None, build_type='aq', target_pdb=None, concentration=0.14, rbuffer=9.0) -> None:
         """ Initialize the StageInitialize class. 
         
         Parameters
@@ -28,11 +28,18 @@ class StageBuild(AbstractStage):
             The base class of the ligand
         build_type : str
             The type of build to perform [aq, gas, or target]
+        target_pdb : str
+            The target pdb file
+        concentration : float
+            The concentration of the ions
+        rbuffer : float
+            The buffer radius
         """
         self.name = name
         self.base_cls = base_cls
         self.concentration = concentration
         self.target_pdb = target_pdb
+        self.buffer = rbuffer
         
         self.add_required(f"{self.base_cls.base_name}.resp.mol2")
         self.add_required(f"{self.base_cls.base_name}.frcmod")
@@ -104,7 +111,7 @@ class StageBuild(AbstractStage):
         aqleap.add_line("\n")
         # Add counter ions
         aqleap.add_line(f"addions mol NA 0")
-        aqleap.add_line(f"solvateoct mol {solvent}")
+        aqleap.add_line(f"solvateOct mol {solvent} {self.buffer}")
         aqleap.add_line("\n")
         aqleap.add_line(f"saveamberparm mol {self.base_cls.base_name}_aq_noions.parm7 {self.base_cls.base_name}_aq_noions.rst7")
         aqleap.add_line("quit")
@@ -173,7 +180,7 @@ class StageBuild(AbstractStage):
         targetleap.add_line("\n")
         # Add counter ions
         targetleap.add_line(f"addions mol NA 0")
-        targetleap.add_line(f"solvateoct mol {solvent}")
+        targetleap.add_line(f"solvateoct mol {solvent} {self.buffer}")
         targetleap.add_line("\n")
         targetleap.add_line(f"saveamberparm mol {self.base_cls.base_name}_target_noions.parm7 {self.base_cls.base_name}_target_noions.rst7")
         targetleap.add_line("quit")
