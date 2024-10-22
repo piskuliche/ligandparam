@@ -205,7 +205,7 @@ class StageBuild(AbstractStage):
         water_concentration = 55.
         u = mda.Universe(parm7)
         total_charge = sum(u.atoms.charges)
-        num_waters = len(u.select_atoms("resname WAT"))
+        num_waters = len(u.select_atoms("resname WAT").residues)
         num_NA = len(u.select_atoms("resname NA"))+len(u.select_atoms("resname NA+"))
         num_CL = len(u.select_atoms("resname CL"))+len(u.select_atoms("resname CL-"))
         non_ion_charge = total_charge - num_NA + num_CL
