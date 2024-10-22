@@ -43,7 +43,7 @@ class StageLeap(AbstractStage):
         # Add the leap commands
         leapgen.add_line(f"loadamberparams {self.base_cls.base_name}.frcmod")
         leapgen.add_line(f"{resname} = loadmol2 {self.base_cls.base_name}.resp.mol2")
-        leapgen.add_line(f"saveOff mol {self.base_cls.base_name}.off")
+        leapgen.add_line(f"saveOff {resname} {self.base_cls.base_name}.off")
         leapgen.add_line("quit")
         # Write the leap input file
         leapgen.write()
