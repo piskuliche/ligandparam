@@ -51,6 +51,19 @@ class LeapWriter:
         """
         self.lines.append(line)
         return
+
+    def remove_line(self, string):
+        """ Remove a line from the tleap input file. 
+        
+        Parameters
+        ----------
+        line : str
+            The line to remove from the tleap input file
+        """
+        for line in self.lines:
+            if string in line:
+                self.lines.remove(line)
+        return
     
     def write(self):
         """ Write the tleap input file to disk.
