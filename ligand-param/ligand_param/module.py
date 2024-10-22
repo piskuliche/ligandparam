@@ -206,7 +206,6 @@ class FreeLigand(Parametrization):
 
 class BuildLigand(Parametrization):
     def setup(self):
-        self.target
         self.stages = [
             StageInitialize("Initialize", base_cls=self),
             StageNormalizeCharge("Normalize2", base_cls=self, 
