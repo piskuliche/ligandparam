@@ -44,8 +44,6 @@ class StageBuild(AbstractStage):
             self.build_type = 1
         elif build_type.lower() == 'target':
             self.build_type = 2
-            if ("protein" not in self.base_cls.leaprc) or ("RNA" not in self.base_cls.leaprc):
-                raise ValueError("ERROR: Please add a protein or RNA leaprc file to the leaprc list.")
             self.add_required(f"{self.target_pdb}")
         else:
             raise ValueError("ERROR: Please provide a valid build type. [aq, gas, or target]")
