@@ -131,9 +131,12 @@ class StageGaussianRotation(AbstractStage):
             The base class of the ligand
         """
         self.name = name
-        self.alpha = alpha
-        self.beta = beta
-        self.gamma = gamma
+        #self.alpha = alpha
+        #self.beta = beta
+        #self.gamma = gamma
+        self.alpha = [float(a) for a in alpha]
+        self.beta = [float(b) for b in beta]
+        self.gamma = [float(g) for g in gamma]
 
         if base_cls.coord_object is None:
             raise ValueError(f"Error (Stage {self.name}): Coordinate object not set")
