@@ -129,6 +129,7 @@ class StageBuild(AbstractStage):
         """ Build the ligand in gas environment. """
         gasleap = LeapWriter("gas")
         # Add the leaprc files
+        print(self.base_cls.leaprc)
         for rc in self.base_cls.leaprc:
             gasleap.add_leaprc(rc)
         # Add the leap commands
