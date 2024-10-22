@@ -57,6 +57,8 @@ class Parametrization(Driver):
         self.leaprc = []
         if not leaprc:
             self.leaprc = ['leaprc.gaff2']
+        else:
+            self.leaprc = leaprc
 
 
         # Set the base name
