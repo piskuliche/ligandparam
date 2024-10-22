@@ -172,7 +172,7 @@ class FreeLigand(Parametrization):
     def setup(self):
         self.stages = [
             StageInitialize("Initialize", base_cls=self),
-            StageNormalizeCharge("Normalize2", base_cls=self, 
+            StageNormalizeCharge("Normalize1", base_cls=self, 
                                 orig_mol2=self.base_name+".antechamber.mol2", 
                                 new_mol2=self.base_name+".antechamber.mol2"),
             StageGaussian("Minimize", base_cls=self),
@@ -210,7 +210,7 @@ class BuildLigand(Parametrization):
     def setup(self):
         self.stages = [
             StageInitialize("Initialize", base_cls=self),
-            StageNormalizeCharge("Normalize2", base_cls=self, 
+            StageNormalizeCharge("Normalize1", base_cls=self, 
                                 orig_mol2=self.base_name+".antechamber.mol2", 
                                 new_mol2=self.base_name+".antechamber.mol2"),
             StageGaussian("Minimize", base_cls=self),

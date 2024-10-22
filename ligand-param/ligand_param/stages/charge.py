@@ -52,8 +52,8 @@ class StageUpdateCharge(AbstractStage):
             else:
                 raise ValueError("ERROR: Please provide a charge column.")
         
-        self.add_required(orig_mol2)
-        self.add_required(charge_source)
+        self.add_required(self.orig_mol2)
+        self.add_required(self.charge_source)
 
         return
     
