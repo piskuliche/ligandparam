@@ -34,6 +34,7 @@ class LeapWriter:
     
     def gen_leap(self):
         """ Generate the tleap input file """
+        raise DeprecationWarning("gen_leap is deprecated. Use write instead.")
         for leap in self.leaprc:
             self.lines.append(f"source {leap}")
         self.lines.append("")
@@ -73,6 +74,8 @@ class LeapWriter:
 
         """
         with open(f"tleap.{self.name}.in", 'w') as f:
+            for line in self.leaprc:
+                f.write(f"source {line}\n")
             for line in self.lines:
                 f.write(f"{line}\n")
     
