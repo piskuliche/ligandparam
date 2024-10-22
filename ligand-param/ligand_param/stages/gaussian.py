@@ -207,11 +207,11 @@ class StageGaussianRotation(AbstractStage):
                         if dry_run:
                             print("Dry run: Gaussian calculations not run")
                             print("Would run the following file:")
-                            print(f'-->{self.base_cls.base_name}_rot_{a}_{b}_{g}.com')
+                            print(f'-->{self.base_cls.base_name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.com')
                         else:
                             gau_run = Gaussian()
-                            gau_run.call(inp_pipe=f'{self.base_cls.base_name}_rot_{a}_{b}_{g}.com', 
-                                    out_pipe=f'{self.base_cls.base_name}_rot_{a}_{b}_{g}.log',
+                            gau_run.call(inp_pipe=f'{self.base_cls.base_name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.com', 
+                                    out_pipe=f'{self.base_cls.base_name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.log',
                                     dry_run=dry_run)
                         rot_count += 1
                         self._print_status(rot_count, self.alpha, self.beta, self.gamma)
@@ -241,7 +241,7 @@ class StageGaussianRotation(AbstractStage):
         """
         total_count = len(alphas) * len(betas) * len(gammas)
         percent = count / total_count * 100
-        print(f"Current Rotation Progress: {percent}")
+        print(f"Current Rotation Progress: {percent:.2f}%%")
         return
     
     def write_rotation(self, coords):
