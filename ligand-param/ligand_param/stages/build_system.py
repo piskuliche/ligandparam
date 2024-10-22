@@ -112,7 +112,7 @@ class StageBuild(AbstractStage):
         aqleap.write()
         # Call the leap program to run initial check
         leap = Leap()
-        leap.call(f="tleap.build.in", dry_run = dry_run)
+        leap.call(f="tleap.aq.in", dry_run = dry_run)
         num_NA, num_Cl = self.Get_Num_Ions(self.base_cls.base_name+"_aq_noions.parm7")
         # Call the leap program to add ions
         aqleap.remove("quit")
@@ -122,7 +122,7 @@ class StageBuild(AbstractStage):
             aqleap.add_line("quit")
             aqleap.write()
             leap = Leap()
-            leap.call(f="tleap.build.in", dry_run = dry_run)
+            leap.call(f="tleap.aq.in", dry_run = dry_run)
 
     
     def _gas_build(self, dry_run=False):
