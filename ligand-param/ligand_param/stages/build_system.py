@@ -178,7 +178,7 @@ class StageBuild(AbstractStage):
         #targetleap.add_line(f"mol = loadmol2 {self.base_cls.base_name}.resp.mol2")
         targetleap.add_line(f"mol = loadpdb {self.target_pdb}")
         targetleap.add_line("\n")
-        targetleap.add_line("savepdb mol {self.base_cls.base_name}_in_target.pdb")
+        targetleap.add_line(f"savepdb mol {self.base_cls.base_name}_in_target.pdb")
         # Add counter ions
         targetleap.add_line(f"addions mol NA 0")
         targetleap.add_line(f"solvateoct mol {solvent} {self.buffer}")
