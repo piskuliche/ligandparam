@@ -154,7 +154,7 @@ class StageBuild(AbstractStage):
     def _target_build(self, dry_run=False): 
         """ Build the ligand in the target environment. """
         self.check_target()
-        targetleap = LeapWriter("aq")
+        targetleap = LeapWriter("target")
         # Add the leaprc files
         if len(self.base_cls.leaprc) == 0:
             targetleap.add_leaprc("leaprc.water.OPC")
