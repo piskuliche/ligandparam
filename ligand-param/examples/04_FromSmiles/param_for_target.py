@@ -22,27 +22,33 @@ leaprc.append("leaprc.gaff2")
 leaprc.append("leaprc.water.tip4pew")
 
 
-reference_structure = "reference.pdb"
+reference_structure = "1y27.pdb"
+reference_resname = "GUN"
 
 for i, molec in enumerate(example_set):
     # Generate the PDB from SMILES
     pdb = PDBFromSMILES(molec, example_set[molec])
     pdb.mol_from_smiles()
     pdb.write_pdb(f"{molec}_input.pdb")
-    # Copy the target into the directory
-    shutil.copyfile(reference_structure, f"{molec}_target.pdb")
-    shutil.copyfile(f"{molec}_input.pdb", f"{molec}.pdb")
-    os.system(f"sed -i -e 's@GUN@{molec}@g' {molec}_target.pdb")
+    
+    new = RenamePDBTypes(f"{molec}_input.pdb", molec)
+    new.add_mol("1y27_lig.pdb")
+    new.rename_by_reference()
+     
     # Make a directory for the molecule and cd into it.
     newdir = Path(f"{molec}")
     newdir.mkdir(exist_ok=True)
-    os.chdir(newdir)
     
+    shutil.copyfile(reference_structure, f"{molec}/{reference_structure}")
+    shutil.copyfile(f"{molec}.pdb", f"{molec}/{molec}.pdb")
+    os.system(f"sed -i -e 's@{reference_resname}@{molec}@g' {molec}/{reference_structure}")
+
+    os.chdir(newdir) 
     # Do the build
     build = BuildLigand(f"{molec}.pdb", netcharge=0, nproc=12,
-                         mem='60GB', target_pdb="1y27_target.pdb", leaprc=leaprc)
+                         mem='60GB', target_pdb=reference_structure, leaprc=leaprc)
     build.setup()
     build.list_stages()
-    build.execute(dry_run=False)
+    #build.execute(dry_run=False)
 
     os.chdir(Path(".."))
