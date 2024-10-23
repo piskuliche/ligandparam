@@ -38,8 +38,6 @@ class MolFromPDB:
         self._rdkit_representation()
         self._mda_representation()
         return
-    
-        
 
     
     def _rdkit_representation(self):
