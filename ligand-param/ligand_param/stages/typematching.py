@@ -52,6 +52,9 @@ class StageUpdate(AbstractStage):
         self.update_types = update_types
         self.update_resname = update_resname
 
+        self.add_required(orig_mol2)
+        self.add_required(to_update)
+
     
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage

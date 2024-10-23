@@ -31,7 +31,7 @@ class AbstractStage(metaclass=ABCMeta):
         self._execute(dry_run=dry_run)
         ending_files = self.list_files_in_directory(".")
         self.new_files = [f for f in ending_files if f not in starting_files]
-        print("Files generated:")
+        print("\nFiles generated:")
         for fnames in self.new_files:
             print(f"------> {fnames}")
         return
@@ -69,11 +69,19 @@ class AbstractStage(metaclass=ABCMeta):
     
     def _check_required(self):
         """ Check if the required files are present. """
-        current_fnames = self.list_files_in_directory(".")
+            
         if not hasattr(self, 'required'):
-            return 
+            return
+        
         for fname in self.required:
-            if fname not in current_fnames:
+            if not Path(fname).exists():
                 raise FileNotFoundError(f"ERROR: File {fname} not found.")
         return 
+    
+    def _add_outputs(self, outputs):
+        """ Add the outputs to the stage. """
+        if not hasattr(self, 'outputs'):
+            self.outputs = []
+        self.outputs.append(outputs)
+        return
 

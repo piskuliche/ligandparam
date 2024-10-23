@@ -33,6 +33,8 @@ class StageGaussian(AbstractStage):
         """
         self.name = name
         self.base_cls = base_cls
+        self._add_outputs(f'gaussianCalcs/{self.base_cls.base_name}.log')
+        # No required files for this stage to execute.
         return
     
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
@@ -113,10 +115,28 @@ class StageGaussianRotation(AbstractStage):
     for each rotated ligand. """
 
     def __init__(self, name, alpha = [0.0], beta = [0.0], gamma = [0.0], base_cls=None) -> None:
+        """ Initialize the StageGaussianRotation class.
+        
+        Parameters
+        ----------
+        name : str
+            The name of the stage
+        alpha : list
+            The list of alpha angles to rotate the ligand
+        beta : list
+            The list of beta angles to rotate the ligand
+        gamma : list
+            The list of gamma angles to rotate the ligand
+        base_cls : Ligand
+            The base class of the ligand
+        """
         self.name = name
-        self.alpha = alpha
-        self.beta = beta
-        self.gamma = gamma
+        #self.alpha = alpha
+        #self.beta = beta
+        #self.gamma = gamma
+        self.alpha = [float(a) for a in alpha]
+        self.beta = [float(b) for b in beta]
+        self.gamma = [float(g) for g in gamma]
 
         if base_cls.coord_object is None:
             raise ValueError(f"Error (Stage {self.name}): Coordinate object not set")
@@ -169,7 +189,7 @@ class StageGaussianRotation(AbstractStage):
                     test_rotation = self.base_cls.coord_object.rotate(alpha=a, beta=b, gamma=g)
                     store_coords.append(test_rotation)
                     # Write a guassian input file
-                    newgau = GaussianWriter(f'gaussianCalcs/{self.base_cls.base_name}_rot_{a}_{b}_{g}.com')
+                    newgau = GaussianWriter(f'gaussianCalcs/{self.base_cls.base_name}_rot_{a:0.2f}_{b:0.2f}_{g:0.2f}.com')
                     newgau.add_block(GaussianInput(command=f"#P {self.base_cls.theory['low']} SCF(Conver=6) NoSymm Test Pop=mk IOp(6/33=2) GFInput GFPrint",
                                         initial_coordinates = test_rotation,
                                         elements = self.base_cls.coord_object.get_elements(),
@@ -190,11 +210,11 @@ class StageGaussianRotation(AbstractStage):
                         if dry_run:
                             print("Dry run: Gaussian calculations not run")
                             print("Would run the following file:")
-                            print(f'-->{self.base_cls.base_name}_rot_{a}_{b}_{g}.com')
+                            print(f'-->{self.base_cls.base_name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.com')
                         else:
                             gau_run = Gaussian()
-                            gau_run.call(inp_pipe=f'{self.base_cls.base_name}_rot_{a}_{b}_{g}.com', 
-                                    out_pipe=f'{self.base_cls.base_name}_rot_{a}_{b}_{g}.log',
+                            gau_run.call(inp_pipe=f'{self.base_cls.base_name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.com', 
+                                    out_pipe=f'{self.base_cls.base_name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.log',
                                     dry_run=dry_run)
                         rot_count += 1
                         self._print_status(rot_count, self.alpha, self.beta, self.gamma)
@@ -224,7 +244,7 @@ class StageGaussianRotation(AbstractStage):
         """
         total_count = len(alphas) * len(betas) * len(gammas)
         percent = count / total_count * 100
-        print(f"Current Rotation Progress: {percent}")
+        print(f"Current Rotation Progress: {percent:.2f}%%")
         return
     
     def write_rotation(self, coords):
@@ -262,6 +282,9 @@ class StageGaussiantoMol2(AbstractStage):
         self.name = name
         self.base_cls = base_cls
         self.dry_run = dry_run
+
+        self.add_required(f'gaussianCalcs/{self.base_cls.base_name}.log')
+        self.add_required(f'{self.base_cls.base_name}.antechamber.mol2')
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """ Append the stage to the current stage. """
