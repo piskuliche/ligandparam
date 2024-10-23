@@ -99,8 +99,6 @@ class RenamePDBTypes:
                         available_names.remove(key)
                         renamed=True
                         break
-                    else:
-                        print(atom.name, key)
                 if not renamed:
                     raise ValueError("ERROR: Could not rename atom. ")
         self.mols[0].mda_universe.atoms.names = new_names
