@@ -32,18 +32,12 @@ class StageUpdateCharge(AbstractStage):
         self.name = name
         self.base_cls = base_cls
 
-        if orig_mol2 is not None:
-            self.orig_mol2 = orig_mol2
-        else:
-            self.orig_mol2 = self.base_cls.base_name + ".mol2"
-        
-        if new_mol2 is not None:
-            self.new_mol2 = new_mol2
-        else:
-            self.new_mol2 = self.base_cls.base_name + ".resp.mol2"
+        self.orig_mol2 = orig_mol2
+        self.new_mol2 = new_mol2
 
         if self.orig_mol2 == self.new_mol2:
-            raise ValueError("Original and new mol2 files are the same. Please provide different files.")
+            raise ValueError("ERROR: Original and new mol2 files are the same. Please provide different files.")
+        
         if charge_source is "multistate":
             self.charge_source = "respfit.out"
             self.charge_column = 3
@@ -51,13 +45,17 @@ class StageUpdateCharge(AbstractStage):
             if charge_source is not None:
                 self.charge_source = charge_source
             else:
-                raise ValueError("Please provide a charge source file.")
+                raise ValueError("ERROR: Please provide a charge source file.")
             
-            if charge_colunm is not None:
+            if charge_column is not None:
                 self.charge_column = charge_column
             else:
-                raise ValueError("Please provide a charge column.")
-        pass
+                raise ValueError("ERROR: Please provide a charge column.")
+        
+        self.add_required(self.orig_mol2)
+        self.add_required(self.charge_source)
+
+        return
     
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
@@ -74,7 +72,7 @@ class StageUpdateCharge(AbstractStage):
         if not dry_run:
             u = mda.Universe(self.orig_mol2, format='mol2')
             if len(charges) != len(u.atoms):
-                raise ValueError("Number of charges does not match the number of atoms.")
+                raise ValueError("Error: Number of charges does not match the number of atoms.")
             u.atoms.charges = charges
             # Write the Mol2 temporary file
             Mol2Writer(u, self.base_cls.base_name + ".tmpresp.mol2", selection="all").write()
@@ -114,6 +112,13 @@ class StageNormalizeCharge(AbstractStage):
         precision : float
             The precision of the charge normalization
 
+        Raises
+        ------
+        ValueError
+            If the original mol2 file is not provided
+        ValueError
+            If the new mol2 file is not provided
+
         """
         self.name = name
         self.base_cls = base_cls
@@ -126,14 +131,24 @@ class StageNormalizeCharge(AbstractStage):
             self.new_mol2 = new_mol2
         else:
             raise ValueError("Please provide a new filename.")
+        
+
         self.precision = precision
         self.decimals = len(str(precision).split(".")[1])
+
+        self.add_required(orig_mol2)
+
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
     def _execute(self, dry_run=False):
         """ Execute the stage. 
+
+        Raises
+        ------
+        ValueError
+            If the charge normalization fails
         
         TODO: Check what happens when netcharge is nonzero
         TODO: Check what happens when charge difference is larger than the number of atoms
@@ -145,6 +160,7 @@ class StageNormalizeCharge(AbstractStage):
         print("-> Checking charges")
         print(f"-> Normalizing charges to {self.base_cls.net_charge}")
         print(f"-> Precision {self.precision} with {self.decimals} decimals")
+
         u = mda.Universe(self.orig_mol2, format='mol2')
         total_charge, charge_difference = self.check_charge(u.atoms.charges)
         

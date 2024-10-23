@@ -34,6 +34,7 @@ class LeapWriter:
     
     def gen_leap(self):
         """ Generate the tleap input file """
+        raise DeprecationWarning("gen_leap is deprecated. Use write instead.")
         for leap in self.leaprc:
             self.lines.append(f"source {leap}")
         self.lines.append("")
@@ -51,6 +52,19 @@ class LeapWriter:
         """
         self.lines.append(line)
         return
+
+    def remove_line(self, string):
+        """ Remove a line from the tleap input file. 
+        
+        Parameters
+        ----------
+        line : str
+            The line to remove from the tleap input file
+        """
+        for line in self.lines:
+            if string in line:
+                self.lines.remove(line)
+        return
     
     def write(self):
         """ Write the tleap input file to disk.
@@ -60,6 +74,8 @@ class LeapWriter:
 
         """
         with open(f"tleap.{self.name}.in", 'w') as f:
+            for line in self.leaprc:
+                f.write(f"source {line}\n")
             for line in self.lines:
                 f.write(f"{line}\n")
     

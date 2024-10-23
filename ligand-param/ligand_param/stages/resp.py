@@ -24,6 +24,8 @@ class StageLazyResp(AbstractStage):
             """
         self.name = name
         self.base_cls = base_cls
+
+        self.add_required(f"./gaussianCalcs/{self.base_cls.base_name}.log")
         return
     
 
@@ -74,6 +76,10 @@ class StageMultiRespFit(AbstractStage):
         """
         self.name = name
         self.base_cls = base_cls
+
+        self.add_required(f"{self.base_cls.base_name}.log.mol2")
+        self.add_required(f"gaussianCalcs/{self.base_cls.base_name}.log")
+
         return
     
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":

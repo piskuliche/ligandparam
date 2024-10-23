@@ -189,4 +189,32 @@ class Mol2Writer:
         self._write()
         self._remove_blank_lines()
         return
+    
+def Remove_PDB_CONECT(filename):
+    """ Removes CONECT lines from a PDB file.
+
+    This script (1) copies the pdb file to a new file (with input_ added to the filename)
+    and (2) removes the CONECT records from the original file.
+    
+    Parameters
+    ----------
+    filename : str
+        The name of the file to check
+        
+    Returns
+    -------
+    None
+    """
+    import shutil
+    shutil.copyfile(filename, "input_"+filename)
+    with open(filename, 'r') as file:
+        lines = file.readlines()
+        new_lines = []
+        for line in lines:
+            if line.strip().startswith("CONECT"):
+                continue
+            new_lines.append(line)
+    with open(filename, 'w') as file:
+        file.writelines(new_lines)
+    return
 
