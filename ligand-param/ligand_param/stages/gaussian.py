@@ -5,20 +5,17 @@ from pathlib import Path
 
 from ligand_param.stages.abstractstage import AbstractStage
 from ligand_param.io.coordinates import Coordinates, SimpleXYZ, Mol2Writer
-from ligand_param.io.gaussianIO import GaussianWriter, GaussianInput
+from ligand_param.io.gaussianIO import GaussianWriter, GaussianInput, GaussianReader
 from ligand_param.interfaces import Gaussian, Antechamber
 
 
 
 class StageGaussian(AbstractStage):
-    """ This is class to run a basic Gaussian calculations on the ligand. 
-    
-    This does three gaussian steps, one at a low level of theory, one at a higher level of theory, 
-    and one for the resp calculation. 
-    
-    """
     def __init__(self, name, base_cls=None) -> None:
-        """ Initialize the StageGaussian class.
+        """ This is class to run a basic Gaussian calculations on the ligand. 
+    
+        This does three gaussian steps, one at a low level of theory, one at a higher level of theory, 
+        and one for the resp calculation. 
         
         Parameters
         ----------
@@ -86,7 +83,10 @@ class StageGaussian(AbstractStage):
         gau_complete = False    
         # Check if the Gaussian calculation has already been run
         if os.path.exists(f'gaussianCalcs/{self.base_cls.base_name}.log'):
-            gau_complete = True
+            reader = GaussianReader(f'gaussianCalcs/{self.base_cls.base_name}.log')
+            if reader.check_complete():
+                print("Gaussian calculation already complete")
+                gau_complete = True
 
         # Check if the Gaussian calculation should be rerun
         if self.base_cls.force_gaussian_rerun:
@@ -111,11 +111,10 @@ class StageGaussian(AbstractStage):
         raise NotImplementedError("clean method not implemented")
 
 class StageGaussianRotation(AbstractStage):
-    """ This is class to rotate the ligand and run Gaussian calculations of the resp charges
-    for each rotated ligand. """
 
     def __init__(self, name, alpha = [0.0], beta = [0.0], gamma = [0.0], base_cls=None) -> None:
-        """ Initialize the StageGaussianRotation class.
+        """ This is class to rotate the ligand and run Gaussian calculations of the resp charges
+        for each rotated ligand. 
         
         Parameters
         ----------
@@ -259,11 +258,11 @@ class StageGaussianRotation(AbstractStage):
         return
     
 class StageGaussiantoMol2(AbstractStage):
-    """ Convert Gaussian output to mol2 format. 
-    
-    This class converts the Gaussian output to mol2 format, and assigns the charges to the mol2 file. """
+
     def __init__(self, name, base_cls=None, dry_run = None) -> None:
-        """ Initialize the StageGaussiantoMol2 class 
+        """ Convert Gaussian output to mol2 format. 
+    
+        This class converts the Gaussian output to mol2 format, and assigns the charges to the mol2 file.
         
         Parameters
         ----------

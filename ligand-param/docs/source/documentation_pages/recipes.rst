@@ -3,10 +3,13 @@ Parametrization Recipes:
 
 This is a collection of recipes for parametrizing ligands with this package.
 
-ligand_param.module module
--------------------------------
+.. toctree::
+   :maxdepth: 2
+   :caption: Available Recipes:
 
-.. automodule:: ligand_param.module
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   ./recipes/lazyligand.rst
+   ./recipes/freeligand.rst
+   ./recipes/buildligand.rst
+   ./recipes/rnaligand.rst
+
+
