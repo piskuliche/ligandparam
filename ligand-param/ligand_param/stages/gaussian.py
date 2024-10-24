@@ -87,7 +87,7 @@ class StageGaussian(AbstractStage):
         # Check if the Gaussian calculation has already been run
         if os.path.exists(f'gaussianCalcs/{self.base_cls.base_name}.log'):
             reader = GaussianReader(f'gaussianCalcs/{self.base_cls.base_name}.log')
-            if reader.check_complete:
+            if reader.check_complete():
                 print("Gaussian calculation already complete")
                 gau_complete = True
 
