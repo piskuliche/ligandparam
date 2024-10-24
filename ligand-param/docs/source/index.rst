@@ -6,14 +6,7 @@
 Welcome to ligand_param's documentation!
 ========================================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
 
-   module
-   stages
-   multiresp
-   documentation_pages/examples
 
 Indices and tables
 ==================
@@ -90,3 +83,20 @@ A key aspect of the code is that you can easily add your own stages to the pipel
 
    test.execute()
 
+.. Contents
+   ========
+
+.. toctree::
+   :maxdepth: 4
+   :caption: Documentation
+   :numbered:
+   :hidden:
+   
+   ./documentation_pages/overview.rst
+   ./documentation_pages/installation.rst
+   ./documentation_pages/recipes.rst
+   ./documentation_pages/stages.rst
+   ./documentation_pages/io.rst
+   ./documentation_pages/multiresp.rst
+   ./documentation_pages/examples
+   

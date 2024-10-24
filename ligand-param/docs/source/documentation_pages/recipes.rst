@@ -1,7 +1,7 @@
-module
-===========
+Parametrization Recipes:
+=========================
 
-This is a test
+This is a collection of recipes for parametrizing ligands with this package.
 
 ligand_param.module module
 -------------------------------
