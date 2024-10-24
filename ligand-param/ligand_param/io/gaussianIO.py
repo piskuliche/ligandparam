@@ -4,9 +4,8 @@ import numpy as np
 
 
 class GaussianWriter:
-    """ Class to write Gaussian input files """
     def __init__(self, filename):
-        """ Initialize the class with a filename
+        """ Class for writing Gaussian input files
 
         The filename selected will be the name of the Gaussian input file that is written to 
         disk. The class also initializes the number of links to zero, and creates an empty list
@@ -118,7 +117,6 @@ class GaussianWriter:
         return f"g16 < self.filename > {self.filename.strip(extension)}.log"
 
 class GaussianInput:
-    """ Class to represent a Gaussian LINK1 block """
     def __init__(self, command="# HF/6-31G* OPT", elements=None, initial_coordinates=None, charge=0, multiplicity=1, header=None):
         """ Initialize a Gaussian block with the specified parameters.
 
@@ -192,10 +190,14 @@ class GaussianInput:
 
 
 class GaussianReader:
-    """ Class to read Gaussian log files """
     def __init__(self, filename):
-        """
-        Initialize the class with a filename
+        """ This is a class for reading Gaussian log files and pulling out information from them.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the Gaussian log file to read
+            
         """
         self.filename = filename
         return

@@ -4,15 +4,13 @@ import numpy as np
 from pathlib import Path
 
 class Coordinates:
-    """ A class to handle the coordinates of a structure. 
-    
-    This class is a wrapper around the MDAnalysis Universe class, and provides a simple interface to 
-    manipulate the coordinates of a structure.
-    
-    """
+
     def __init__(self, filename, filetype='pdb'):
-        """ Initialize the coordinates object.
+        """   A class to handle the coordinates of a structure. 
         
+        This class is a wrapper around the MDAnalysis Universe class, and provides a simple interface to 
+        manipulate the coordinates of a structure.
+            
         Parameters
         ----------
         filename : str
@@ -130,9 +128,8 @@ def SimpleXYZ(file_obj, coordinates):
 
 
 class Mol2Writer:
-    """ A class to write a mol2 file. """
     def __init__(self, u, filename=None, selection="all"):
-        """ Initialize the Mol2Writer class.
+        """ A class to write a mol2 file.
         
         Parameters
         ----------
