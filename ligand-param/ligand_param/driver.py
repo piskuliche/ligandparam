@@ -145,6 +145,3 @@ class Driver:
                 return
         print(f"Stage {stage_name} not found in list of stages.")
         return
-
-    
-    

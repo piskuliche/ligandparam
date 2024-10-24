@@ -14,20 +14,15 @@ from ligand_param.stages.build_system import StageBuild
 
 
 class Parametrization(Driver):
-    """This is the base class for all parametrizations, that is a sub class of the Driver class (located in Driver.py).
-    
-    The rough approach to using this class is to generate a new Parametrization class, and then generate self.stages as a list of stages that you want to run.
-
-
-    """
-
-
     def __init__(self, pdb_file, netcharge=0.0, atom_type="gaff2", 
                  theory_low='HF/6-31G*', theory_high='PBE1PBE/6-31G*', 
                  nproc=6, mem='8GB',
                 leaprc = [], target_pdb=None,
                 force_gaussian_rerun=False):
-        """Initialize the class with a PDB file and a net charge.
+        """ This is the base class for all parametrizations, that is a sub class of the :class:`ligand_param.driver.Driver` class.
+
+        The rough approach to using this class is to generate a new Parametrization class, and then generate self.stages as a list 
+        of stages that you want to run.
 
         Parameters
         ----------
@@ -104,7 +99,6 @@ class Parametrization(Driver):
             print("Forcing Gaussian calculations to rerun.")
         else:
             print("Defaulting to NOT rerunning Gaussian calculations.")
-
 
 
     

@@ -85,6 +85,7 @@ Full code
 ---------
 
 .. code-block:: python
+    
     #!/usr/bin/env python
 
     # Import the module
