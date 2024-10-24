@@ -1,8 +1,11 @@
-from ligand_param.io.smiles  import *
-from ligand_param.module import *
-from pathlib import Path
 import shutil
 import os
+
+from pathlib import Path
+
+from ligand_param.io.smiles  import *
+from ligand_param.recipes import BuildLigand
+
 
 # Here is an initial set of molecules 
 example_set = {
