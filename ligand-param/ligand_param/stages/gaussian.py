@@ -88,6 +88,7 @@ class StageGaussian(AbstractStage):
         if os.path.exists(f'gaussianCalcs/{self.base_cls.base_name}.log'):
             reader = GaussianReader(f'gaussianCalcs/{self.base_cls.base_name}.log')
             if reader.check_complete:
+                print("Gaussian calculation already complete")
                 gau_complete = True
 
         # Check if the Gaussian calculation should be rerun
