@@ -1,6 +1,7 @@
 import os
 
 import numpy as np
+from pathlib import Path
 
 
 class GaussianWriter:
@@ -199,8 +200,32 @@ class GaussianReader:
             The name of the Gaussian log file to read
             
         """
-        self.filename = filename
+        self.filename = Path(filename)
         return
+    
+    def check_complete(self):
+        """ Check if the Gaussian calculation is complete
+
+        This function checks if the Gaussian calculation is complete. This is done by reading the Gaussian log
+        file and checking for the presence of the "Normal termination" string.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        bool
+            True if the calculation is complete, False otherwise
+
+        """
+        if not self.filename.exists():
+            return False
+        with open(self.filename, 'r') as f:
+            for line in f:
+                if "Normal termination" in line:
+                    return True
+        return False
     
     def read_log(self):
         """ Read the Gaussian log file, and extract information from it.

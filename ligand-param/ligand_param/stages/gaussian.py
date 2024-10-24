@@ -5,7 +5,7 @@ from pathlib import Path
 
 from ligand_param.stages.abstractstage import AbstractStage
 from ligand_param.io.coordinates import Coordinates, SimpleXYZ, Mol2Writer
-from ligand_param.io.gaussianIO import GaussianWriter, GaussianInput
+from ligand_param.io.gaussianIO import GaussianWriter, GaussianInput, GaussianReader
 from ligand_param.interfaces import Gaussian, Antechamber
 
 
@@ -86,7 +86,9 @@ class StageGaussian(AbstractStage):
         gau_complete = False    
         # Check if the Gaussian calculation has already been run
         if os.path.exists(f'gaussianCalcs/{self.base_cls.base_name}.log'):
-            gau_complete = True
+            reader = GaussianReader(f'gaussianCalcs/{self.base_cls.base_name}.log')
+            if reader.check_complete:
+                gau_complete = True
 
         # Check if the Gaussian calculation should be rerun
         if self.base_cls.force_gaussian_rerun:
