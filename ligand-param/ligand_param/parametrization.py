@@ -96,4 +96,6 @@ class Parametrization(Driver):
             print("Defaulting to NOT rerunning Gaussian calculations.")
 
 class Recipe(Parametrization):
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        return

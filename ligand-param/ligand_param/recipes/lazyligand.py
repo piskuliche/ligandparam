@@ -15,6 +15,10 @@ class LazyLigand(Recipe):
     6. Generate the Leap input files.
     
     """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        return
+    
     def setup(self):
         self.stages = [
             StageInitialize("Initialize", base_cls=self),

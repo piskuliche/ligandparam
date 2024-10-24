@@ -3,6 +3,9 @@ from ligand_param.stages import *
 
 
 class BuildLigand(Recipe):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        return
     def setup(self):
         self.stages = [
             StageInitialize("Initialize", base_cls=self),

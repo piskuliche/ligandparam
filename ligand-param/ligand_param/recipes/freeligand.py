@@ -10,6 +10,7 @@ class FreeLigand(Recipe):
     This class does a parametrization using Gaussian and Antechamber, using also a multi-state RESP calculation.
     
     The steps are:
+    
     1. Initialize the ligand using the PDB file.
     2. Normalize the charges to preserve neutrality.
     3. Minimize the ligand using Gaussian
@@ -25,6 +26,9 @@ class FreeLigand(Recipe):
     10. Use parmchk to generate the frcmod file.
     11. Generate the lib file with leap.
     """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        return
     def setup(self):
         self.stages = [
             StageInitialize("Initialize", base_cls=self),
