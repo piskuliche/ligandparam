@@ -1,13 +1,11 @@
 class LeapWriter:
-    """ Class to write tleap input files
-
-    This class writes a simple tleap input file, with the ability to 
-    add leaprc files and lines to the file. This is a fairly simple interface,
-    and does not currently check for errors in the input file.
-
-    """
     def __init__(self, name):
-        """ Initialize the LeapWriter object
+        """ Class to write tleap input files
+
+        This class writes a simple tleap input file, with the ability to 
+        add leaprc files and lines to the file. This is a fairly simple interface,
+        and does not currently check for errors in the input file.
+
 
         Parameters
         ----------
