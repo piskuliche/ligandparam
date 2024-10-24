@@ -11,14 +11,11 @@ from ligand_param.interfaces import Gaussian, Antechamber
 
 
 class StageGaussian(AbstractStage):
-    """ This is class to run a basic Gaussian calculations on the ligand. 
-    
-    This does three gaussian steps, one at a low level of theory, one at a higher level of theory, 
-    and one for the resp calculation. 
-    
-    """
     def __init__(self, name, base_cls=None) -> None:
-        """ Initialize the StageGaussian class.
+        """ This is class to run a basic Gaussian calculations on the ligand. 
+    
+        This does three gaussian steps, one at a low level of theory, one at a higher level of theory, 
+        and one for the resp calculation. 
         
         Parameters
         ----------

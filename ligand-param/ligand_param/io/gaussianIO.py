@@ -224,7 +224,6 @@ class GaussianReader:
         with open(self.filename, 'r') as f:
             for line in f:
                 if "Normal termination" in line:
-                    print("Calculation complete.")
                     return True
         return False
     
