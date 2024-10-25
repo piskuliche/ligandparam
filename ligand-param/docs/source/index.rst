@@ -27,19 +27,19 @@ Here is a simple example of how to use the ligand_param module:
    #!/usr/bin/env python
 
    # Import the module
-   from ligand_param.module import *
+   from ligand_param.recipes import FreeLigand
 
    # Load the pdb as a instance of the FreeLigand class
-   test = FreeLigand('thiophenol.pdb', netcharge=0,nproc=12,mem='60GB')
+   parametrize_ligand = FreeLigand('thiophenol.pdb', netcharge=0,nproc=12,mem='60GB')
 
    # Select the pre-initialized stages for Lazy Ligand
-   test.setup()
+   parametrize_ligand.setup()
 
    # List the stages out to the user
-   test.list_stages()
+   parametrize_ligand.list_stages()
 
    # Execute the stages in order.
-   test.execute(dry_run=False)
+   parametrize_ligand.execute(dry_run=False)
 
 The above script will load the pdb file `thiophenol.pdb` and initialize the stages for the ligand parameterization. 
 
@@ -47,6 +47,7 @@ There are a number of different parametrization classes, including:
 
 - LazyLigand  Which just does a single RESP calculation
 - FreeLigand: Which does a multiRESP calculation
+- BuildLigand: Which builds a ligand from a pdb file (and outputs a parm7/rst7 file in gas, aqueous, or a protein/rna target)
 
 These classes are designed to be easily extensible, so you can add your own stages to the pipeline.
 
@@ -57,31 +58,31 @@ A key aspect of the code is that you can easily add your own stages to the pipel
 .. code-block:: python
    
    # Import the module
-   from ligand_param.module import *
+   from ligand_param.recipes import FreeLigand
 
    # Load the pdb as a instance of the FreeLigand class
-   test = FreeLigand('thiophenol.pdb', netcharge=0,nproc=12,mem='60GB')
+   parametrize_ligand = FreeLigand('thiophenol.pdb', netcharge=0,nproc=12,mem='60GB')
 
    # Select the pre-initialized stages for Lazy Ligand
-   test.setup()
+   parametrize_ligand.setup()
 
    # List the stages out to the user
-   test.list_stages()
+   parameterize_ligand.list_stages()
 
    # Remove the Normalize stage
-   test.remove_stage("Normalize")
+   parametrize_ligand.remove_stage("Normalize1")
 
-   from ligand_param.stages.charge import StageNormalizeCharge
+   from ligand_param.stages import StageNormalizeCharge
 
    # Add a new Normalize stage
-   test.add_stage(StageNormalizeCharge("Normalize2", orig_mol2=test.base_name+".resp.mol2",
+   parametrize_ligand.add_stage(StageNormalizeCharge("Normalize2", orig_mol2=test.base_name+".resp.mol2",
                      new_mol2=test.base_name+".resp.mol2"))
 
    # Insert a new Normalize stage before Normalize2
-   test.insert_stage(StageNormalizeCharge("Normalize3", orig_mol2=test.base_name+".resp.mol2",
+   parametrize_ligand.insert_stage(StageNormalizeCharge("Normalize3", orig_mol2=test.base_name+".resp.mol2",
                                                    new_mol2=test.base_name+".resp.mol2"),"Normalize2")
 
-   test.execute()
+   parametrize_ligand.execute()
 
 .. Contents
    ========

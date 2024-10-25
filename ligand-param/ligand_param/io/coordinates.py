@@ -190,7 +190,7 @@ class Mol2Writer:
 def Remove_PDB_CONECT(filename):
     """ Removes CONECT lines from a PDB file.
 
-    This script (1) copies the pdb file to a new file (with input_ added to the filename)
+    This script (1) copies the pdb file to a new file (with input added to the filename)
     and (2) removes the CONECT records from the original file.
     
     Parameters
@@ -201,6 +201,7 @@ def Remove_PDB_CONECT(filename):
     Returns
     -------
     None
+
     """
     import shutil
     shutil.copyfile(filename, "input_"+filename)

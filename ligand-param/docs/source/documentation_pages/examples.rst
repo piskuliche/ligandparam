@@ -14,6 +14,7 @@ Currently, the following examples are available:
    ./examples/01_LazyLigand.rst
    ./examples/02_FreeLigand.rst
    ./examples/03_ModifySteps.rst
+   ./examples/04_FromSmiles.rst
 
 .. toctree::
     :maxdepth: 2
