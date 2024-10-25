@@ -10,13 +10,10 @@ class FreeLigand(Recipe):
     This class does a parametrization using Gaussian and Antechamber, using also a multi-state RESP calculation.
     
     The steps are:
-    
+
     1. Initialize the ligand using the PDB file.
     2. Normalize the charges to preserve neutrality.
-    3. Minimize the ligand using Gaussian
-    (a) At a low level of theory
-    (b) At a high level of theory
-    (c) Calculate the RESP charges using Gaussian at the low level of theory.
+    3. Minimize the ligand using Gaussian (a) At a low level of theory (b) At a high level of theory (c) Calculate the RESP charges using Gaussian at the low level of theory.
     4. Rotate the ligand to sample grid-based errors in resp charges
     5. Add the gaussian charges to a mol2 file.
     6. Perform a multi-state RESP fit.
@@ -25,6 +22,7 @@ class FreeLigand(Recipe):
     9. Update the atom types in the mol2 file to match the gaussian output.
     10. Use parmchk to generate the frcmod file.
     11. Generate the lib file with leap.
+
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
