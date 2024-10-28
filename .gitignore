@@ -127,7 +127,7 @@ cython_debug/
 sqm*
 
 ./examples/01_LazyLigand/*
-./examples/01_LazyLigand/*.* 
+./examples/01_LazyLigand/*/* 
 !./examples/01_LazyLigand/thiophenol.pdb
 !./examples/01_LazyLigand/*.py
 
