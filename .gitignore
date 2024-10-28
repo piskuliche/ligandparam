@@ -126,19 +126,20 @@ cython_debug/
 *.com
 sqm*
 
-!example/01_LazyLigand/thiophenol.pdb
-!example/01_LazyLigand/*.py
-example/01_LazyLigand/*
+examples/01_LazyLigand/*
+!examples/01_LazyLigand/thiophenol.pdb
+!examples/01_LazyLigand/*.py
 
-!example/02_FreeLigand/thiophenol.pdb
-!example/02_FreeLigand/*.py
-example/02_FreeLigand/*
+examples/02_FreeLigand/*
+!examples/02_FreeLigand/thiophenol.pdb
+!examples/02_FreeLigand/*.py
 
-!example/03_ModifySteps/thiophenol.pdb
-!example/03_ModifySteps/*.py
-example/03_ModifySteps/*
+examples/03_ModifySteps/*
+!examples/03_ModifySteps/thiophenol.pdb
+!examples/03_ModifySteps/*.py
 
-!example/04_MultiResp/*.py
-!example/04_MultiResp/1Y27_lig.pdb
-!example/04_MultiResp/1Y27.pdb
-example/04_MultiResp/*
+examples/04_MultiResp/*
+!examples/04_MultiResp/*.py
+!examples/04_MultiResp/1Y27_lig.pdb
+!examples/04_MultiResp/1Y27.pdb
+
