@@ -1,2 +1,5 @@
 numpydoc
 sphinx-rtd-theme
+MDAnalysis
+numpy<2
+parmed
