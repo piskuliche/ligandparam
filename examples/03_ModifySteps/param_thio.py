@@ -18,10 +18,10 @@ test.remove_stage("Normalize")
 
 from ligandparam.stages import StageNormalizeCharge
 
-test.add_stage(StageNormalizeCharge("Normalize2", orig_mol2=test.base_name+".resp.mol2",
+test.add_stage(StageNormalizeCharge("Normalize2", base_cls=test, orig_mol2=test.base_name+".resp.mol2",
 						  new_mol2=test.base_name+".resp.mol2"))
 
-test.insert_stage(StageNormalizeCharge("Normalize3", orig_mol2=test.base_name+".resp.mol2",
+test.insert_stage(StageNormalizeCharge("Normalize3", base_cls=test, orig_mol2=test.base_name+".resp.mol2",
                                                   new_mol2=test.base_name+".resp.mol2"),"Normalize2")
 
 test.execute()

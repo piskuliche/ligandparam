@@ -107,10 +107,10 @@ Full code
 
     from ligandparam.stages.charge import StageNormalizeCharge
 
-    test.add_stage(StageNormalizeCharge("NormalizeA", orig_mol2=test.base_name+".resp.mol2",
+    test.add_stage(StageNormalizeCharge("NormalizeA", base_cls=test, orig_mol2=test.base_name+".resp.mol2",
                             new_mol2=test.base_name+".resp.mol2"))
 
-    test.insert_stage(StageNormalizeCharge("Normalize3", orig_mol2=test.base_name+".resp.mol2",
+    test.insert_stage(StageNormalizeCharge("Normalize3", base_cls=test, orig_mol2=test.base_name+".resp.mol2",
                                                     new_mol2=test.base_name+".resp.mol2"),"Normalize2")
 
     test.execute()
