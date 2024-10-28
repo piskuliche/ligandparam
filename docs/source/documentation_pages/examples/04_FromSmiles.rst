@@ -1,7 +1,7 @@
 Example 04: Building Systems from SMILES
 ========================================
 
-This example demonstrates how to use the ligand_param package to generate pdb files from SMILES strings,
+This example demonstrates how to use the ligandparam package to generate pdb files from SMILES strings,
 and use them to parametrize ligands. This example will use the FreeLigand class to parametrize a series of ligands
 from a SMILES strings. This example will also demonstrate how to BUILD these ligands into starting
 structures for Molecular Dyanmics simulations.
@@ -15,13 +15,13 @@ Learning Outcomes:
 
 Files 
 -----
-The files for this example can be found in the `LigandParameterization/ligand_param/examples/04_FreeLigand` directory of the source code.
+The files for this example can be found in the `LigandParameterization/examples/04_FreeLigand` directory of the source code.
 
 
 Tutorial 
 --------
 
-As with previous examples, we need to import the necessary modules and classes from the ligand_param package. 
+As with previous examples, we need to import the necessary modules and classes from the ligandparam package. 
 
 .. code-block:: python
 
@@ -30,8 +30,8 @@ As with previous examples, we need to import the necessary modules and classes f
 
     from pathlib import Path
 
-    from ligand_param.io.smiles  import *
-    from ligand_param.recipes import BuildLigand
+    from ligandparam.io.smiles  import *
+    from ligandparam.recipes import BuildLigand
 
 Here, we are additionally using the pathlib libraries to manage file paths, and the shutil library to copy files.
 
@@ -97,7 +97,7 @@ The BuildLigand class is similar to the FreeLigand class, but it is used to buil
 The setup method is used to initialize the stages, and the list_stages method is used to list the stages. 
 The execute method is used to run the stages in order.
 
-The main difference is that this class calls a new stage called :class:`ligand_param.recipes.StageBuild`, which builds the ligand into a 
+The main difference is that this class calls a new stage called :class:`ligandparam.recipes.StageBuild`, which builds the ligand into a 
 starting structure for MD simulations. 
 
 This class adds the following stages to the pipeline within its setup_method. 
@@ -122,8 +122,8 @@ Full code
 
     from pathlib import Path
 
-    from ligand_param.io.smiles  import *
-    from ligand_param.recipes import BuildLigand
+    from ligandparam.io.smiles  import *
+    from ligandparam.recipes import BuildLigand
 
 
     # Here is an initial set of molecules 

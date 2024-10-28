@@ -12,7 +12,7 @@ Learning Outcomes:
 
 Files 
 -----
-The files for this example can be found in the `LigandParameterization/ligand_param/examples/03_ModifySteps` directory of the source code.
+The files for this example can be found in the `LigandParameterization/examples/03_ModifySteps` directory of the source code.
 
 
 Tutorial 
@@ -27,7 +27,7 @@ to add the stages to the pipeline, and print them to the screen.
 .. code-block:: python
 
     # Import the module
-    from ligand_param.module import *
+    from ligandparam.module import *
 
     # Load the pdb as a instance of the FreeLigand class
     test = FreeLigand('thiophenol.pdb', netcharge=0,nproc=12,mem='60GB')
@@ -54,7 +54,7 @@ Stages can also be added to the pipeline, this requires two steps:
 
 .. code-block:: python
 
-    from ligand_param.stages.charge import StageNormalizeCharge
+    from ligandparam.stages.charge import StageNormalizeCharge
 
     test.add_stage(StageNormalizeCharge("NormalizeA", orig_mol2=test.base_name+".resp.mol2",
                             new_mol2=test.base_name+".resp.mol2"))
@@ -89,7 +89,7 @@ Full code
     #!/usr/bin/env python
 
     # Import the module
-    from ligand_param.module import *
+    from ligandparam.module import *
 
     # Load the pdb as a instance of the FreeLigand class
     test = FreeLigand('thiophenol.pdb', netcharge=0,nproc=12,mem='60GB')
@@ -105,7 +105,7 @@ Full code
     test.remove_stage("Normalize1")
 
 
-    from ligand_param.stages.charge import StageNormalizeCharge
+    from ligandparam.stages.charge import StageNormalizeCharge
 
     test.add_stage(StageNormalizeCharge("NormalizeA", orig_mol2=test.base_name+".resp.mol2",
                             new_mol2=test.base_name+".resp.mol2"))

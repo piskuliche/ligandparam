@@ -12,7 +12,7 @@ Learning Outcomes:
 
 Files 
 -----
-The files for this example can be found in the `LigandParameterization/ligand_param/examples/01_LazyLigand` directory of the source code.
+The files for this example can be found in the `LigandParameterization/ligandparam/examples/01_LazyLigand` directory of the source code.
 
 
 Tutorial 
@@ -23,11 +23,11 @@ all the recipes available in the module, whereas, importing a specific recipe wi
 
 .. code-block:: python
 
-    from ligand_param.module import *
+    from ligandparam.module import *
 
 
 The next step is to load the pdb file into the recipe of your choosing, and set various machine parameters. Full parameters that can be selected
-are available in the documentation for the class (for instance, for LazyLigand, see :class:`ligand_param.module.LazyLigand`).
+are available in the documentation for the class (for instance, for LazyLigand, see :class:`ligandparam.module.LazyLigand`).
 
 .. code-block:: python
     
@@ -47,19 +47,19 @@ The LazyLigand class has a number of stages that are pre-initialized.
 
 In brief, these are:
 
-1) :class:`ligand_param.stages.initialize.StageInitialize` - Generates the initial mol2 file with bcc charges using `antechamber`.
+1) :class:`ligandparam.stages.initialize.StageInitialize` - Generates the initial mol2 file with bcc charges using `antechamber`.
 
-2) :class:`ligand_param.stages.charge.StageNormalizeCharge` - Ensures that the bcc charges sum to the net charge, and tries to correct for any errors.
+2) :class:`ligandparam.stages.charge.StageNormalizeCharge` - Ensures that the bcc charges sum to the net charge, and tries to correct for any errors.
 
-3) :class:`ligand_param.stages.gaussian.StageGaussian` - Runs Gaussian to minimize the molecule and calculate the RESP charges. (More on this later)
+3) :class:`ligandparam.stages.gaussian.StageGaussian` - Runs Gaussian to minimize the molecule and calculate the RESP charges. (More on this later)
 
-4) :class:`ligand_param.stages.resp.StageLazyResp` - Uses `antechamber` to generate the final mol2 file with the RESP charges from the Gaussian calculation.
+4) :class:`ligandparam.stages.resp.StageLazyResp` - Uses `antechamber` to generate the final mol2 file with the RESP charges from the Gaussian calculation.
 
-5) :class:`ligand_param.stages.typematching.StageUpdate` - Updates the atom names to match the original antechamber atom names in the calculation.
+5) :class:`ligandparam.stages.typematching.StageUpdate` - Updates the atom names to match the original antechamber atom names in the calculation.
 
-6) :class:`ligand_param.stages.parmchk.StageParmChk` - Generates the frcmod file for the ligand using `parmchk2`.
+6) :class:`ligandparam.stages.parmchk.StageParmChk` - Generates the frcmod file for the ligand using `parmchk2`.
 
-7) :class:`ligand_param.stages.leap.StageLeap` - Runs `tleap` to generate the final `.off` parameter files for the ligand.
+7) :class:`ligandparam.stages.leap.StageLeap` - Runs `tleap` to generate the final `.off` parameter files for the ligand.
 
 
 To list the stages out to the user, you can use the *list_stages* method.
@@ -99,7 +99,7 @@ Full code
     #!/usr/bin/env python
 
     # Import the module
-    from ligand_param.module import *
+    from ligandparam.module import *
 
     # Load the pdb as a instance of the LazyLigand class
     test = LazyLigand('thiophenol.pdb', netcharge=0, nproc=12, mem='60GB')

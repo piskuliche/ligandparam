@@ -1,7 +1,7 @@
-ligand_param.recipes.buildligand
+ligandparam.recipes.buildligand
 --------------------------------
 
-.. automodule:: ligand_param.recipes.buildligand
+.. automodule:: ligandparam.recipes.buildligand
    :members:
    :undoc-members:
    :show-inheritance:

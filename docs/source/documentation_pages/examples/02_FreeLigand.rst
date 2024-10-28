@@ -4,8 +4,8 @@ Example 02: FreeLigand
 This example demonstrates how to use the FreeLigand class to perform a multi-state RESP calculation.
 
 The key difference between this and :doc:`01_LazyLigand` is that this
-example uses the :class:`ligand_param.stages.resp.StageMultiRespFit` stage to perform a multi-state RESP calculation
-after performing gaussian rotations using :class:`ligand_param.stages.gaussian.StageGaussianRotation`. These types of rotations
+example uses the :class:`ligandparam.stages.resp.StageMultiRespFit` stage to perform a multi-state RESP calculation
+after performing gaussian rotations using :class:`ligandparam.stages.gaussian.StageGaussianRotation`. These types of rotations
 ared useful for ensuring that the choice of grid points in the RESP calculation is not biased by the initial orientation of the molecule.
 
 Learning Outcomes:
@@ -16,7 +16,7 @@ Learning Outcomes:
 
 Files 
 -----
-The files for this example can be found in the `LigandParameterization/ligand_param/examples/02_FreeLigand` directory of the source code.
+The files for this example can be found in the `LigandParameterization/examples/02_FreeLigand` directory of the source code.
 
 
 Tutorial 
@@ -27,11 +27,11 @@ all the recipes available in the module, whereas, importing a specific recipe wi
 
 .. code-block:: python
 
-    from ligand_param.module import *
+    from ligandparam.module import *
 
 
 The next step is to load the pdb file into the recipe of your choosing, and set various machine parameters. Full parameters that can be selected
-are available in the documentation for the class (for instance, for FreeLigand, see :class:`ligand_param.module.FreeLigand`).
+are available in the documentation for the class (for instance, for FreeLigand, see :class:`ligandparam.module.FreeLigand`).
 
 .. code-block:: python
     
@@ -52,25 +52,25 @@ The FreeLigand class has a number of stages that are pre-initialized.
 
 In brief, these are:
 
-1) :class:`ligand_param.stages.initialize.StageInitialize` - Generates the initial mol2 file with bcc charges using `antechamber`.
+1) :class:`ligandparam.stages.initialize.StageInitialize` - Generates the initial mol2 file with bcc charges using `antechamber`.
 
-2) :class:`ligand_param.stages.charge.StageNormalizeCharge` - Ensures that the bcc charges sum to the net charge, and tries to correct for any errors.
+2) :class:`ligandparam.stages.charge.StageNormalizeCharge` - Ensures that the bcc charges sum to the net charge, and tries to correct for any errors.
 
-3) :class:`ligand_param.stages.gaussian.StageGaussian` - Runs Gaussian to minimize the molecule.
+3) :class:`ligandparam.stages.gaussian.StageGaussian` - Runs Gaussian to minimize the molecule.
 
-4) :class:`ligand_param.stages.gaussian.StageGaussianRotation` - Runs Gaussian to rotate the molecule and generate multiple conformations.
+4) :class:`ligandparam.stages.gaussian.StageGaussianRotation` - Runs Gaussian to rotate the molecule and generate multiple conformations.
 
-5) :class:`ligand_param.stages.resp.StageMultiResp` - Uses `ligand_param.multiresp` to generate a mol2 with the RESP charges from the Gaussian calculation.
+5) :class:`ligandparam.stages.resp.StageMultiResp` - Uses `ligandparam.multiresp` to generate a mol2 with the RESP charges from the Gaussian calculation.
 
-6) :class:`ligand_param.stages.charge.StageNormalizeCharge` - Ensures that the bcc charges sum to the net charge, and tries to correct for any errors.
+6) :class:`ligandparam.stages.charge.StageNormalizeCharge` - Ensures that the bcc charges sum to the net charge, and tries to correct for any errors.
 
-7) :class:`ligand_param.stages.typematching.StageUpdate` - Updates the atom names to match the original antechamber atom names in the calculation.
+7) :class:`ligandparam.stages.typematching.StageUpdate` - Updates the atom names to match the original antechamber atom names in the calculation.
 
-8) :class:`ligand_param.stages.typematching.StageUpdate` - Updates the atom *types* to match the original antechamber atom types in the calculation.
+8) :class:`ligandparam.stages.typematching.StageUpdate` - Updates the atom *types* to match the original antechamber atom types in the calculation.
 
-9) :class:`ligand_param.stages.parmchk.StageParmChk` - Generates the frcmod file for the ligand using `parmchk2`.
+9) :class:`ligandparam.stages.parmchk.StageParmChk` - Generates the frcmod file for the ligand using `parmchk2`.
 
-10) :class:`ligand_param.stages.leap.StageLeap` - Runs `tleap` to generate the final `.off` parameter files for the ligand.
+10) :class:`ligandparam.stages.leap.StageLeap` - Runs `tleap` to generate the final `.off` parameter files for the ligand.
 
 
 To list the stages out to the user, you can use the *list_stages* method.
@@ -110,7 +110,7 @@ Full code
     #!/usr/bin/env python
 
     # Import the module
-    from ligand_param.module import *
+    from ligandparam.module import *
 
     # Load the pdb as a instance of the FreeLigand class
     test = FreeLigand('thiophenol.pdb', netcharge=0,nproc=12,mem='60GB')

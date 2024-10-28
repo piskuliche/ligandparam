@@ -1,7 +1,7 @@
-ligand_param.stages.resp
+ligandparam.stages.resp
 ==================================
 
-.. automodule:: ligand_param.stages.resp
+.. automodule:: ligandparam.stages.resp
    :members:
    :undoc-members:
    :show-inheritance:

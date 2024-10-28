@@ -27,7 +27,7 @@ Here is a simple example of how to use the ligand_param module:
    #!/usr/bin/env python
 
    # Import the module
-   from ligand_param.recipes import FreeLigand
+   from ligandparam.recipes import FreeLigand
 
    # Load the pdb as a instance of the FreeLigand class
    parametrize_ligand = FreeLigand('thiophenol.pdb', netcharge=0,nproc=12,mem='60GB')
@@ -58,7 +58,7 @@ A key aspect of the code is that you can easily add your own stages to the pipel
 .. code-block:: python
    
    # Import the module
-   from ligand_param.recipes import FreeLigand
+   from ligandparam.recipes import FreeLigand
 
    # Load the pdb as a instance of the FreeLigand class
    parametrize_ligand = FreeLigand('thiophenol.pdb', netcharge=0,nproc=12,mem='60GB')

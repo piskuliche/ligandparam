@@ -1,8 +1,8 @@
 
-ligand_param.multiresp.intermolequiv
+ligandparam.multiresp.intermolequiv
 ------------------------------------
 
-.. automodule:: ligand_param.multiresp.intermolequiv
+.. automodule:: ligandparam.multiresp.intermolequiv
    :members:
    :undoc-members:
    :show-inheritance:

@@ -1,8 +1,8 @@
 
-ligand_param.stages.abstractstage
+ligandparam.stages.abstractstage
 ==================================
 
-.. automodule:: ligand_param.stages.abstractstage
+.. automodule:: ligandparam.stages.abstractstage
    :members:
    :undoc-members:
    :show-inheritance:

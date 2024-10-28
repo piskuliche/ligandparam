@@ -1,7 +1,7 @@
-ligand_param.stages.teststage
+ligandparam.stages.teststage
 ==================================
 
-.. automodule:: ligand_param.stages.teststage
+.. automodule:: ligandparam.stages.teststage
    :members:
    :undoc-members:
    :show-inheritance:

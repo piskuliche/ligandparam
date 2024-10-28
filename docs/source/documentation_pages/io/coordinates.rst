@@ -1,7 +1,7 @@
-ligand_param.io.coordinates
+ligandparam.io.coordinates
 -------------------------------
 
-.. automodule:: ligand_param.io.coordinates
+.. automodule:: ligandparam.io.coordinates
    :members:
    :undoc-members:
    :show-inheritance:

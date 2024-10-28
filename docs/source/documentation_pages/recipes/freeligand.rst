@@ -1,7 +1,7 @@
-ligand_param.recipes.freeligand
+ligandparam.recipes.freeligand
 --------------------------------
 
-.. automodule:: ligand_param.recipes.freeligand
+.. automodule:: ligandparam.recipes.freeligand
    :members:
    :undoc-members:
    :show-inheritance:

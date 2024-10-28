@@ -24,7 +24,7 @@ import ligandparam
 
 # -- Project information -----------------------------------------------------
 
-project = 'ligand_param'
+project = 'ligandparam'
 copyright = '2024, Zeke Piskulich'
 author = 'Zeke Piskulich'
 
@@ -78,7 +78,7 @@ html_css_files = [
     'custom.css',
 ]
 
-htmlhelp_basename = 'ligand_paramdoc'
+htmlhelp_basename = 'ligandparamdoc'
 
 html_sidebars = {
     '**': [

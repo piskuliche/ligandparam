@@ -1,7 +1,7 @@
-ligand_param.stages.build_system
+ligandparam.stages.build_system
 ==================================
 
-.. automodule:: ligand_param.stages.build_system
+.. automodule:: ligandparam.stages.build_system
    :members:
    :undoc-members:
    :show-inheritance:
