@@ -11,7 +11,7 @@ To install the ligandparam package from GitHub, we use miniforge (a minimal vers
 the pre-built conda pacakge described in `env.yaml`. 
 
 For this, to install miniforge you need to follow the instructions in the `miniforge` github page, but minimally this involves
-downloading the installer script and running it. Miniforge is located here: `https://github.com/conda-forge/miniforge?tab=readme-ov-file`_.
+downloading the installer script and running it. Miniforge is located here: `Miniforge <https://github.com/conda-forge/miniforge?tab=readme-ov-file>`_.
 
 A simple install for miniforge is as follows:
 
