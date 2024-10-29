@@ -14,7 +14,8 @@ you can install the package by cloning the repository and installing it using pi
 
     git clone https://github.com/piskuliche/ligandparam.git
     cd ligandparam
-    conda -create -n ligandparam python=3.10
+    conda create -n ligandparam_env python=3.10
+    conda activate ligandparam_env
     conda install -c conda-forge parmed
     pip install .
 
