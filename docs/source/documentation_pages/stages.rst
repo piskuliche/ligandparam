@@ -19,6 +19,7 @@ New stages can easily be added by subclassing the :doc:`./stages/abstractstage` 
    ./stages/parmchk.rst
    ./stages/leap.rst
    ./stages/build_system.rst
+   ./stages/typematching.rst
 
 
 .. toctree::
