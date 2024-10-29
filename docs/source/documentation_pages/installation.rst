@@ -16,6 +16,7 @@ downloading the installer script and running it. Miniforge is located here: `Min
 A simple install for miniforge is as follows:
 
 .. code-block:: bash
+    
     wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
     bash Miniforge3-Linux-x86_64.sh
 
