@@ -16,7 +16,7 @@ downloading the installer script and running it. Miniforge is located here: `Min
 A simple install for miniforge is as follows:
 
 .. code-block:: bash
-    
+
     wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
     bash Miniforge3-Linux-x86_64.sh
 
@@ -29,7 +29,7 @@ Once miniforge is installed, you can create a new environment and install the li
     cd ligandparam
     mamba env create -f env.yaml
     conda activate ligandparam
-    pip install -e .
+    pip install .
 
 
 This will install the ligandparam package in the current environment, making it available for use in python scripts.
