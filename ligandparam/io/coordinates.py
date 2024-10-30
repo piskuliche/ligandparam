@@ -67,7 +67,7 @@ class Coordinates:
             The elements of the atoms in the structure
         """
         from MDAnalysis.topology.guessers import guess_types
-        elements = guess_types(self.u.atoms)
+        elements = guess_types(self.u.atoms.names)
         return elements
     
     def update_coordinates(self, coords, original=False):
