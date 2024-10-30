@@ -49,8 +49,26 @@ class Coordinates:
         elements : list
             The elements of the atoms in the structure
         """
+        try:
+            return [atom.element for atom in self.u.atoms]
+        except:
+            return self._get_elements_from_topology()
+    
+    def _get_elements_from_topology(self):
+        """ Grabs the elements from the topology
+        
+        Parameters
+        ----------
+        None
 
-        return [atom.element for atom in self.u.atoms]
+        Returns
+        -------
+        elements : list
+            The elements of the atoms in the structure
+        """
+        from MDAnalysis.topology.guessers import guess_types
+        elements = guess_types(self.u.atoms)
+        return elements
     
     def update_coordinates(self, coords, original=False):
         """ Updates the coordinates
