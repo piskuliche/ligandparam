@@ -15,6 +15,7 @@ Currently, the following examples are available:
    ./examples/02_FreeLigand.rst
    ./examples/03_ModifySteps.rst
    ./examples/04_FromSmiles.rst
+   ./examples/05_CreatingNewRecipes.rst
 
 .. toctree::
     :maxdepth: 2
