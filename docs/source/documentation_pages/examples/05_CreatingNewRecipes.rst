@@ -7,11 +7,10 @@ Recipes are classes that combine the building blocks of the workflow for paramet
 
 However, you might find yourself wanting to generate new recipes that are tailored to your specific needs and/or workflow.
 
-In this example, we will demonstrate how to create a new recipe by subclassing the `Recipe` class and
- adding your own stages to the pipeline.
+In this example, we will demonstrate how to create a new recipe by subclassing the `Recipe` class and adding your own stages to the pipeline.
 
- Building from Scratch for One Time Use
- --------------------------------------
+Building from Scratch for One Time Use
+--------------------------------------
 
 If you are building a recipe for a one-time use, you can use the `Recipe` class directly and add the stages to the pipeline.
 
@@ -30,8 +29,7 @@ Here is an example of a simple recipe that only has two stages, `StageInitialize
                         new_mol2=new_recipe.base_name+".antechamber.mol2"))
     new_recipe.execute(dry_run=False)
 
-This script might be useful for generating a mol2 file from a pdb file, creating bcc charges,
- and then normalizing the charges to zero.
+This script might be useful for generating a mol2 file from a pdb file, creating bcc charges, and then normalizing the charges to zero.
 
 
 Building from Scratch for Reuse
