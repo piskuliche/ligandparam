@@ -13,7 +13,7 @@ class BuildLigand(Recipe):
                                 orig_mol2=self.base_name+".antechamber.mol2", 
                                 new_mol2=self.base_name+".antechamber.mol2",
                                 inputoptions=self.inputoptions),
-            StageGaussian("Minimize", base_cls=self),
+            StageGaussian("Minimize", inputoptions=self.inputoptions),
             StageGaussianRotation("Rotate", 
                                   alpha=[0, 30, 60, 90, 120, 150, 180],
                                   beta=[0, 30, 60, 90],
