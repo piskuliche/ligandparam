@@ -26,7 +26,7 @@ class Parametrization(Driver):
         self.inputoptions = inputoptions
         if "base_name" in kwargs:
             self.base_name = kwargs['base_name']
-        elif "base_name" in inputoptions:
+        elif inputoptions is not None and "base_name" in inputoptions:
             self.base_name = inputoptions['base_name']
         elif "pdb_filename" in inputoptions:
             self.base_name = pathlib.Path(inputoptions['pdb_filename']).stem

@@ -62,7 +62,7 @@ for i, molec in enumerate(example_set):
     os.chdir(newdir) 
     # Do the build
     baseoptions["base_name"] = molec
-    build = BuildLigand(iputoptions=baseoptions)
+    build = BuildLigand(inputoptions=baseoptions)
     build.setup()
     build.list_stages()
     #build.execute(dry_run=False)
