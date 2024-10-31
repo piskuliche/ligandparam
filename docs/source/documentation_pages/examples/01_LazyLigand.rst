@@ -33,7 +33,7 @@ are available in the documentation for the class (for instance, for LazyLigand, 
 
     inputoptions = {
     'base_name': 'thiophenol',
-    'netcharge': 0,
+    'net_charge': 0,
     'mem': '60GB',
     'nproc': 12
     }
@@ -108,7 +108,7 @@ Full code
 
     inputoptions = {
         'base_name': 'thiophenol',
-        'netcharge': 0,
+        'net_charge': 0,
         'mem': '60GB',
         'nproc': 12
     }

@@ -31,7 +31,7 @@ to add the stages to the pipeline, and print them to the screen.
 
     inputoptions = {
         'base_name': 'thiophenol',
-        'netcharge': 0,
+        'net_charge': 0,
         'mem': '60GB',
         'nproc': 12
     }
@@ -100,7 +100,7 @@ Full code
 
     inputoptions = {
         'base_name': 'thiophenol',
-        'netcharge': 0,
+        'net_charge': 0,
         'mem': '60GB',
         'nproc': 12
     }
