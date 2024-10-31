@@ -49,5 +49,5 @@ class BuildLigand(Recipe):
             StageLeap("Leap", inputoptions=self.inputoptions),
             StageBuild("BuildGas",  build_type='gas', inputoptions=self.inputoptions),
             StageBuild("BuildAq",  build_type='aq', concentration=0.14, inputoptions=self.inputoptions),
-            StageBuild("BuildTarget",  build_type='target', target_pdb=self.target_pdb, inputoptions=self.inputoptions)
+            StageBuild("BuildTarget",  build_type='target', inputoptions=self.inputoptions)
         ]
