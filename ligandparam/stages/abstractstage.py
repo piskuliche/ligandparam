@@ -128,8 +128,7 @@ class AbstractStage(metaclass=ABCMeta):
         self.header =  [f'%NPROC={self.nproc}', f'%MEM={self.mem}']
 
         try:
-            coord_object = Coordinates(self.pdb_filename, filetype='pdb')
-            return coord_object
+            self.coord_object = Coordinates(self.pdb_filename, filetype='pdb')
         except FileExistsError:
             raise FileExistsError(f"ERROR: File {self.pdb_filename} does not exist.")
         return
