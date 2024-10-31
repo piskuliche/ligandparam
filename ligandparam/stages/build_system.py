@@ -17,7 +17,7 @@ class StageBuild(AbstractStage):
         Object of the base class.
 
     """
-    def __init__(self, name, build_type='aq', target_pdb=None, concentration=0.14, rbuffer=9.0, inputoptions=None) -> None:
+    def __init__(self, name, build_type='aq', concentration=0.14, rbuffer=9.0, inputoptions=None) -> None:
         """ This class is used to initialize from pdb to mol2 file using Antechamber.
         
         Parameters
@@ -38,7 +38,6 @@ class StageBuild(AbstractStage):
         self.name = name
         self._parse_inputoptions(inputoptions)
         self.concentration = concentration
-        self.target_pdb = target_pdb
         self.buffer = rbuffer
         
         self.add_required(f"{self.base_name}.resp.mol2")

@@ -29,8 +29,14 @@ to add the stages to the pipeline, and print them to the screen.
     # Import the module
     from ligandparam.recipes import *
 
+    inputoptions = {
+        'base_name': 'thiophenol',
+        'netcharge': 0,
+        'mem': '60GB',
+        'nproc': 12
+    }
     # Load the pdb as a instance of the FreeLigand class
-    test = FreeLigand('thiophenol.pdb', netcharge=0,nproc=12,mem='60GB')
+    test = FreeLigand(inputoptions=inputoptions)
 
     # Select the pre-initialized stages for Lazy Ligand
     test.setup()
@@ -56,8 +62,9 @@ Stages can also be added to the pipeline, this requires two steps:
 
     from ligandparam.stages import StageNormalizeCharge
 
-    test.add_stage(StageNormalizeCharge("NormalizeA", orig_mol2=test.base_name+".resp.mol2",
-                            new_mol2=test.base_name+".resp.mol2"))
+    test.add_stage(StageNormalizeCharge("Normalize2", inputoptions=inputoptions, 
+                                    orig_mol2=test.base_name+".resp.mol2",
+						            new_mol2=test.base_name+".resp.mol2"))
 
 Adding stages to the pipeline adds them to the end, so before, the Leap stage was the last stage in the pipeline, but
 now the NormalizeA stage is the last stage in the pipeline.
@@ -69,8 +76,10 @@ Stages can also be inserted into the pipeline, this requires two steps:
 
 .. code-block:: python
 
-    test.insert_stage(StageNormalizeCharge("Normalize3", orig_mol2=test.base_name+".resp.mol2",
-                                                    new_mol2=test.base_name+".resp.mol2"),"Normalize2")
+    test.insert_stage(StageNormalizeCharge("Normalize3", inputoptions=inputoptions,
+                                        orig_mol2=test.base_name+".resp.mol2",
+                                        new_mol2=test.base_name+".resp.mol2"),
+                                        "Normalize2")
 
 Here, the Normalize3 stage is inserted into the pipeline before the Normalize2 stage. This is useful if you want to add a stage
 to the pipeline, but not at the end of the pipeline.
@@ -86,13 +95,18 @@ Full code
 
 .. code-block:: python
     
-    #!/usr/bin/env python
+   # Import the module
+    from ligandparam.recipes import FreeLigand
 
-    # Import the module
-    from ligandparam.recipes import *
+    inputoptions = {
+        'base_name': 'thiophenol',
+        'netcharge': 0,
+        'mem': '60GB',
+        'nproc': 12
+    }
 
     # Load the pdb as a instance of the FreeLigand class
-    test = FreeLigand('thiophenol.pdb', netcharge=0,nproc=12,mem='60GB')
+    test = FreeLigand(inputoptions=inputoptions)
 
     # Select the pre-initialized stages for Lazy Ligand
     test.setup()
@@ -102,16 +116,18 @@ Full code
     test.list_stages()
 
 
-    test.remove_stage("Normalize1")
-
+    test.remove_stage("Normalize")
 
     from ligandparam.stages import StageNormalizeCharge
 
-    test.add_stage(StageNormalizeCharge("NormalizeA", base_cls=test, orig_mol2=test.base_name+".resp.mol2",
-                            new_mol2=test.base_name+".resp.mol2"))
+    test.add_stage(StageNormalizeCharge("Normalize2", inputoptions=inputoptions, 
+                                        orig_mol2=test.base_name+".resp.mol2",
+                                        new_mol2=test.base_name+".resp.mol2"))
 
-    test.insert_stage(StageNormalizeCharge("Normalize3", base_cls=test, orig_mol2=test.base_name+".resp.mol2",
-                                                    new_mol2=test.base_name+".resp.mol2"),"Normalize2")
+    test.insert_stage(StageNormalizeCharge("Normalize3", inputoptions=inputoptions,
+                                            orig_mol2=test.base_name+".resp.mol2",
+                                            new_mol2=test.base_name+".resp.mol2"),
+                                            "Normalize2")
 
     test.execute()
 
