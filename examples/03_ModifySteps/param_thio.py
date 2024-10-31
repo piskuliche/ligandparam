@@ -11,7 +11,7 @@ inputoptions = {
 }
 
 # Load the pdb as a instance of the FreeLigand class
-test = FreeLigand('thiophenol.pdb', netcharge=0,nproc=12,mem='60GB')
+test = FreeLigand(inputoptions=inputoptions)
 
 # Select the pre-initialized stages for Lazy Ligand
 test.setup()
@@ -25,11 +25,14 @@ test.remove_stage("Normalize")
 
 from ligandparam.stages import StageNormalizeCharge
 
-test.add_stage(StageNormalizeCharge("Normalize2", inputoptions=inputoptions, orig_mol2=test.base_name+".resp.mol2",
-						  new_mol2=test.base_name+".resp.mol2"))
+test.add_stage(StageNormalizeCharge("Normalize2", inputoptions=inputoptions, 
+                                    orig_mol2=test.base_name+".resp.mol2",
+						            new_mol2=test.base_name+".resp.mol2"))
 
-test.insert_stage(StageNormalizeCharge("Normalize3", inputoptions=inputoptions, orig_mol2=test.base_name+".resp.mol2",
-                                                  new_mol2=test.base_name+".resp.mol2"),"Normalize2")
+test.insert_stage(StageNormalizeCharge("Normalize3", inputoptions=inputoptions,
+                                        orig_mol2=test.base_name+".resp.mol2",
+                                        new_mol2=test.base_name+".resp.mol2"),
+                                        "Normalize2")
 
 test.execute()
 
