@@ -11,7 +11,7 @@ from ligandparam.io.coordinates import Mol2Writer
 
 class StageUpdateCharge(AbstractStage):
     """ This class creates a new mol2 file with updated charges. """
-    def __init__(self, name, base_cls=None, orig_mol2=None, new_mol2=None, charge_source="multistate", charge_column=None) -> None:
+    def __init__(self, name, orig_mol2=None, new_mol2=None, charge_source="multistate", charge_column=None, inputoptions=None) -> None:
         """ Initialize the StageUpdateCharge class.
         
         Parameters
@@ -30,7 +30,7 @@ class StageUpdateCharge(AbstractStage):
             The column of the charges
         """
         self.name = name
-        self.base_cls = base_cls
+        self._parse_inputoptions(inputoptions)
 
         self.orig_mol2 = orig_mol2
         self.new_mol2 = new_mol2
@@ -75,12 +75,12 @@ class StageUpdateCharge(AbstractStage):
                 raise ValueError("Error: Number of charges does not match the number of atoms.")
             u.atoms.charges = charges
             # Write the Mol2 temporary file
-            Mol2Writer(u, self.base_cls.base_name + ".tmpresp.mol2", selection="all").write()
+            Mol2Writer(u, self.base_name + ".tmpresp.mol2", selection="all").write()
         
         ante = Antechamber()
-        ante.call(i=self.base_cls.base_name + ".tmpresp.mol2", fi='mol2',
+        ante.call(i=self.base_name + ".tmpresp.mol2", fi='mol2',
                   o=self.new_mol2, fo='mol2',
-                  pf='y', at=self.base_cls.atom_type,
+                  pf='y', at=self.atom_type,
                   dry_run = dry_run)
 
         return
@@ -96,7 +96,7 @@ class StageNormalizeCharge(AbstractStage):
     based on the overall precision that you select, by adjusting each atom charge by the precision
     until the charge difference is zero."""
 
-    def __init__(self, name, base_cls=None, orig_mol2=None, new_mol2=None, precision=0.0001):
+    def __init__(self, name, orig_mol2=None, new_mol2=None, precision=0.0001, inputoptions=None) -> None:
         """ Initialize the StageNormalizeCharge class.
         
         Parameters
@@ -121,7 +121,7 @@ class StageNormalizeCharge(AbstractStage):
 
         """
         self.name = name
-        self.base_cls = base_cls
+        self._parse_inputoptions(inputoptions)
         if orig_mol2 is not None:
             self.orig_mol2 = orig_mol2
         else:
@@ -158,7 +158,7 @@ class StageNormalizeCharge(AbstractStage):
         # Supress the inevitable mol2 file warnings.
         warnings.filterwarnings("ignore")
         print("-> Checking charges")
-        print(f"-> Normalizing charges to {self.base_cls.net_charge}")
+        print(f"-> Normalizing charges to {self.net_charge}")
         print(f"-> Precision {self.precision} with {self.decimals} decimals")
 
         u = mda.Universe(self.orig_mol2, format='mol2')
@@ -176,12 +176,12 @@ class StageNormalizeCharge(AbstractStage):
             print("-> Charges are already normalized")
             return
         if not dry_run:
-            Mol2Writer(u, self.base_cls.base_name + ".tmpnorm.mol2", selection="all").write()
+            Mol2Writer(u, self.base_name + ".tmpnorm.mol2", selection="all").write()
 
         ante = Antechamber()
-        ante.call(i=self.base_cls.base_name + ".tmpnorm.mol2", fi='mol2',
+        ante.call(i=self.base_name + ".tmpnorm.mol2", fi='mol2',
                   o=self.new_mol2, fo='mol2',
-                  pf='y', at=self.base_cls.atom_type,
+                  pf='y', at=self.atom_type,
                   dry_run = dry_run)
 
     def _clean(self):
@@ -231,7 +231,7 @@ class StageNormalizeCharge(AbstractStage):
             The charge difference
         """
         total_charge = np.round(sum(charges), self.decimals)
-        charge_difference = np.round(self.base_cls.net_charge - total_charge, self.decimals)
+        charge_difference = np.round(self.net_charge - total_charge, self.decimals)
         print(f"-> Total Charge is {total_charge}")
         print(f"-> Charge difference is {charge_difference}")
         return total_charge, charge_difference

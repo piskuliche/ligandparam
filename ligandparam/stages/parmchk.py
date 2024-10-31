@@ -6,20 +6,20 @@ from ligandparam.interfaces import ParmChk
 
 class StageParmChk(AbstractStage):
     """ This is class to run parmchk on the ligand. """
-    def __init__(self, name, base_cls=None) -> None:
+    def __init__(self, name, inputoptions=None) -> None:
         """ Initialize the StageGaussian class. 
         
         Parameters
         ----------
         name : str
             The name of the stage
-        base_cls : Ligand
-            The base class of the ligand
+        inputoptions : dict
+            The input options for the stage
         
         """
         self.name = name
-        self.base_cls = base_cls
-        self.add_required(f"{self.base_cls.base_name}.resp.mol2")
+        self._parse_inputoptions(inputoptions)
+        self.add_required(f"{self.base_name}.resp.mol2")
         return
     
 
@@ -41,10 +41,10 @@ class StageParmChk(AbstractStage):
         None
 
         """
-        print(f"Executing {self.name} with netcharge={self.base_cls.net_charge}")
+        print(f"Executing {self.name} with netcharge={self.net_charge}")
         parm = ParmChk()
-        parm.call(i=self.base_cls.base_name+'.resp.mol2', f="mol2",
-                  o=self.base_cls.base_name+'.frcmod', 
+        parm.call(i=self.base_name+'.resp.mol2', f="mol2",
+                  o=self.base_name+'.frcmod', 
                   s=2, dry_run = dry_run)
         return
     

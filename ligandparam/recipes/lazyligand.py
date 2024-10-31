@@ -21,22 +21,22 @@ class LazyLigand(Recipe):
     
     def setup(self):
         self.stages = [
-            StageInitialize("Initialize", base_cls=self),
-            StageNormalizeCharge("Normalize1", base_cls=self, 
+            StageInitialize("Initialize", inputoptions=self.inputoptions),
+            StageNormalizeCharge("Normalize1", inputoptions=self.inputoptions, 
                     orig_mol2=self.base_name+".antechamber.mol2", 
                     new_mol2=self.base_name+".antechamber.mol2"),
-            StageGaussian("Minimize", base_cls=self),
-            StageLazyResp("LazyResp", base_cls=self),
-            StageNormalizeCharge("Normalize2", base_cls=self, 
+            StageGaussian("Minimize", inputoptions=self.inputoptions),
+            StageLazyResp("LazyResp", inputoptions=self.inputoptions),
+            StageNormalizeCharge("Normalize2", inputoptions=self.inputoptions, 
                     orig_mol2=self.base_name+".resp.mol2", 
                     new_mol2=self.base_name+".resp.mol2"),
-            StageUpdate("UpdateNames", base_cls=self,
+            StageUpdate("UpdateNames", inputoptions=self.inputoptions,
                     orig_mol2=self.base_name+'.antechamber.mol2',
                     to_update=self.base_name+'.resp.mol2',
                     new_mol2=self.base_name+'.resp.mol2', 
                     update_names=True, 
                     update_types=False,
                     update_resname=True),
-            StageParmChk("ParmChk", base_cls=self),
-            StageLeap("Leap", base_cls=self)
+            StageParmChk("ParmChk", inputoptions=self.inputoptions),
+            StageLeap("Leap", inputoptions=self.inputoptions)
         ]

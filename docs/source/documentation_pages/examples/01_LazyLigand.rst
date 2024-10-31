@@ -30,10 +30,17 @@ The next step is to load the pdb file into the recipe of your choosing, and set 
 are available in the documentation for the class (for instance, for LazyLigand, see :class:`ligandparam.module.LazyLigand`).
 
 .. code-block:: python
-    
-    test = LazyLigand('thiophenol.pdb', netcharge=0, nproc=12, mem='60GB')
 
-Note that here, we have chosent the pdb file `thiophenol.pdb` and set the net charge to 0 using the *netcharge* parameter. If you have a charged ligand, you need to select the
+    inputoptions = {
+    'base_name': 'thiophenol',
+    'netcharge': 0,
+    'mem': '60GB',
+    'nproc': 12
+    }
+    
+    test = LazyLigand(inputoptions=inputoptions)
+
+Note that here, we have chosen the bae_name file `thiophenol` and set the net charge to 0 using the *netcharge* parameter. If you have a charged ligand, you need to select the
 proper net charge, as later when Gaussian runs it will need to know the net charge of the molecule. The *nproc* and *mem* parameters are used to set the 
 number of processors and the memory to be used by Gaussian, respectively.
 
@@ -95,14 +102,19 @@ Full code
 ---------
 
 .. code-block:: python
-
-    #!/usr/bin/env python
-
+    
     # Import the module
-    from ligandparam.recipes import *
+    from ligandparam.recipes import LazyLigand
+
+    inputoptions = {
+        'base_name': 'thiophenol',
+        'netcharge': 0,
+        'mem': '60GB',
+        'nproc': 12
+    }
 
     # Load the pdb as a instance of the LazyLigand class
-    test = LazyLigand('thiophenol.pdb', netcharge=0, nproc=12, mem='60GB')
+    test = LazyLigand(inputoptions=inputoptions)
 
     # Select the pre-initialized stages for Lazy Ligand
     test.setup()

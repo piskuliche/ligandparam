@@ -12,20 +12,20 @@ from ligandparam.multiresp.residueresp import ResidueResp
 class StageLazyResp(AbstractStage):
     """ This class runs a 'lazy' resp calculation based on only
         a single gaussian output file. """
-    def __init__(self, name, base_cls=None) -> None:
+    def __init__(self, name, inputoptions=None) -> None:
         """ Initialize the StageLazyResp class.
         
         Parameters
         ----------
         name : str
             The name of the stage
-        base_cls : Ligand
-            The base class of the ligand
-            """
+        inputoptions : dict
+            The input options for the stage
+        """
         self.name = name
-        self.base_cls = base_cls
+        self._parse_inputoptions(inputoptions)
 
-        self.add_required(f"./gaussianCalcs/{self.base_cls.base_name}.log")
+        self.add_required(f"./gaussianCalcs/{self.base_name}.log")
         return
     
 
@@ -42,13 +42,13 @@ class StageLazyResp(AbstractStage):
         dry_run : bool, optional
             If True, the stage will not be executed, but the function will print the commands that would
         """
-        print(f"Executing {self.name} with netcharge={self.base_cls.net_charge}")
+        print(f"Executing {self.name} with netcharge={self.net_charge}")
         ante = Antechamber()
-        ante.call(i=f"gaussianCalcs/{self.base_cls.base_name}.log", fi='gout',
-                  o=self.base_cls.base_name+'.resp.mol2', fo='mol2',
+        ante.call(i=f"gaussianCalcs/{self.base_name}.log", fi='gout',
+                  o=self.base_name+'.resp.mol2', fo='mol2',
                   gv=0, c='resp',
-                  nc=self.base_cls.net_charge,
-                  at=self.base_cls.atom_type, dry_run = dry_run)
+                  nc=self.net_charge,
+                  at=self.atom_type, dry_run = dry_run)
         return
     
     def _clean(self):
@@ -64,21 +64,21 @@ class StageMultiRespFit(AbstractStage):
         TODO: Implement the execute method.
         TODO: Add a check that a multistate resp fit is possible. 
         """
-    def __init__(self, name, base_cls=None) -> None:
+    def __init__(self, name, inputoptions=None) -> None:
         """ Initialize the StageMultiRespFit class.
 
         Parameters
         ----------
         name : str
             The name of the stage
-        base_cls : Ligand
+     : Ligand
             The base class of the ligand
         """
         self.name = name
-        self.base_cls = base_cls
+        self._parse_inputoptions(inputoptions)
 
-        self.add_required(f"{self.base_cls.base_name}.log.mol2")
-        self.add_required(f"gaussianCalcs/{self.base_cls.base_name}.log")
+        self.add_required(f"{self.base_name}.log.mol2")
+        self.add_required(f"gaussianCalcs/{self.base_name}.log")
 
         return
     
@@ -111,8 +111,8 @@ class StageMultiRespFit(AbstractStage):
         """
         comp = parmhelper.BASH( 12 )
         model = ResidueResp( comp, 1)
-        model.add_state( self.base_cls.base_name, self.base_cls.base_name+'.log.mol2', 
-                        glob.glob("gaussianCalcs/"+self.base_cls.base_name+"_*.log"), 
+        model.add_state( self.base_name, self.base_name+'.log.mol2', 
+                        glob.glob("gaussianCalcs/"+self.base_name+"_*.log"), 
                         qmmask="@*" )
         model.multimolecule_fit(True)
         model.perform_fit("@*",unique_residues=False)
