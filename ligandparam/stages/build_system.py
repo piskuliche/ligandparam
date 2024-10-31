@@ -163,13 +163,14 @@ class StageBuild(AbstractStage):
             targetleap.add_leaprc(rc)
 
         solvent = None
-        if "OPC" in self.base_cls.leaprc:
-            solvent = "OPCBOX"
-        elif "tip3p" in self.base_cls.leaprc:
-            solvent = "TIP3PBOX"
-        elif "tip4pew" in self.base_cls.leaprc:
-            solvent = "TIP4PEWBOX"
-        else:
+        for lrc in self.base_cls.leaprc:
+            if "OPC" in lrc:
+                solvent = "OPCBOX"
+            elif "tip3p" in lrc:
+                solvent = "TIP3PBOX"
+            elif "tip4pew" in lrc:
+                solvent = "TIP4PEWBOX"
+        if solvent is None:
             solvent = "TIP3PBOX"
 
         # Add the leap commands
