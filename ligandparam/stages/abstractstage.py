@@ -134,5 +134,5 @@ class AbstractStage(metaclass=ABCMeta):
             raise FileExistsError(f"ERROR: File {self.pdb_filename} does not exist.")
         return
     
-    def _check_self():
+    def _check_self(self):
         pass
