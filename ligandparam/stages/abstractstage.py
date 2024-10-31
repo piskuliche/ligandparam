@@ -7,6 +7,7 @@ class AbstractStage(metaclass=ABCMeta):
 
     default_options = {
         "base_name": None,
+        "pdb_filename": None,
         "nproc": 6,
         "mem": "8GB",
         "net_charge": 0.0,

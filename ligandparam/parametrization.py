@@ -5,9 +5,6 @@ from ligandparam.driver import Driver
 from ligandparam.io.coordinates import Coordinates
 from ligandparam.stages import *
 
-
-
-
 class Parametrization(Driver):
     def __init__(self, inputoptions=None):
         """ This is the base class for all parametrizations, that is a sub class of the :class:`ligand_param.driver.Driver` class.
