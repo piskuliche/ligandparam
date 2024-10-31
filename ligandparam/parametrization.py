@@ -28,6 +28,8 @@ class Parametrization(Driver):
             self.base_name = kwargs['base_name']
         elif "base_name" in inputoptions:
             self.base_name = inputoptions['base_name']
+        elif "pdb_filename" in inputoptions:
+            self.base_name = pathlib.Path(inputoptions['pdb_filename']).stem
         else:
             raise ValueError("Please provide the base name.")
             
