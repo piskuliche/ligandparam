@@ -6,7 +6,7 @@ from ligandparam.io.coordinates import Coordinates
 from ligandparam.stages import *
 
 class Parametrization(Driver):
-    def __init__(self, inputoptions=None):
+    def __init__(self, inputoptions=None, **kwargs):
         """ This is the base class for all parametrizations, that is a sub class of the :class:`ligand_param.driver.Driver` class.
 
         The rough approach to using this class is to generate a new Parametrization class, and then generate self.stages as a list 
@@ -24,6 +24,13 @@ class Parametrization(Driver):
         """
         super().__init__()
         self.inputoptions = inputoptions
+        if "base_name" in kwargs:
+            self.base_name = kwargs['base_name']
+        elif "base_name" in inputoptions:
+            self.base_name = inputoptions['base_name']
+        else:
+            raise ValueError("Please provide the base name.")
+            
         return
     
     def add_leaprc(self, leaprc):
