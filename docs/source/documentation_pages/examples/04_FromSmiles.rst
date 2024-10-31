@@ -112,6 +112,8 @@ The first of these, builds just a gas-phase parm7 and rst7 file. The second buil
 of 0.14M. The third builds a parm7 and rst7 file for the ligand in the target pdb file (aka a protein ligand system or a protein rna system).
 
 
+.. note:: Currently, building the ligand into the target pdb is an early ALPHA feature that uses tleap to build the ligand into the pdb. Unfortunately, this feature is not fully tested and may not work for all systems (and may even fail horribly). Always visualize the output and check the output files for errors.
+
 Full code
 ---------
 
