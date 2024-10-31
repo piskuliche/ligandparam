@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to ligand_param's documentation!
+Welcome to ligandparam's documentation!
 ========================================
 
 
@@ -72,7 +72,7 @@ A key aspect of the code is that you can easily add your own stages to the pipel
    # Remove the Normalize stage
    parametrize_ligand.remove_stage("Normalize1")
 
-   from ligand_param.stages import StageNormalizeCharge
+   from ligandparam.stages import StageNormalizeCharge
 
    # Add a new Normalize stage
    parametrize_ligand.add_stage(StageNormalizeCharge("Normalize2", orig_mol2=test.base_name+".resp.mol2",

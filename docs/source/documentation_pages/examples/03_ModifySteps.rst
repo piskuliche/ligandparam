@@ -27,7 +27,7 @@ to add the stages to the pipeline, and print them to the screen.
 .. code-block:: python
 
     # Import the module
-    from ligandparam.module import *
+    from ligandparam.recipes import *
 
     # Load the pdb as a instance of the FreeLigand class
     test = FreeLigand('thiophenol.pdb', netcharge=0,nproc=12,mem='60GB')
@@ -54,7 +54,7 @@ Stages can also be added to the pipeline, this requires two steps:
 
 .. code-block:: python
 
-    from ligandparam.stages.charge import StageNormalizeCharge
+    from ligandparam.stages import StageNormalizeCharge
 
     test.add_stage(StageNormalizeCharge("NormalizeA", orig_mol2=test.base_name+".resp.mol2",
                             new_mol2=test.base_name+".resp.mol2"))
@@ -89,7 +89,7 @@ Full code
     #!/usr/bin/env python
 
     # Import the module
-    from ligandparam.module import *
+    from ligandparam.recipes import *
 
     # Load the pdb as a instance of the FreeLigand class
     test = FreeLigand('thiophenol.pdb', netcharge=0,nproc=12,mem='60GB')
@@ -105,7 +105,7 @@ Full code
     test.remove_stage("Normalize1")
 
 
-    from ligandparam.stages.charge import StageNormalizeCharge
+    from ligandparam.stages import StageNormalizeCharge
 
     test.add_stage(StageNormalizeCharge("NormalizeA", base_cls=test, orig_mol2=test.base_name+".resp.mol2",
                             new_mol2=test.base_name+".resp.mol2"))

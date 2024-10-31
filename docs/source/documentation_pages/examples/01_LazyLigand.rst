@@ -23,7 +23,7 @@ all the recipes available in the module, whereas, importing a specific recipe wi
 
 .. code-block:: python
 
-    from ligandparam.module import *
+    from ligandparam.recipes import *
 
 
 The next step is to load the pdb file into the recipe of your choosing, and set various machine parameters. Full parameters that can be selected
@@ -99,7 +99,7 @@ Full code
     #!/usr/bin/env python
 
     # Import the module
-    from ligandparam.module import *
+    from ligandparam.recipes import *
 
     # Load the pdb as a instance of the LazyLigand class
     test = LazyLigand('thiophenol.pdb', netcharge=0, nproc=12, mem='60GB')
