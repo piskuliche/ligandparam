@@ -67,17 +67,16 @@ structure and residue name IN THE TARGET PDB.
 Lastly, we set the default inputoptions:
 .. code-block:: python
 
-        baseoptions = {
-            "base_name": None,
-            "nproc": 12,
-            "mem": "60GB",
-            "net_charge": 0,
-            "atom_type": "gaff2",
-            "leaprc": leaprc,
-            "target_pdb": reference_structure,
-            "force_gaussian_rerun": False
-        }
-
+    baseoptions = {
+        "base_name": None,
+        "nproc": 12,
+        "mem": "60GB",
+        "net_charge": 0,
+        "atom_type": "gaff2",
+        "leaprc": leaprc,
+        "target_pdb": reference_structure,
+        "force_gaussian_rerun": False}
+        
 Now we loop over the example_set dictionary and do the calculation. 
 
 

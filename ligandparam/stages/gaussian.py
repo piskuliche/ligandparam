@@ -21,8 +21,8 @@ class StageGaussian(AbstractStage):
         ----------
         name : str
             The name of the stage
-     : Ligand
-            The base class of the ligand
+        inputoptions : dict
+            The input options for the stage
             
         Returns
         -------
@@ -126,8 +126,8 @@ class StageGaussianRotation(AbstractStage):
             The list of beta angles to rotate the ligand
         gamma : list
             The list of gamma angles to rotate the ligand
-     : Ligand
-            The base class of the ligand
+        inputoptions : dict
+            The input options for the stage
         """
         self.name = name
         self._parse_inputoptions(inputoptions)
@@ -258,8 +258,8 @@ class StageGaussiantoMol2(AbstractStage):
         ----------
         name : str
             The name of the stage
-     : Ligand
-            The base class of the ligand
+        inputoptions : dict
+            The input options for the stage
         dry_run : bool, optional
             If True, the stage will not be executed, but the function will print the commands that would
         

@@ -24,8 +24,6 @@ class StageBuild(AbstractStage):
         ----------
         name : str
             The name of the stage
-     : Ligand
-            The base class of the ligand
         build_type : str
             The type of build to perform [aq, gas, or target]
         target_pdb : str
@@ -34,6 +32,8 @@ class StageBuild(AbstractStage):
             The concentration of the ions
         rbuffer : float
             The buffer radius
+        inputoptions : dict
+            The input options
         """
         self.name = name
         self._parse_inputoptions(inputoptions)
