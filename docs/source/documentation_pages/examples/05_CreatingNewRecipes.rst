@@ -21,10 +21,17 @@ Here is an example of a simple recipe that only has two stages, `StageInitialize
     from ligandparam.recipes import Recipe
     from ligandparam.stages import *
 
-    new_recipe = Recipe('my_ligand.pdb', netcharge=0, nproc=12, mem='60GB')
-    new_recipe.add_stage(StageInitialize("Initialize", base_cls=new_recipe))
+    inputoptions = {
+        'base_name': 'my_ligand',
+        'net_charge': 0,
+        'mem': '60GB',
+        'nproc': 12
+    }
+
+    new_recipe = Recipe(inputoptions=inputoptions)
+    new_recipe.add_stage(StageInitialize("Initialize", inputoptions=inputoptions))
     new_recipe.add_stage(StageNormalizeCharge("NormalizeCharge", 
-                        base_cls=new_recipe, 
+                        inputoptions=inputoptions, 
                         orig_mol2=new_recipe.base_name+".antechamber.mol2",
                         new_mol2=new_recipe.base_name+".antechamber.mol2"))
     new_recipe.execute(dry_run=False)
@@ -50,8 +57,8 @@ Here is an example of a simple recipe that only has two stages like before, `Sta
             return
         def setup(self):
             self.stages = [
-                StageInitialize("Initialize", base_cls=self),
-                StageNormalizeCharge("Normalize1", base_cls=self, 
+                StageInitialize("Initialize", inputoptions=self.inputoptions),
+                StageNormalizeCharge("Normalize1", self.inputoptions, 
                                     orig_mol2=self.base_name+".antechamber.mol2", 
                                     new_mol2=self.base_name+".antechamber.mol2")
             ]
@@ -59,6 +66,13 @@ Here is an example of a simple recipe that only has two stages like before, `Sta
 Then you can use this recipe just like before.:
 
 .. code-block:: python
+
+    inputoptions = {
+        'base_name': 'my_ligand',
+        'net_charge': 0,
+        'mem': '60GB',
+        'nproc': 12
+    }
 
     new_recipe = MyNewRecipe('my_ligand.pdb', netcharge=0, nproc=12, mem='60GB')
     new_recipe.setup()
