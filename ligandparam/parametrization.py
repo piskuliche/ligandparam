@@ -26,6 +26,7 @@ class Parametrization(Driver):
         self.inputoptions = inputoptions
         if "base_name" in kwargs:
             self.base_name = kwargs['base_name']
+            self.inputoptions['base_name'] = self.base_name
         elif inputoptions is not None and "base_name" in inputoptions:
             self.base_name = inputoptions['base_name']
         elif "pdb_filename" in inputoptions:
