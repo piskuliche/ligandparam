@@ -7,6 +7,7 @@ from ligandparam.io.smiles  import *
 from ligandparam.recipes import BuildLigand
 
 
+
 # Here is an initial set of molecules 
 example_set = {
 "F3G": "O=C1NC(C(F)(F)F)=NC2=C1N=CN2",
@@ -28,6 +29,18 @@ leaprc.append("leaprc.water.tip4pew")
 reference_structure = "1y27.pdb"
 reference_resname = "GUN"
 
+
+baseoptions = {
+    "base_name": None,
+    "nproc": 12,
+    "mem": "60GB",
+    "net_charge": 0,
+    "atom_type": "gaff2",
+    "leaprc": leaprc,
+    "target_pdb": reference_structure,
+    "force_gaussian_rerun": False
+}
+
 for i, molec in enumerate(example_set):
     # Generate the PDB from SMILES
     pdb = PDBFromSMILES(molec, example_set[molec])
@@ -48,8 +61,8 @@ for i, molec in enumerate(example_set):
 
     os.chdir(newdir) 
     # Do the build
-    build = BuildLigand(f"{molec}.pdb", netcharge=0, nproc=12,
-                         mem='60GB', target_pdb=reference_structure, leaprc=leaprc)
+    baseoptions["base_name"] = molec
+    build = BuildLigand(iputoptions=baseoptions)
     build.setup()
     build.list_stages()
     #build.execute(dry_run=False)

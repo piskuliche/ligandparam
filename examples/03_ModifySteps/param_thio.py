@@ -1,7 +1,14 @@
 #!/usr/bin/env python
 
 # Import the module
-from ligandparam.module import FreeLigand
+from ligandparam.recipes import FreeLigand
+
+inputoptions = {
+    'base_name': 'thiophenol',
+    'netcharge': 0,
+    'mem': '60GB',
+    'nproc': 12
+}
 
 # Load the pdb as a instance of the FreeLigand class
 test = FreeLigand('thiophenol.pdb', netcharge=0,nproc=12,mem='60GB')
@@ -18,10 +25,10 @@ test.remove_stage("Normalize")
 
 from ligandparam.stages import StageNormalizeCharge
 
-test.add_stage(StageNormalizeCharge("Normalize2", base_cls=test, orig_mol2=test.base_name+".resp.mol2",
+test.add_stage(StageNormalizeCharge("Normalize2", inputoptions=inputoptions, orig_mol2=test.base_name+".resp.mol2",
 						  new_mol2=test.base_name+".resp.mol2"))
 
-test.insert_stage(StageNormalizeCharge("Normalize3", base_cls=test, orig_mol2=test.base_name+".resp.mol2",
+test.insert_stage(StageNormalizeCharge("Normalize3", inputoptions=inputoptions, orig_mol2=test.base_name+".resp.mol2",
                                                   new_mol2=test.base_name+".resp.mol2"),"Normalize2")
 
 test.execute()
