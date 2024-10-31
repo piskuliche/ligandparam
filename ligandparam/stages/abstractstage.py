@@ -1,8 +1,22 @@
 from abc import ABCMeta, abstractmethod
 from pathlib import Path
+from ligandparam.io.coordinates import Coordinates
 
 class AbstractStage(metaclass=ABCMeta):
     """ This is an abstract class for all the stages. """
+
+    default_options = {
+        "base_name": None,
+        "nproc": 6,
+        "mem": "8GB",
+        "net_charge": 0.0,
+        "theory": {"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"},
+        "atom_type": "gaff2",
+        "leaprc": ["leaprc.gaff2"],
+        "target_pdb": None,
+        "force_gaussian_rerun": False
+    }
+
     @abstractmethod
     def __init__(self, name, **kwargs) -> None:
         pass
@@ -84,4 +98,40 @@ class AbstractStage(metaclass=ABCMeta):
             self.outputs = []
         self.outputs.append(outputs)
         return
+    
+    def _parse_inputoptions(self, inputoptions=None, **kwargs):
+        """ Parse the input options. """
+        for key, value in self.default_options.items():
+            setattr(self, key, value)
+        if inputoptions is not None:
+            for key in inputoptions:
+                if key not in self.default_options:
+                    raise KeyError(f"ERROR: {key} is not a valid input option.")
+            for key, value in inputoptions.items():
+                setattr(self, key, value)
+        for key, value in kwargs.items():
+            if key not in self.default_options:
+                raise KeyError(f"ERROR: {key} is not a valid input option.")
+            setattr(self, key, value)
+        self._generate_implied()
+        self._check_self()
+        return
+    
+    def _generate_implied(self):
+        """ Generate the implied options. """
+        if self.base_name is None and hasattr(self, 'pdb_filename'):
+            self.base_name = Path(self.pdb_filename).stem
+        if self.pdb_filename is None and hasattr(self, 'base_name'):
+            self.pdb_filename = f"{self.base_name}.pdb"
 
+        self.header =  [f'%NPROC={self.nproc}', f'%MEM={self.mem}']
+
+        try:
+            coord_object = Coordinates(self.pdb_filename, filetype='pdb')
+            return coord_object
+        except FileExistsError:
+            raise FileExistsError(f"ERROR: File {self.pdb_filename} does not exist.")
+        return
+    
+    def _check_self():
+        pass

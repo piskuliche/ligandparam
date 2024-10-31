@@ -6,21 +6,21 @@ from ligandparam.interfaces import Leap
 
 class StageLeap(AbstractStage):
     """ This is class to run a basic leap calculations on the ligand. """
-    def __init__(self, name, base_cls=None) -> None:
+    def __init__(self, name, inputoptions=None) -> None:
         """ Initialize the StageLeap class.
         
         Parameters
         ----------
         name : str
             The name of the stage
-        base_cls : Ligand
+     : Ligand
             The base class of the ligand
         """
 
         self.name = name
-        self.base_cls = base_cls
-        self.add_required(f"{self.base_cls.base_name}.frcmod")
-        self.add_required(f"{self.base_cls.base_name}.resp.mol2")
+        self._parse_inputoptions(inputoptions)
+        self.add_required(f"{self.base_name}.frcmod")
+        self.add_required(f"{self.base_name}.resp.mol2")
 
         return
     
@@ -35,15 +35,15 @@ class StageLeap(AbstractStage):
         # Generate the leap input file
         leapgen = LeapWriter("param")
         # Add the leaprc files
-        for rc in self.base_cls.leaprc:
+        for rc in self.leaprc:
             leapgen.add_leaprc(rc)
 
-        u = mda.Universe(f"{self.base_cls.base_name}.resp.mol2")
+        u = mda.Universe(f"{self.base_name}.resp.mol2")
         resname = u.residues.resnames[0]
         # Add the leap commands
-        leapgen.add_line(f"loadamberparams {self.base_cls.base_name}.frcmod")
-        leapgen.add_line(f"{resname} = loadmol2 {self.base_cls.base_name}.resp.mol2")
-        leapgen.add_line(f"saveOff {resname} {self.base_cls.base_name}.off")
+        leapgen.add_line(f"loadamberparams {self.base_name}.frcmod")
+        leapgen.add_line(f"{resname} = loadmol2 {self.base_name}.resp.mol2")
+        leapgen.add_line(f"saveOff {resname} {self.base_name}.off")
         leapgen.add_line("quit")
         # Write the leap input file
         leapgen.write()

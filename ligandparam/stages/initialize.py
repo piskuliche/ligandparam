@@ -9,24 +9,24 @@ class StageInitialize(AbstractStage):
     ----------
     name : str
         Name of the stage.
-    base_cls : object
+ : object
         Object of the base class.
 
     """
-    def __init__(self, name, base_cls=None) -> None:
+    def __init__(self, name, inputoptions=None) -> None:
         """ Initialize the StageInitialize class. 
         
         Parameters
         ----------
         name : str
             The name of the stage
-        base_cls : Ligand
+     : Ligand
             The base class of the ligand
         """
         self.name = name
-        self.base_cls = base_cls
+        self._parse_inputoptions(inputoptions)
 
-        self.add_required(self.base_cls.pdb_filename)
+        self.add_required(self.pdb_filename)
         
         return
     
@@ -46,12 +46,12 @@ class StageInitialize(AbstractStage):
         -------
         None
         """
-        Remove_PDB_CONECT(self.base_cls.pdb_filename)
+        Remove_PDB_CONECT(self.pdb_filename)
         ante = Antechamber()
-        ante.call(i=self.base_cls.base_name+'.pdb', fi='pdb',
-                  o=self.base_cls.base_name+'.antechamber.mol2', fo='mol2',
-                  c='bcc', nc=self.base_cls.net_charge,
-                  pf='y', at=self.base_cls.atom_type,
+        ante.call(i=self.pdb_filename, fi='pdb',
+                  o=self.base_name+'.antechamber.mol2', fo='mol2',
+                  c='bcc', nc=self.net_charge,
+                  pf='y', at=self.atom_type,
                   dry_run = dry_run)
         
     def _clean(self):
@@ -62,7 +62,7 @@ class StageInitialize(AbstractStage):
 class StageSmilestoPDB(AbstractStage):
      This class is used to initialize from smiles to pdb.
     
-    def __init__(self, name, base_cls=None) -> None:
+    def __init__(self, name,=None) -> None:
         pass
     
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":

@@ -8,16 +8,14 @@ from ligandparam.interfaces import Antechamber
 from ligandparam.io.coordinates import Mol2Writer
 
 class StageUpdate(AbstractStage):
-    """" This class updates either (or both) the atom types and names in a mol2 file to match another mol2 file. """
-    def __init__(self, name, base_cls=None, orig_mol2=None, to_update=None, new_mol2=None, update_names=False, update_types=False, update_resname=False) -> None:
-        """ Initialize the StageUpdate class.
+    
+    def __init__(self, name, orig_mol2=None, to_update=None, new_mol2=None, update_names=False, update_types=False, update_resname=False, inputoptions=None) -> None:
+        """ This class updates either (or both) the atom types and names in a mol2 file to match another mol2 file.
         
         Parameters
         ----------
         name : str
             The name of the stage
-        base_cls : Ligand
-            The base class of the ligand
         orig_mol2 : str
             The original mol2 file
         to_update : str
@@ -30,9 +28,11 @@ class StageUpdate(AbstractStage):
             If True, update the atom types
         update_resname : bool
             If True, update the residue names (only if another update is requested)
+        inputoptions : dict
+            The input options for the stage
         """
         self.name = name
-        self.base_cls = base_cls
+        self._parse_inputoptions(inputoptions)
         if orig_mol2 is not None:
             self.orig_mol2 = orig_mol2
         else:
@@ -90,12 +90,12 @@ class StageUpdate(AbstractStage):
                     new_atom.name = orig_atom.name
             
         if not dry_run:
-            Mol2Writer(unew, filename=f"{self.base_cls.base_name}.types.mol2").write()
+            Mol2Writer(unew, filename=f"{self.base_name}.types.mol2").write()
 
         ante = Antechamber()
-        ante.call(i=self.base_cls.base_name + ".types.mol2", fi='mol2',
+        ante.call(i=self.base_name + ".types.mol2", fi='mol2',
                   o=self.new_mol2, fo='mol2',
-                  pf='y', at=self.base_cls.atom_type,
+                  pf='y', at=self.atom_type,
                   dry_run = dry_run)
         return
 
