@@ -159,7 +159,7 @@ class AbstractStage(metaclass=ABCMeta):
     def print_docs(self):
         """ Print the documentation for the stage. """
         try:
-            doclines = self.execute.__doc__.split('\n')
+            doclines = self._execute.__doc__.split('\n')
             for line in doclines:
                 if "Parameters" in line:
                     break
