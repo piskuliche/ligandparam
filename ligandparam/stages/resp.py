@@ -83,6 +83,7 @@ class StageMultiRespFit(AbstractStage):
 
         self._add_required(f"{self.base_name}.log.mol2")
         self._add_required(f"gaussianCalcs/{self.base_name}.log")
+        self._add_output(f"respfit.out")
 
         return
     
