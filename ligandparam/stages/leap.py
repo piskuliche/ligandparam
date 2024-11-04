@@ -5,22 +5,23 @@ from ligandparam.io.leapIO import LeapWriter
 from ligandparam.interfaces import Leap
 
 class StageLeap(AbstractStage):
-    """ This is class to run a basic leap calculations on the ligand. """
     def __init__(self, name, inputoptions=None) -> None:
-        """ Initialize the StageLeap class.
+        """ This class is used to run a basic leap calculations on the ligand.
         
         Parameters
         ----------
         name : str
             The name of the stage
-     : Ligand
-            The base class of the ligand
+        inputoptions : dict
+            The input options
         """
 
         self.name = name
         self._parse_inputoptions(inputoptions)
-        self.add_required(f"{self.base_name}.frcmod")
-        self.add_required(f"{self.base_name}.resp.mol2")
+        self._add_required(f"{self.base_name}.frcmod")
+        self._add_required(f"{self.base_name}.resp.mol2")
+
+        self._add_output(f"{self.base_name}.off")
 
         return
     
@@ -31,7 +32,17 @@ class StageLeap(AbstractStage):
     
 
     def _execute(self, dry_run=False):
-        """ Setup and execute the leap lib file generation """
+        """ Setup the leap calculations to produce the off file.
+
+        This function will generate the leap input file and then call tleap to generate the off (library) file
+        with parameters for the ligand.
+         
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, the stage will not be executed, but the function will print the commands that would
+        
+        """
         # Generate the leap input file
         leapgen = LeapWriter("param")
         # Add the leaprc files
