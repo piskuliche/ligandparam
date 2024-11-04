@@ -166,7 +166,7 @@ class Driver:
                 for req in stage.required:
                     if req not in output_files and stage_count > 0:
                         raise ValueError(f"Stage {stage.name} requires {req} as input.")
-            if hasattr(stage, 'output'):
+            if hasattr(stage, 'outputs'):
                 for out in stage.outputs:
                     output_files.append(out)
             stage_count += 1
