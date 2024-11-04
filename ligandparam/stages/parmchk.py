@@ -20,6 +20,7 @@ class StageParmChk(AbstractStage):
         self.name = name
         self._parse_inputoptions(inputoptions)
         self._add_required(f"{self.base_name}.resp.mol2")
+        self._add_output(f"{self.base_name}.frcmod")
         return
     
 
