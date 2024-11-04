@@ -69,7 +69,7 @@ class AbstractStage(metaclass=ABCMeta):
         """
         return [f.name for f in Path(directory).iterdir() if f.is_file()]
 
-    def add_required(self, filename):
+    def _add_required(self, filename):
         """ Add a required file to the stage. 
         
         Parameters
@@ -93,8 +93,8 @@ class AbstractStage(metaclass=ABCMeta):
                 raise FileNotFoundError(f"ERROR: File {fname} not found.")
         return 
     
-    def _add_outputs(self, outputs):
-        """ Add the outputs to the stage. 
+    def _add_output(self, outputs):
+        """ Add the output to the stage. 
         
         Parameters
         ----------
@@ -154,3 +154,15 @@ class AbstractStage(metaclass=ABCMeta):
     
     def _check_self(self):
         pass
+
+    def print_docs(self):
+        """ Print the documentation for the stage. """
+        try:
+            doclines = self.execute.__doc__.split('\n')
+            for line in doclines:
+                if "Parameters" in line:
+                    break
+                print(line)
+        except:
+            print("No documentation available.")
+        return
