@@ -93,19 +93,8 @@ class StageMultiRespFit(AbstractStage):
     def _execute(self, dry_run=False):
         """Execute a multi-state respfitting calculation.
 
-        if __name__ == "__main__":
-        comp = parmutils.BASH( 12 )
-        model = rf.ResidueResp( comp, 1 )
-
-
-        model.add_state( "$base", "$base.log.mol2", glob.glob("gaussianCalcs/$base_*.log"), qmmask="@*" )
-
-
-        model.multimolecule_fit(True)
-        model.perform_fit("@*",unique_residues=False)
-        #model.preserve_residue_charges_by_shifting()
-        model.print_resp()
-
+        This stage will execute a multi-state resp fitting calculation based on the gaussian output files created with 
+        the gaussian stage. 
 
         Parameters
         ----------
