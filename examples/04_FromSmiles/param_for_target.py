@@ -6,7 +6,27 @@ from pathlib import Path
 from ligandparam.io.smiles  import *
 from ligandparam.recipes import BuildLigand
 
-
+# Example default stage list, which could be passed to the disable_stages method to mass remove stages from 
+# the recipe. To do that, you would uncomment the line within the for loop marked by a commment.
+# Any stage that is set to false will be removed. Note - this is not guaranteed to work, as the stages are
+# sometimes dependent on each other.
+default_stage_list = {
+    "Initialize": True,
+    "Normalize1": True,
+    "Minimize": True,
+    "Rotate": True,
+    "GrabGaussianCharge": True,
+    "MultiRespFit": True,
+    "UpdateCharge": True,
+    "Normalize2": True,
+    "UpdateNames": True,
+    "UpdateTypes": True,
+    "ParmChk": True,
+    "Leap": True,
+    "BuildGas": True,
+    "BuildAq": True,
+    "BuildTarget": True
+}
 
 # Here is an initial set of molecules 
 example_set = {
@@ -63,7 +83,11 @@ for i, molec in enumerate(example_set):
     # Do the build
     baseoptions["base_name"] = molec
     build = BuildLigand(inputoptions=baseoptions)
+
     build.setup()
+    # Uncomment the line below to disable all stages
+    #build.disable_stages(default_stage_list)
+
     build.list_stages()
     #build.execute(dry_run=False)
 

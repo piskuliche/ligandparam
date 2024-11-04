@@ -2,20 +2,27 @@ from ligandparam.parametrization import Recipe
 from ligandparam.stages import *
 
 class LazyLigand(Recipe):
-    """ This is a class for parametrizing a simple ligand using Gaussian and Antechamber.
-    
-    This class is designed to do a quick parametrization of a very standard ligand. If your
-    ligand is weird in any way, you should use a different class. This class does a very simple 
-    parametrization using Gaussian and Antechamber. The steps are:
-    1. Initialize the ligand using the PDB file.
-    2. Minimize the ligand using Gaussian at a low level of theory.
-    3. Minimize the ligand using Gaussian at a high level of theory.
-    4. Calculate the RESP charges using Gaussian at the low level of theory.
-    5. Check the parameters using ParmChk.
-    6. Generate the Leap input files.
-    
-    """
+
     def __init__(self, *args, **kwargs):
+        """ This is a recipe for doing a parametrization of a ligand using the RESP method without multi-state fitting.
+
+        This recipe has a default list of stages that are run, and the stages can be disable by passing a dictionary of stages to disable to the disable stages method defined
+        in the Recipe class.
+        
+        default_stage_list = {
+            "Initialize": True,
+            "Normalize1": True,
+            "Minimize": True,
+            "LazyResp": True,
+            "UpdateCharge": True,
+            "Normalize2": True,
+            "UpdateNames": True,
+            "UpdateTypes": True,
+            "ParmChk": True,
+            "Leap": True,
+        }
+        
+        """
         super().__init__(*args, **kwargs)
         return
     

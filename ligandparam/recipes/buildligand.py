@@ -4,8 +4,33 @@ from ligandparam.stages import *
 
 class BuildLigand(Recipe):
     def __init__(self, *args, **kwargs):
+        """ This is a recipe for doing a parametrization of a ligand using the RESP method, and then building the ligand in gas, aqueous, and target environments.
+
+        This recipe has a default list of stages that are run, and the stages can be disable by passing a dictionary of stages to disable to the disable stages method defined
+        in the Recipe class.
+        
+        default_stage_list = {
+            "Initialize": True,
+            "Normalize1": True,
+            "Minimize": True,
+            "Rotate": True,
+            "GrabGaussianCharge": True,
+            "MultiRespFit": True,
+            "UpdateCharge": True,
+            "Normalize2": True,
+            "UpdateNames": True,
+            "UpdateTypes": True,
+            "ParmChk": True,
+            "Leap": True,
+            "BuildGas": True,
+            "BuildAq": True,
+            "BuildTarget": True
+        }
+
+        """
         super().__init__(*args, **kwargs)
         return
+
     def setup(self):
         self.stages = [
             StageInitialize("Initialize", inputoptions=self.inputoptions),

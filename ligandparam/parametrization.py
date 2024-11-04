@@ -45,3 +45,19 @@ class Recipe(Parametrization):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         return
+    def apply_stage_list(self, stage_list=None):
+        """ Apply the stage list to the recipe. 
+        
+        Parameters
+        ----------
+        stage_list : dict
+            The dictionary of stages to apply to the recipe. Keys are boolean values.
+        """
+        if stage_list is not None:
+            for key in stage_list.keys():
+                if key in self.stages:
+                    if stage_list[key] is False:
+                        self.stages.remove(key)
+                else:
+                    raise ValueError(f"Stage {key} not found in the stages list.")
+        return
