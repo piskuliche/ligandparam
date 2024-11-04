@@ -30,7 +30,7 @@ class StageGaussian(AbstractStage):
         """
         self.name = name
         self._parse_inputoptions(inputoptions)
-        self._add_outputs(f'gaussianCalcs/{self.base_name}.log')
+        self._add_output(f'gaussianCalcs/{self.base_name}.log')
         # No required files for this stage to execute.
         return
     
@@ -46,7 +46,12 @@ class StageGaussian(AbstractStage):
         return stage
 
     def _execute(self, dry_run=False):
-        """ Execute the Gaussian calculations. 
+        """ This class writes the Gaussian input files, and runs the Gaussian calculations.
+
+        This function creates a gaussianCalcs directory, and writes the Gaussian input files to that directory.
+        It then runs the Gaussian calculations in that directory. By default, if it finds a Gaussian log file
+        in the directory, it will not rerun the Gaussian calculations. This can be overridden by setting the
+        force_gaussian_rerun option to True.
 
         Parameters
         ----------
@@ -136,8 +141,10 @@ class StageGaussianRotation(AbstractStage):
         self.beta = [float(b) for b in beta]
         self.gamma = [float(g) for g in gamma]
 
-
-        
+        for a in self.alpha:
+            for b in self.beta:
+                for g in self.gamma:
+                    self._add_output(f'gaussianCalcs/{self.base_name}_rot_{a:0.2f}_{b:0.2f}_{g:0.2f}.log')
         return
     
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
@@ -152,7 +159,11 @@ class StageGaussianRotation(AbstractStage):
         return stage
 
     def _execute(self, dry_run=False):
-        """ Execute the Gaussian calculations for the rotated ligands.
+        """ Executes a gaussian roation resp calculation on the ligand.
+
+        This stage rotates the ligand by the alpha, beta, and gamma angles, and then runs a Gaussian
+        RESP calculation on the rotated ligand. The rotated ligand is written to a trajectory file, and 
+        the Gaussian calculations are run in the gaussianCalcs directory.
         
         Parameters
         ----------
@@ -168,8 +179,6 @@ class StageGaussianRotation(AbstractStage):
         calc_dir = Path('gaussianCalcs')
         if not calc_dir.exists():
             calc_dir.mkdir()
-
-        run_apply = print
 
         store_coords = []
         for a in self.alpha:
@@ -201,10 +210,16 @@ class StageGaussianRotation(AbstractStage):
                             print("Would run the following file:")
                             print(f'-->{self.base_name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.com')
                         else:
-                            gau_run = Gaussian()
-                            gau_run.call(inp_pipe=f'{self.base_name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.com', 
-                                    out_pipe=f'{self.base_name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.log',
-                                    dry_run=dry_run)
+                            gau_complete=False
+                            if os.path.exists(f'{self.base_name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.log'):
+                                reader = GaussianReader(f'{self.base_name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.log')
+                                if reader.check_complete():
+                                    gau_complete = True
+                            if not gau_complete:
+                                gau_run = Gaussian()
+                                gau_run.call(inp_pipe=f'{self.base_name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.com', 
+                                        out_pipe=f'{self.base_name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.log',
+                                        dry_run=dry_run)
                         rot_count += 1
                         self._print_status(rot_count, self.alpha, self.beta, self.gamma)
         finally:
@@ -272,15 +287,20 @@ class StageGaussiantoMol2(AbstractStage):
         self._parse_inputoptions(inputoptions)
         self.dry_run = dry_run
 
-        self.add_required(f'gaussianCalcs/{self.base_name}.log')
-        self.add_required(f'{self.base_name}.antechamber.mol2')
+        self._add_required(f'gaussianCalcs/{self.base_name}.log')
+        self._add_required(f'{self.base_name}.antechamber.mol2')
+
+        self._add_output(f'{self.base_name}.log.mol2')
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """ Append the stage to the current stage. """
         return stage
 
     def _execute(self, dry_run=False):
-        """ Execute the Gaussian to mol2 conversion.
+        """ Converts the gaussian output to mol2 format and assigns the charges.
+
+        This script converts the Gaussian output to mol2 format, and then assigns the charges
+        to the mol2 file. Antechamber is used to clean up the mol2 file format written by MDAnalysis.
 
         Parameters
         ----------
@@ -290,6 +310,10 @@ class StageGaussiantoMol2(AbstractStage):
         Returns
         -------
         None
+
+        To Do
+        -----
+        - Remove extraneous antechamber calls.
 
         """
         import warnings
