@@ -19,7 +19,7 @@ class StageParmChk(AbstractStage):
         """
         self.name = name
         self._parse_inputoptions(inputoptions)
-        self.add_required(f"{self.base_name}.resp.mol2")
+        self._add_required(f"{self.base_name}.resp.mol2")
         return
     
 
@@ -29,7 +29,9 @@ class StageParmChk(AbstractStage):
 
 
     def _execute(self, dry_run=False):
-        """ Execute the parmchk calcualtion to obtain the frcmod.
+        """ Execute the parmchk stage, which generates the frcmod file.
+
+        This stage will generate the frcmod file for the ligand using parmchk.
         
         Parameters
         ----------
