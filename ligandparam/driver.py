@@ -33,6 +33,7 @@ class Driver:
         """
         self.stages.append(stage.append_stage(stage))
         self.list_stages()
+        self.check_validity()
         return
     
     def execute(self, dry_run=False):
@@ -120,6 +121,7 @@ class Driver:
                 self.stages.remove(stage)
                 print(f"Stage {stage_name} removed.")
                 self.list_stages()
+                self.check_validity()
                 return
         print(f"Stage {stage_name} not found in list of stages.")
         return
@@ -142,6 +144,28 @@ class Driver:
                 self.stages.insert(idx, newstage)
                 print(f"Stage {newstage.name} inserted before {stage_name}")
                 self.list_stages()
+                self.check_validity()
                 return
         print(f"Stage {stage_name} not found in list of stages.")
         return
+    
+    def check_validity(self):
+        """ Check the validity of the stages in the list of stages to run. 
+        
+        This function checks the validity of the stages in the list of stages to run. If a stage is not valid, the function
+        will print an error message and exit.
+
+        Returns
+        -------
+        None
+        """
+        output_files = []
+        for stage in self.stages:
+            if hasattr(stage, 'required'):
+                for req in stage.required:
+                    if req not in output_files:
+                        raise ValueError(f"Stage {stage.name} requires {req} as input.")
+            if hasattr(stage, 'output'):
+                for out in stage.output:
+                    output_files.append(out)
+        return 
