@@ -94,14 +94,29 @@ class AbstractStage(metaclass=ABCMeta):
         return 
     
     def _add_outputs(self, outputs):
-        """ Add the outputs to the stage. """
+        """ Add the outputs to the stage. 
+        
+        Parameters
+        ----------
+        outputs : str
+            The output file to add to the stage.
+        """
         if not hasattr(self, 'outputs'):
             self.outputs = []
         self.outputs.append(outputs)
         return
     
     def _parse_inputoptions(self, inputoptions=None, **kwargs):
-        """ Parse the input options. """
+        """ Parse the input options. 
+        
+        Parameters
+        ----------
+        inputoptions : dict
+            A dictionary of input options.
+        **kwargs: dict
+            A dictionary of input options
+        
+        """
         for key, value in self.default_options.items():
             setattr(self, key, value)
         if inputoptions is not None:
@@ -119,7 +134,11 @@ class AbstractStage(metaclass=ABCMeta):
         return
     
     def _generate_implied(self):
-        """ Generate the implied options. """
+        """ Generate the implied options. 
+        
+        This function generates the implied options, such as the base_name from the pdb_filename.
+        
+        """
         if self.base_name is None and hasattr(self, 'pdb_filename'):
             self.base_name = Path(self.pdb_filename).stem
         if self.pdb_filename is None and hasattr(self, 'base_name'):
