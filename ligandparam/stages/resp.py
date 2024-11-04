@@ -81,8 +81,8 @@ class StageMultiRespFit(AbstractStage):
         self.name = name
         self._parse_inputoptions(inputoptions)
 
-        self.add_required(f"{self.base_name}.log.mol2")
-        self.add_required(f"gaussianCalcs/{self.base_name}.log")
+        self._add_required(f"{self.base_name}.log.mol2")
+        self._add_required(f"gaussianCalcs/{self.base_name}.log")
 
         return
     
