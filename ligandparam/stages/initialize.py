@@ -3,30 +3,21 @@ from ligandparam.interfaces import Antechamber
 from ligandparam.io.coordinates import Remove_PDB_CONECT
 
 class StageInitialize(AbstractStage):
-    """ This class is used to initialize from pdb to mol2 file using Antechamber.
-
-    Parameters
-    ----------
-    name : str
-        Name of the stage.
- : object
-        Object of the base class.
-
-    """
     def __init__(self, name, inputoptions=None) -> None:
-        """ Initialize the StageInitialize class. 
+        """ This class is used to initialize from pdb to mol2 file using Antechamber.
         
         Parameters
         ----------
         name : str
             The name of the stage
-     : Ligand
-            The base class of the ligand
+        inputoptions : dict
+            The input options
+            
         """
         self.name = name
         self._parse_inputoptions(inputoptions)
-
-        self.add_required(self.pdb_filename)
+        self._add_required(self.pdb_filename)
+        self._add_output(f"{self.base_name}.antechamber.mol2")
         
         return
     
@@ -35,7 +26,10 @@ class StageInitialize(AbstractStage):
         return stage
 
     def _execute(self, dry_run=False):
-        """ Execute the Gaussian calculations.
+        """ This function sets up a run in antechamber to generate a mol2 file from a pdb file with bcc charges.
+
+        This function does a few things to get ready for a parametrization. It first removes the CONECT lines from the pdb file
+        and then runs antechamber to generate a mol2 file with bcc charges and the specified atom type.
         
         Parameters
         ----------
