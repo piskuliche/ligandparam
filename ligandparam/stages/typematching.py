@@ -54,6 +54,7 @@ class StageUpdate(AbstractStage):
 
         self._add_required(orig_mol2)
         self._add_required(to_update)
+        self._add_output(new_mol2)
 
     
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
