@@ -93,17 +93,17 @@ class AbstractStage(metaclass=ABCMeta):
                 raise FileNotFoundError(f"ERROR: File {fname} not found.")
         return 
     
-    def _add_output(self, outputs):
+    def _add_output(self, output):
         """ Add the output to the stage. 
         
         Parameters
         ----------
-        outputs : str
+        output : str
             The output file to add to the stage.
         """
         if not hasattr(self, 'outputs'):
             self.outputs = []
-        self.outputs.append(outputs)
+        self.outputs.append(output)
         return
     
     def _parse_inputoptions(self, inputoptions=None, **kwargs):
