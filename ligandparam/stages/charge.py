@@ -274,7 +274,7 @@ class StageNormalizeCharge(AbstractStage):
         """
         print("-> Charges were redistributed as follows:")
         for i in range(len(names)):
-            print(f"-> {names[i]}: {orig_charges[i]} -> {new_charges[i]}")
+            print(f"-> {names[i]}: {np.round(orig_charges[i], self.decimals)} -> {np.round(new_charges[i], self.decimals)}")
         return
 
 
