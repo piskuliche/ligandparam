@@ -102,7 +102,7 @@ class Gaussian(SimpleInterface):
             print("Executing command")
             subprocess.run(bashcommand, shell=shell)
             print(f"Command Executed:")
-            print(f"{' '.join(bashcommand)}")
+            print(f"{' '.join(command)}")
         return
     
     def write_bash(self, command):
