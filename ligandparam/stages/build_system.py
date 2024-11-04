@@ -40,17 +40,23 @@ class StageBuild(AbstractStage):
         self.concentration = concentration
         self.buffer = rbuffer
         
-        self.add_required(f"{self.base_name}.resp.mol2")
-        self.add_required(f"{self.base_name}.frcmod")
-        self.add_required(f"{self.base_name}.off")
+        self._add_required(f"{self.base_name}.resp.mol2")
+        self._add_required(f"{self.base_name}.frcmod")
+        self._add_required(f"{self.base_name}.off")
 
         if build_type.lower() == 'aq':
             self.build_type = 0
+            self._add_output(f"{self.base_name}_aq.parm7")
+            self._add_output(f"{self.base_name}_aq.rst7")
         elif build_type.lower() == 'gas':
             self.build_type = 1
+            self._add_output(f"{self.base_name}_gas.parm7")
+            self._add_output(f"{self.base_name}_gas.rst7")
         elif build_type.lower() == 'target':
             self.build_type = 2
             self.add_required(f"{self.target_pdb}")
+            self._add_output(f"{self.base_name}_target.parm7")
+            self._add_output(f"{self.base_name}_target.rst7")
         else:
             raise ValueError("ERROR: Please provide a valid build type. [aq, gas, or target]")
         return
@@ -60,7 +66,9 @@ class StageBuild(AbstractStage):
         return stage
 
     def _execute(self, dry_run=False):
-        """ Execute the Gaussian calculations.
+        """ Builds the ligand in the specified environment.
+
+        This function will build the ligand in the specified environment. The environment can be aqueous (aq), gas (gas), or target (target).
         
         Parameters
         ----------
@@ -72,10 +80,13 @@ class StageBuild(AbstractStage):
         None
         """
         if self.build_type == 0:
+            print("Building ligand in aqueous environment")
             self._aq_build(dry_run=dry_run)
         elif self.build_type == 1:
+            print("Building ligand in gas environment")
             self._gas_build(dry_run=dry_run)
         elif self.build_type == 2:
+            print("Building ligand in target environment")
             self._target_build(dry_run=dry_run)
 
         
@@ -84,7 +95,21 @@ class StageBuild(AbstractStage):
         raise NotImplementedError("clean method not implemented")
     
     def _aq_build(self, dry_run=False):
-        """ Build the ligand in aqueous environment. """
+        """ Build the ligand in aqueous environment. 
+        
+        This function will build the ligand in an aqueous environment. The ligand will be solvated in a box of water molecules and ions will be added to neutralize the system. The concentration of the ions can be specified for addition 
+        to the system after the solvent is added. 
+        
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, the stage will not be executed, but the function will print the commands that would
+
+        To Do
+        -----
+        - Add options for different neutralization schemes (before or after solvating)
+
+        """
         aqleap = LeapWriter("aq")
         # Add the leaprc files
         if len(self.leaprc) == 0:
