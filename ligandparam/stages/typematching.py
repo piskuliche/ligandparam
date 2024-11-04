@@ -52,14 +52,22 @@ class StageUpdate(AbstractStage):
         self.update_types = update_types
         self.update_resname = update_resname
 
-        self.add_required(orig_mol2)
-        self.add_required(to_update)
+        self._add_required(orig_mol2)
+        self._add_required(to_update)
 
     
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
     def _execute(self, dry_run=False):
+        """ Execute the update stage, which updates the atom names and types in a mol2 file.
+        
+        This stage will update atom names/atom types/resnames in a mol2 file to match another mol2 file, if requested. These can be updated individually or together.
+        
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, the stage will not be executed, but the function will print the commands that would"""
         import warnings
         # Supress the inevitable mol2 file warnings.
         warnings.filterwarnings("ignore")
