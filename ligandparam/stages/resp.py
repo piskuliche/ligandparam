@@ -25,7 +25,8 @@ class StageLazyResp(AbstractStage):
         self.name = name
         self._parse_inputoptions(inputoptions)
 
-        self.add_required(f"./gaussianCalcs/{self.base_name}.log")
+        self._add_required(f"./gaussianCalcs/{self.base_name}.log")
+        self._add_output(f"{self.base_name}.resp.mol2")
         return
     
 
@@ -36,6 +37,9 @@ class StageLazyResp(AbstractStage):
 
     def _execute(self, dry_run=False):
         """ Execute antechamber to convert the gaussian output to a mol2 file. 
+
+        This stage will convert the gaussian output file to a mol2 file using antechamber,
+        and will incorporate the resp charges calculated by gaussian into the mol2 file.
         
         Parameters
         ----------
