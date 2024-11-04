@@ -10,9 +10,8 @@ from ligandparam.interfaces import Antechamber
 from ligandparam.io.coordinates import Mol2Writer
 
 class StageUpdateCharge(AbstractStage):
-    """ This class creates a new mol2 file with updated charges. """
     def __init__(self, name, orig_mol2=None, new_mol2=None, charge_source="multistate", charge_column=None, inputoptions=None) -> None:
-        """ Initialize the StageUpdateCharge class.
+        """ This class creates a new mol2 file with updated charges.
         
         Parameters
         ----------
@@ -52,8 +51,9 @@ class StageUpdateCharge(AbstractStage):
             else:
                 raise ValueError("ERROR: Please provide a charge column.")
         
-        self.add_required(self.orig_mol2)
-        self.add_required(self.charge_source)
+        self._add_required(self.orig_mol2)
+        self._add_required(self.charge_source)
+        self._add_output(self.new_mol2)
 
         return
     
@@ -61,6 +61,25 @@ class StageUpdateCharge(AbstractStage):
         return stage
 
     def _execute(self, dry_run=False):
+        """ Execute StageUpdateCharge to update charges in a mol2 file from a charge source.
+        
+        This stage will update the charges in a mol2 file from a charge source file. This could be a respfit.out file,
+        or any other file with charges stored in a column. The column number is specified in the charge_column variable when the
+        stage is initialized.
+        
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, the stage will not be executed, but the function will print the commands that would
+        
+        Raises
+        ------
+        FileNotFoundError
+            If the charge source file is not found
+        ValueError
+            If the number of charges does not match the number of atoms
+        
+        """
         import warnings
         # Supress the inevitable mol2 file warnings.
         warnings.filterwarnings("ignore")
@@ -82,7 +101,6 @@ class StageUpdateCharge(AbstractStage):
                   o=self.new_mol2, fo='mol2',
                   pf='y', at=self.atom_type,
                   dry_run = dry_run)
-
         return
 
     def _clean(self):
@@ -90,15 +108,13 @@ class StageUpdateCharge(AbstractStage):
 
     
 class StageNormalizeCharge(AbstractStage):
-    """ This class normalizes the charges to the net charge. 
-    
-    This class works by calculating the charge difference, and then normalizing the charges
-    based on the overall precision that you select, by adjusting each atom charge by the precision
-    until the charge difference is zero."""
-
     def __init__(self, name, orig_mol2=None, new_mol2=None, precision=0.0001, inputoptions=None) -> None:
-        """ Initialize the StageNormalizeCharge class.
-        
+        """ This class normalizes the charges to the net charge. 
+
+        This class works by calculating the charge difference, and then normalizing the charges
+        based on the overall precision that you select, by adjusting each atom charge by the precision
+        until the charge difference is zero.
+            
         Parameters
         ----------
         name : str
@@ -136,14 +152,19 @@ class StageNormalizeCharge(AbstractStage):
         self.precision = precision
         self.decimals = len(str(precision).split(".")[1])
 
-        self.add_required(orig_mol2)
+        self._add_required(orig_mol2)
+        self._add_output(new_mol2)
 
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
     def _execute(self, dry_run=False):
-        """ Execute the stage. 
+        """ This class normalizes the charges to the net charge. 
+
+        This function works by calculating the charge difference, and then normalizing the charges
+        based on the overall precision that you select, by adjusting each atom charge by the precision
+        until the charge difference is zero, starting with the largest charges. 
 
         Raises
         ------
@@ -163,7 +184,8 @@ class StageNormalizeCharge(AbstractStage):
 
         u = mda.Universe(self.orig_mol2, format='mol2')
         total_charge, charge_difference = self.check_charge(u.atoms.charges)
-        
+        orig_charges = u.atoms.charges
+
         if charge_difference != 0.0:
             print("-> Normalizing charges")
             charges = self.normalize(u.atoms.charges, charge_difference)
@@ -183,6 +205,8 @@ class StageNormalizeCharge(AbstractStage):
                   o=self.new_mol2, fo='mol2',
                   pf='y', at=self.atom_type,
                   dry_run = dry_run)
+        
+        self.print_charge_differences(u.atoms.names, orig_charges, charges)
 
     def _clean(self):
         raise NotImplementedError("clean method not implemented")
@@ -235,6 +259,23 @@ class StageNormalizeCharge(AbstractStage):
         print(f"-> Total Charge is {total_charge}")
         print(f"-> Charge difference is {charge_difference}")
         return total_charge, charge_difference
+    
+    def print_charge_differences(self, names, orig_charges, new_charges):
+        """ This function prints the charge differences between the original and new charges.
+        
+        Parameters
+        ----------
+        names : np.array
+            The atom names
+        orig_charges : np.array
+            The original charges
+        new_charges : np.array
+            The new charges
+        """
+        print("-> Charges were redistributed as follows:")
+        for i in range(len(names)):
+            print(f"-> {names[i]}: {orig_charges[i]} -> {new_charges[i]}")
+        return
 
 
 
