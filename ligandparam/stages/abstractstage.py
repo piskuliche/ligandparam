@@ -42,6 +42,7 @@ class AbstractStage(metaclass=ABCMeta):
         print(f"Executing {self.name}")
         print("************************************")
         starting_files = self.list_files_in_directory(".")
+        self.print_docs()
         self._check_required()
         self._execute(dry_run=dry_run)
         ending_files = self.list_files_in_directory(".")
