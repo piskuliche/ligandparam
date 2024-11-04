@@ -163,6 +163,10 @@ class AbstractStage(metaclass=ABCMeta):
             for line in doclines:
                 if "Parameters" in line:
                     break
+                if "Raises" in line:
+                    break
+                if "Returns" in line:
+                    break
                 print(line)
         except:
             print("No documentation available.")
