@@ -11,6 +11,13 @@ class TestStage(AbstractStage):
         return stage
 
     def _execute(self, dry_run=False):
+        """ This is a sample exectute method.
+        
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, the stage will not be executed, but the function will print the commands that would
+        """
         print("This worked!")
         return
 
