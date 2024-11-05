@@ -54,7 +54,7 @@ class StageBuild(AbstractStage):
             self._add_output(f"{self.base_name}_gas.rst7")
         elif build_type.lower() == 'target':
             self.build_type = 2
-            self.add_required(f"{self.target_pdb}")
+            self._add_required(f"{self.target_pdb}")
             self._add_output(f"{self.base_name}_target.parm7")
             self._add_output(f"{self.base_name}_target.rst7")
         else:
