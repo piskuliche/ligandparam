@@ -4,6 +4,7 @@ from rdkit import Chem
 from rdkit.Chem import AllChem, rdFMCS
 
 from ligandparam.stages.abstractstage import AbstractStage
+from ligandparam.io.leapIO import LeapWriter
 
 
 class StageMapTarget(AbstractStage):
@@ -67,6 +68,41 @@ class StageMapTarget(AbstractStage):
         AllChem.AlignMol(lig_mol, mol_from_pdb, atomMap=list(zip(match_lig, match_pdb)))
         
         Chem.MolToPDBFile(lig_mol, f"{self.base_name}_aligned.pdb")
+
+        targetleap = LeapWriter(f"target")
+
+        for rc in self.leaprc:
+            targetleap.add_leaprc(rc)
+        
+
+        solvent = None
+        for lrc in self.leaprc:
+            if "OPC" in lrc:
+                solvent = "OPCBOX"
+            elif "tip3p" in lrc:
+                solvent = "TIP3PBOX"
+            elif "tip4pew" in lrc:
+                solvent = "TIP4PEWBOX"
+        if solvent is None:
+            solvent = "TIP3PBOX"
+                # Add the leap commands
+
+        targetleap.add_line(f"loadamberparams {self.base_name}.frcmod")
+        targetleap.add_line(f"loadoff {self.base_name}.off")
+        targetleap.add_line(f"mol = loadpdb nolig_{self.target_pdb}.pdb")
+        targetleap.add_line(f"lig = loadpdb {self.base_name}_aligned.pdb")
+        targetleap.add_line("\n")
+        targetleap.add_line("complex = combine {lig mol}")
+        targetleap.add_line("\n")
+        targetleap.add_line(f"savepdb complex {self.base_name}_in_target.pdb")
+        # Add counter ions
+        targetleap.add_line(f"addions complex NA 0")
+        targetleap.add_line(f"solvateoct complex {solvent} {self.buffer}")
+        targetleap.add_line("\n")
+        targetleap.add_line(f"saveamberparm complex {self.base_name}_target_noions.parm7 {self.base_name}_target_noions.rst7")
+        targetleap.add_line("quit")
+        # Write the leap input file
+        targetleap.write()
 
         return
     
