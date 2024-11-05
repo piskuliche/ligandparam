@@ -66,6 +66,7 @@ for i, molec in enumerate(example_set):
     pdb = PDBFromSMILES(molec, example_set[molec])
     pdb.mol_from_smiles()
     pdb.write_pdb(f"{molec}_input.pdb")
+    pdb.draw_mol(f"{molec}_smiles.png")
     
     new = RenamePDBTypes(f"{molec}_input.pdb", molec)
     new.add_mol("1y27_lig.pdb")

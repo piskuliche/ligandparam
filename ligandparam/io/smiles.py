@@ -32,6 +32,12 @@ class PDBFromSMILES:
         self.mol = mol
         return 
     
+    def draw_mol(self, output):
+        """ Draw the molecule. """
+        image = rdkit.Chem.Draw.MolToImage(self.mol)
+        image.save(output)
+        return
+    
 class MolFromPDB:
     def __init__(self, pdb_filename):
         self.pdb_filename = pdb_filename
