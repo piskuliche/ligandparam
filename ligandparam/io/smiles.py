@@ -4,7 +4,7 @@ import shutil
 import MDAnalysis as mda
 import numpy as np
 
-from rdkit.Chem import rdFMCS
+from rdkit.Chem import rdFMCS, Draw
 
 class PDBFromSMILES:
     def __init__(self, resname, smiles):
@@ -34,7 +34,7 @@ class PDBFromSMILES:
     
     def draw_mol(self, output):
         """ Draw the molecule. """
-        image = rdkit.Chem.Draw.MolToImage(self.mol)
+        image = Draw.MolToImage(self.mol)
         image.save(output)
         return
     
