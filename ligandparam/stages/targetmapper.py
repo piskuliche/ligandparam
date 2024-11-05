@@ -66,7 +66,7 @@ class StageMapTarget(AbstractStage):
         # Align the mol
         AllChem.AlignMol(lig_mol, mol_from_pdb, atomMap=list(zip(match_lig, match_pdb)))
         
-        Chem.MolToPDBFile(lig_mol, f"{self.base_name}.pdb")
+        Chem.MolToPDBFile(lig_mol, f"{self.base_name}_target.pdb")
 
         return
     
