@@ -7,3 +7,4 @@ from .leap import StageLeap
 from .resp import StageMultiRespFit, StageLazyResp
 from .typematching import StageUpdate
 from .parmchk import StageParmChk
+from .targetmapper import StageMapTarget

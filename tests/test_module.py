@@ -1,5 +1,5 @@
 import unittest
-from my_python_package.module import your_function  # Replace with actual function/class names
+from ligandparam import your_function  # Replace with actual function/class names
 
 class TestYourFunction(unittest.TestCase):
 
