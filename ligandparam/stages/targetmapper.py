@@ -8,7 +8,7 @@ from ligandparam.io.leapIO import LeapWriter
 
 
 class StageMapTarget(AbstractStage):
-    def __init__(self, name, inputoptions=None) -> None:
+    def __init__(self, name, concentration=0.14, rbuffer=9.0, inputoptions=None) -> None:
         """ This class is used to run a basic leap calculations on the ligand.
         
         Parameters
@@ -20,6 +20,8 @@ class StageMapTarget(AbstractStage):
         """
 
         self.name = name
+        self.concentration = concentration
+        self.buffer = rbuffer
         self._parse_inputoptions(inputoptions)
         self._add_required(f"{self.base_name}.frcmod")
         self._add_required(f"{self.base_name}.resp.mol2")
