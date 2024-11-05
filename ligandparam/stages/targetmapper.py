@@ -46,7 +46,7 @@ class StageMapTarget(AbstractStage):
         
         """
         pdb = Chem.MolFromPDBFile(self.target_pdb, removeHs=True)
-        lig_mol = Chem.MolFromMol2File(f"{self.base_name}.resp.mol2")[0]
+        lig_mol = Chem.MolFromPDBFile(f"{self.pdb_filename}")
 
         # Extract mol from pdb (ligand)
         mol = Chem.MolFromPDBBlock("")
