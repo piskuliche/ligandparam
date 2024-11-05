@@ -91,7 +91,7 @@ class StageMapTarget(AbstractStage):
 
         targetleap.add_line(f"loadamberparams {self.base_name}.frcmod")
         targetleap.add_line(f"loadoff {self.base_name}.off")
-        targetleap.add_line(f"mol = loadpdb nolig_{self.target_pdb}.pdb")
+        targetleap.add_line(f"mol = loadpdb nolig_{self.target_pdb}")
         targetleap.add_line(f"lig = loadpdb {self.base_name}_aligned.pdb")
         targetleap.add_line("\n")
         targetleap.add_line("complex = combine {lig mol}")
