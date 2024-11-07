@@ -10,16 +10,16 @@ class LazyLigand(Recipe):
         in the Recipe class.
         
         default_stage_list = {
-            "Initialize": True,
-            "Normalize1": True,
-            "Minimize": True,
-            "LazyResp": True,
-            "UpdateCharge": True,
-            "Normalize2": True,
-            "UpdateNames": True,
-            "UpdateTypes": True,
-            "ParmChk": True,
-            "Leap": True,
+        "Initialize": True,
+        "Normalize1": True,
+        "Minimize": True,
+        "LazyResp": True,
+        "UpdateCharge": True,
+        "Normalize2": True,
+        "UpdateNames": True,
+        "UpdateTypes": True,
+        "ParmChk": True,
+        "Leap": True,
         }
         
         """

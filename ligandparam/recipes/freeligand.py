@@ -5,23 +5,23 @@ class FreeLigand(Recipe):
 
     def __init__(self, *args, **kwargs):
         """ This is a recipe for doing a parametrization of a ligand using the RESP method with multi-state fitting.
-
+        
         This recipe has a default list of stages that are run, and the stages can be disable by passing a dictionary of stages to disable to the disable stages method defined
         in the Recipe class.
         
         default_stage_list = {
-            "Initialize": True,
-            "Normalize1": True,
-            "Minimize": True,
-            "Rotate": True,
-            "GrabGaussianCharge": True,
-            "MultiRespFit": True,
-            "UpdateCharge": True,
-            "Normalize2": True,
-            "UpdateNames": True,
-            "UpdateTypes": True,
-            "ParmChk": True,
-            "Leap": True,
+        "Initialize": True,
+        "Normalize1": True,
+        "Minimize": True,
+        "Rotate": True,
+        "GrabGaussianCharge": True,
+        "MultiRespFit": True,
+        "UpdateCharge": True,
+        "Normalize2": True,
+        "UpdateNames": True,
+        "UpdateTypes": True,
+        "ParmChk": True,
+        "Leap": True,
         }
 
         """
