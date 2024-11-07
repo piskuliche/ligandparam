@@ -33,7 +33,27 @@ As with previous examples, we need to import the necessary modules and classes f
     from ligandparam.io.smiles  import *
     from ligandparam.recipes import BuildLigand
 
-Here, we are additionally using the pathlib libraries to manage file paths, and the shutil library to copy files.
+Here, we are additionally using the pathlib libraries to manage file paths, and the shutil library to copy files. As always, there is a default set of 
+stages that are pre-initialized in the BuildLigand class. These stages can be disabled using the disable_stages method.
+
+.. code-block:: python
+    default_stage_list = {
+        "Initialize": True,
+        "Normalize1": True,
+        "Minimize": True,
+        "Rotate": True,
+        "GrabGaussianCharge": True,
+        "MultiRespFit": True,
+        "UpdateCharge": True,
+        "Normalize2": True,
+        "UpdateNames": True,
+        "UpdateTypes": True,
+        "ParmChk": True,
+        "Leap": True,
+        "BuildGas": True,
+        "BuildAq": True,
+        "BuildTarget": True
+    }
 
 Next, we define a set of moleucles and their corresponding SMILES strings to a dictionary called example_set. Likewise, 
 we define the force-field parameters to be used in the calculation by adding them to a leaprc list. We also define the reference 
@@ -84,34 +104,39 @@ Now we loop over the example_set dictionary and do the calculation.
 .. code-block:: python
 
     for i, molec in enumerate(example_set):
-        # (1) Generate the PDB from SMILES
+        # Generate the PDB from SMILES
         pdb = PDBFromSMILES(molec, example_set[molec])
         pdb.mol_from_smiles()
+        pdb.draw_mol(f"{molec}_smiles.png")
         pdb.write_pdb(f"{molec}_input.pdb")
         
-        # (2) Rename the atom types to match the reference structure
+        
         new = RenamePDBTypes(f"{molec}_input.pdb", molec)
         new.add_mol("1y27_lig.pdb")
         new.rename_by_reference()
         
-        # (3) Make a directory for the molecule and cd into it.
+        # Make a directory for the molecule and cd into it.
         newdir = Path(f"{molec}")
         newdir.mkdir(exist_ok=True)
+        
         shutil.copyfile(reference_structure, f"{molec}/{reference_structure}")
         shutil.copyfile(f"{molec}.pdb", f"{molec}/{molec}.pdb")
         os.system(f"sed -i -e 's@{reference_resname}@{molec}@g' {molec}/{reference_structure}")
 
-        #(4) Change directory to the new directory and build the systems
         os.chdir(newdir) 
         # Do the build
         baseoptions["base_name"] = molec
         build = BuildLigand(inputoptions=baseoptions)
-        build.setup()
-        build.list_stages()
 
+        build.setup()
+        # Uncomment the line below to disable all stages
+        #build.disable_stages(default_stage_list)
+
+        build.list_stages()
         #build.execute(dry_run=False)
 
         os.chdir(Path(".."))
+
 
 Here there are a few things to point out. 
 
@@ -152,7 +177,27 @@ Full code
     from ligandparam.io.smiles  import *
     from ligandparam.recipes import BuildLigand
 
-
+    # Example default stage list, which could be passed to the disable_stages method to mass remove stages from 
+    # the recipe. To do that, you would uncomment the line within the for loop marked by a commment.
+    # Any stage that is set to false will be removed. Note - this is not guaranteed to work, as the stages are
+    # sometimes dependent on each other.
+    default_stage_list = {
+        "Initialize": True,
+        "Normalize1": True,
+        "Minimize": True,
+        "Rotate": True,
+        "GrabGaussianCharge": True,
+        "MultiRespFit": True,
+        "UpdateCharge": True,
+        "Normalize2": True,
+        "UpdateNames": True,
+        "UpdateTypes": True,
+        "ParmChk": True,
+        "Leap": True,
+        "BuildGas": True,
+        "BuildAq": True,
+        "BuildTarget": True
+    }
 
     # Here is an initial set of molecules 
     example_set = {
@@ -191,7 +236,9 @@ Full code
         # Generate the PDB from SMILES
         pdb = PDBFromSMILES(molec, example_set[molec])
         pdb.mol_from_smiles()
+        pdb.draw_mol(f"{molec}_smiles.png")
         pdb.write_pdb(f"{molec}_input.pdb")
+        
         
         new = RenamePDBTypes(f"{molec}_input.pdb", molec)
         new.add_mol("1y27_lig.pdb")
@@ -209,7 +256,11 @@ Full code
         # Do the build
         baseoptions["base_name"] = molec
         build = BuildLigand(inputoptions=baseoptions)
+
         build.setup()
+        # Uncomment the line below to disable all stages
+        #build.disable_stages(default_stage_list)
+
         build.list_stages()
         #build.execute(dry_run=False)
 

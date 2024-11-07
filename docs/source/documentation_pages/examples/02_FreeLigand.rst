@@ -23,11 +23,27 @@ Tutorial
 --------
 
 To start with any of the premade recipes, you need to import the recipe from the module. Using the wild-card character will import
-all the recipes available in the module, whereas, importing a specific recipe will only import that recipe.
+all the recipes available in the module, whereas, importing a specific recipe will only import that recipe. Just like before, there is also 
+a default stage list, which can be used to disable stages from the recipe, if needed. This only needs to be defined if you plan to disable stages from the recipe.
 
 .. code-block:: python
 
     from ligandparam.recipes import *
+
+    default_stage_list = {
+        "Initialize": True,
+        "Normalize1": True,
+        "Minimize": True,
+        "Rotate": True,
+        "GrabGaussianCharge": True,
+        "MultiRespFit": True,
+        "UpdateCharge": True,
+        "Normalize2": True,
+        "UpdateNames": True,
+        "UpdateTypes": True,
+        "ParmChk": True,
+        "Leap": True,
+    }
 
 
 The next step is to load the pdb file into the recipe of your choosing, and set various machine parameters. Full parameters that can be selected
@@ -119,6 +135,23 @@ Full code
     # Import the module
     from ligandparam.recipes import FreeLigand
 
+    # Example default stage list, which could be passed to the disable_stages method to mass remove stages from
+    # the recipe. To do that, you would uncomment the line marked by a commment.
+    default_stage_list = {
+        "Initialize": True,
+        "Normalize1": True,
+        "Minimize": True,
+        "Rotate": True,
+        "GrabGaussianCharge": True,
+        "MultiRespFit": True,
+        "UpdateCharge": True,
+        "Normalize2": True,
+        "UpdateNames": True,
+        "UpdateTypes": True,
+        "ParmChk": True,
+        "Leap": True,
+    }
+
     inputoptions = {
         'base_name': 'thiophenol',
         'net_charge': 0,
@@ -131,6 +164,9 @@ Full code
 
     # Select the pre-initialized stages for Lazy Ligand
     test.setup()
+
+    # Disable stages from the default list
+    #test.disable_stages(default_stage_list)
 
     # List the stages out to the user
     test.list_stages()

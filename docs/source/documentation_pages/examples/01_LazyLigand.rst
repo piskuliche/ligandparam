@@ -25,6 +25,23 @@ all the recipes available in the module, whereas, importing a specific recipe wi
 
     from ligandparam.recipes import *
 
+There is also a default stage list, which can be used to disable stages from the recipe, if needed. More on this later. These default stages do
+not need to be defined, unless you plan to disable stages from the recipe.
+
+.. code-block:: python
+
+    default_stage_list = {
+        "Initialize": True,
+        "Normalize1": True,
+        "Minimize": True,
+        "LazyResp": True,
+        "UpdateCharge": True,
+        "Normalize2": True,
+        "UpdateNames": True,
+        "UpdateTypes": True,
+        "ParmChk": True,
+        "Leap": True,
+    }
 
 The next step is to load the pdb file into the recipe of your choosing, and set various machine parameters. Full parameters that can be selected
 are available in the documentation for the class (for instance, for LazyLigand, see :class:`ligandparam.module.LazyLigand`).
@@ -103,8 +120,22 @@ Full code
 
 .. code-block:: python
     
-    # Import the module
     from ligandparam.recipes import LazyLigand
+
+    # Example default stage list, which could be passed to the disable_stages method to mass remove stages from
+    # the recipe. To do that, you would uncomment the line marked by a commment.
+    default_stage_list = {
+        "Initialize": True,
+        "Normalize1": True,
+        "Minimize": True,
+        "LazyResp": True,
+        "UpdateCharge": True,
+        "Normalize2": True,
+        "UpdateNames": True,
+        "UpdateTypes": True,
+        "ParmChk": True,
+        "Leap": True,
+    }
 
     inputoptions = {
         'base_name': 'thiophenol',
@@ -118,6 +149,9 @@ Full code
 
     # Select the pre-initialized stages for Lazy Ligand
     test.setup()
+
+    # Disable stages from the default list
+    #test.disable_stages(default_stage_list)
 
     # List the stages out to the user
     test.list_stages()
