@@ -5,3 +5,4 @@ ligandparam.stages.typematching
    :members:
    :undoc-members:
    :show-inheritance:
+   :private-members:
