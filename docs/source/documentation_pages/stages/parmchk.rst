@@ -5,3 +5,4 @@ ligandparam.stages.parmchk
    :members:
    :undoc-members:
    :show-inheritance:
+   :private-members:

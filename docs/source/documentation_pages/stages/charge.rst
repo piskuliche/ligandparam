@@ -5,3 +5,4 @@ ligandparam.stages.charge
    :members:
    :undoc-members:
    :show-inheritance:
+   :private-members:

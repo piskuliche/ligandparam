@@ -6,3 +6,4 @@ ligandparam.stages.abstractstage
    :members:
    :undoc-members:
    :show-inheritance:
+   :private-members:
