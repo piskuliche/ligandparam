@@ -37,6 +37,7 @@ Here, we are additionally using the pathlib libraries to manage file paths, and 
 stages that are pre-initialized in the BuildLigand class. These stages can be disabled using the disable_stages method.
 
 .. code-block:: python
+    
     default_stage_list = {
         "Initialize": True,
         "Normalize1": True,
