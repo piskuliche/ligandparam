@@ -25,7 +25,7 @@ class StageLazyResp(AbstractStage):
         self.name = name
         self._parse_inputoptions(inputoptions)
 
-        self._add_required(f"./gaussianCalcs/{self.base_name}.log")
+        self._add_required(f"gaussianCalcs/{self.base_name}.log")
         self._add_output(f"{self.base_name}.resp.mol2")
         return
     
