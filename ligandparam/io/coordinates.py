@@ -222,7 +222,9 @@ def Remove_PDB_CONECT(filename):
 
     """
     import shutil
-    shutil.copyfile(filename, "input_"+filename)
+    filepath = Path(filename)
+    backup = filepath.parent / f"input_{filepath.name}"
+    shutil.copyfile(filename, backup)
     with open(filename, 'r') as file:
         lines = file.readlines()
         new_lines = []
