@@ -41,7 +41,7 @@ class SimpleInterface:
             proc = subprocess.run(command, shell=shell, encoding='utf-8', stdout=subprocess.PIPE)
             for line in proc.stdout.split('\n'):
                 print(f"[{command[0]}] -> {line}")
-            print(f"Command {command} executed")
+            print(f"Command:\n{' '.join(command)}\nexecuted")
         return
    
 class Antechamber(SimpleInterface):
