@@ -30,6 +30,7 @@ class StageGaussian(AbstractStage):
         """
         self.name = name
         self.base_cls = base_cls
+        self.cwd = getattr(self.base_cls, "cwd", None)
         self._add_outputs(f'gaussianCalcs/{self.base_cls.base_name}.log')
         # No required files for this stage to execute.
         return
@@ -98,6 +99,7 @@ class StageGaussian(AbstractStage):
         # Run the Gaussian calculations in the gaussianCalcs directory
         os.chdir('gaussianCalcs')
         if not gau_complete:
+            # TODO: cwd=self.cwd
             gau_run = Gaussian()
             gau_run.call(inp_pipe=self.base_cls.base_name+'.com', 
                          out_pipe=self.base_cls.base_name+'.log',

@@ -24,6 +24,7 @@ class StageLazyResp(AbstractStage):
             """
         self.name = name
         self.base_cls = base_cls
+        self.cwd = getattr(self.base_cls, "cwd", None)
 
         self.add_required(f"./gaussianCalcs/{self.base_cls.base_name}.log")
         return

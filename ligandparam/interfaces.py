@@ -1,6 +1,6 @@
 class SimpleInterface:
 
-    def __init__(self) -> None:
+    def __init__(self, cwd=None) -> None:
         """ This class is a simple interface to call external programs.
 
         This class is a simple interface to call external programs. It is designed to be subclassed
@@ -38,34 +38,39 @@ class SimpleInterface:
             print(command)
         else:
             print("Executing command")
-            proc = subprocess.run(command, shell=shell, encoding='utf-8', stdout=subprocess.PIPE)
+            proc = subprocess.run(command, shell=shell, encoding='utf-8', stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                  cwd=getattr(self, 'cwd', None))
             for line in proc.stdout.split('\n'):
                 print(f"[{command[0]}] -> {line}")
             print(f"Command:\n{' '.join(command)}\nexecuted")
         return
    
 class Antechamber(SimpleInterface):
-    def __init__(self) -> None:
+    def __init__(self, cwd=None) -> None:
         """ This class is a simple interface to call the Antechamber program. """
         self.set_method('antechamber')
+        self.cwd = cwd
         return
     
 class ParmChk(SimpleInterface):
-    def __init__(self) -> None:
+    def __init__(self, cwd=None) -> None:
         """ This class is a simple interface to call the ParmChk program. """
         self.set_method('parmchk2')
+        self.cwd = cwd
         return
     
 class Leap(SimpleInterface):
-    def __init__(self) -> None:
+    def __init__(self, cwd=None) -> None:
         """ This class is a simple interface to call the Leap program. """
         self.set_method('tleap')
+        self.cwd = cwd
         return
 
 class Gaussian(SimpleInterface):
-    def __init__(self) -> None:
+    def __init__(self, cwd=None) -> None:
         """ This class is a simple interface to call the Gaussian program. """
         self.set_method('g16')
+        self.cwd = cwd
         return
     
     def call(self, **kwargs):
@@ -99,7 +104,7 @@ class Gaussian(SimpleInterface):
             print(bashcommand)
         else:
             print("Executing command")
-            subprocess.run(bashcommand, shell=shell)
+            subprocess.run(bashcommand, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=self.cwd)
             print(f"Command {bashcommand} executed")
         return
     

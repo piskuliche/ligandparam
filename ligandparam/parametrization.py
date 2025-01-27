@@ -1,5 +1,6 @@
 import pathlib
-
+from pathlib import Path
+from typing import Optional
 
 from ligandparam.driver import Driver
 from ligandparam.io.coordinates import Coordinates
@@ -13,7 +14,7 @@ class Parametrization(Driver):
                  theory_low='HF/6-31G*', theory_high='PBE1PBE/6-31G*', 
                  nproc=6, mem='8GB',
                 leaprc = [], target_pdb=None,
-                force_gaussian_rerun=False):
+                force_gaussian_rerun=False, remove_conect=True, cwd: Optional[Path]=None):
         """ This is the base class for all parametrizations, that is a sub class of the :class:`ligand_param.driver.Driver` class.
 
         The rough approach to using this class is to generate a new Parametrization class, and then generate self.stages as a list 
@@ -38,6 +39,8 @@ class Parametrization(Driver):
                      "high":theory_high}
         self.force_gaussian_rerun = force_gaussian_rerun
         self.target_pdb = target_pdb
+        self.remove_conect = remove_conect
+        self.cwd = cwd
 
 
         # Settings for Processor Environment

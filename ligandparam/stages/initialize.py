@@ -25,6 +25,7 @@ class StageInitialize(AbstractStage):
         """
         self.name = name
         self.base_cls = base_cls
+        self.cwd = getattr(self.base_cls, "cwd", None)
 
         self.add_required(self.base_cls.pdb_filename)
         
@@ -46,8 +47,9 @@ class StageInitialize(AbstractStage):
         -------
         None
         """
-        Remove_PDB_CONECT(self.base_cls.pdb_filename)
-        ante = Antechamber()
+        if self.base_cls.remove_conect:
+            Remove_PDB_CONECT(self.base_cls.pdb_filename)
+        ante = Antechamber(cwd=self.cwd)
         ante.call(i=self.base_cls.base_name+'.pdb', fi='pdb',
                   o=self.base_cls.base_name+'.antechamber.mol2', fo='mol2',
                   c='bcc', nc=self.base_cls.net_charge,

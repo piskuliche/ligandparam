@@ -19,6 +19,7 @@ class StageLeap(AbstractStage):
 
         self.name = name
         self.base_cls = base_cls
+        self.cwd = getattr(self.base_cls, "cwd", None)
         self.add_required(f"{self.base_cls.base_name}.frcmod")
         self.add_required(f"{self.base_cls.base_name}.resp.mol2")
 
@@ -48,7 +49,7 @@ class StageLeap(AbstractStage):
         # Write the leap input file
         leapgen.write()
         # Call the leap program
-        leap = Leap()
+        leap = Leap(cwd=self.cwd)
         leap.call(f="tleap.param.in", dry_run = dry_run)
         return
     

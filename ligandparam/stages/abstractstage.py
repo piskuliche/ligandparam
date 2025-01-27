@@ -26,10 +26,10 @@ class AbstractStage(metaclass=ABCMeta):
         print("************************************")
         print(f"Executing {self.name}")
         print("************************************")
-        starting_files = self.list_files_in_directory(".")
+        starting_files = self.list_files_in_directory(self.cwd)
         self._check_required()
         self._execute(dry_run=dry_run)
-        ending_files = self.list_files_in_directory(".")
+        ending_files = self.list_files_in_directory(self.cwd)
         self.new_files = [f for f in ending_files if f not in starting_files]
         print("\nFiles generated:")
         for fnames in self.new_files:
@@ -74,7 +74,7 @@ class AbstractStage(metaclass=ABCMeta):
             return
         
         for fname in self.required:
-            if not Path(fname).exists():
+            if not Path(self.cwd, fname).exists():
                 raise FileNotFoundError(f"ERROR: File {fname} not found.")
         return 
     

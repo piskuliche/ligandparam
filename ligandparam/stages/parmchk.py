@@ -19,6 +19,7 @@ class StageParmChk(AbstractStage):
         """
         self.name = name
         self.base_cls = base_cls
+        self.cwd = getattr(self.base_cls, "cwd", None)
         self.add_required(f"{self.base_cls.base_name}.resp.mol2")
         return
     
@@ -42,7 +43,7 @@ class StageParmChk(AbstractStage):
 
         """
         print(f"Executing {self.name} with netcharge={self.base_cls.net_charge}")
-        parm = ParmChk()
+        parm = ParmChk(cwd=self.cwd)
         parm.call(i=self.base_cls.base_name+'.resp.mol2', f="mol2",
                   o=self.base_cls.base_name+'.frcmod', 
                   s=2, dry_run = dry_run)

@@ -33,6 +33,7 @@ class StageUpdate(AbstractStage):
         """
         self.name = name
         self.base_cls = base_cls
+        self.cwd = getattr(self.base_cls, "cwd", None)
         if orig_mol2 is not None:
             self.orig_mol2 = orig_mol2
         else:
@@ -92,7 +93,7 @@ class StageUpdate(AbstractStage):
         if not dry_run:
             Mol2Writer(unew, filename=f"{self.base_cls.base_name}.types.mol2").write()
 
-        ante = Antechamber()
+        ante = Antechamber(cwd=self.cwd)
         ante.call(i=self.base_cls.base_name + ".types.mol2", fi='mol2',
                   o=self.new_mol2, fo='mol2',
                   pf='y', at=self.base_cls.atom_type,

@@ -1,4 +1,5 @@
 import shutil
+from typing import Optional
 
 import numpy as np
 import MDAnalysis as mda
@@ -70,7 +71,7 @@ class StageUpdateCharge(AbstractStage):
             raise FileNotFoundError(f"File {self.charge_source} not found.")
 
         if not dry_run:
-            u = mda.Universe(self.orig_mol2, format='mol2')
+            u = mda.Universe(Path(self.cwd, self.orig_mol2), format='mol2')
             if len(charges) != len(u.atoms):
                 raise ValueError("Error: Number of charges does not match the number of atoms.")
             u.atoms.charges = charges
@@ -103,6 +104,8 @@ class StageNormalizeCharge(AbstractStage):
         ----------
         name : str
             The name of the stage
+        cwd : str
+            Working directory
         base_cls : Ligand
             The base class of the ligand
         orig_mol2 : str
@@ -122,6 +125,7 @@ class StageNormalizeCharge(AbstractStage):
         """
         self.name = name
         self.base_cls = base_cls
+        self.cwd = getattr(self.base_cls, "cwd", None)
         if orig_mol2 is not None:
             self.orig_mol2 = orig_mol2
         else:
@@ -161,7 +165,7 @@ class StageNormalizeCharge(AbstractStage):
         print(f"-> Normalizing charges to {self.base_cls.net_charge}")
         print(f"-> Precision {self.precision} with {self.decimals} decimals")
 
-        u = mda.Universe(self.orig_mol2, format='mol2')
+        u = mda.Universe(Path(self.cwd, self.orig_mol2), format='mol2')
         total_charge, charge_difference = self.check_charge(u.atoms.charges)
         
         if charge_difference != 0.0:
@@ -178,10 +182,10 @@ class StageNormalizeCharge(AbstractStage):
         if not dry_run:
             Mol2Writer(u, self.base_cls.base_name + ".tmpnorm.mol2", selection="all").write()
 
-        ante = Antechamber()
+        ante = Antechamber(cwd=self.cwd)
         ante.call(i=self.base_cls.base_name + ".tmpnorm.mol2", fi='mol2',
                   o=self.new_mol2, fo='mol2',
-                  pf='y', at=self.base_cls.atom_type,
+                  pf='y', at=self.base_cls.atom_type, cwd=self.cwd,
                   dry_run = dry_run)
 
     def _clean(self):
