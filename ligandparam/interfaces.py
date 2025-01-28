@@ -1,5 +1,9 @@
+import os
 from abc import abstractmethod
-from typing import override
+from typing_extensions import override
+import subprocess
+
+from pathlib import Path
 
 
 class SimpleInterface:
@@ -20,7 +24,6 @@ class SimpleInterface:
         return
 
     def call(self, **kwargs):
-        import subprocess
         dry_run = False
         if "dry_run" in kwargs:
             dry_run = kwargs['dry_run']
@@ -29,10 +32,10 @@ class SimpleInterface:
         command = [self.method]
         shell = False
         for key, value in kwargs.items():
-            if key is "inp_pipe":
+            if key == "inp_pipe":
                 command.extend([f'<', str(value)])
                 shell = True
-            elif key is "out_pipe":
+            elif key == "out_pipe":
                 command.extend([f'>', str(value)])
                 shell = True
             else:
@@ -42,11 +45,10 @@ class SimpleInterface:
         if dry_run:
             print(command)
         else:
-            print("Executing command")
-            proc = subprocess.run(command, shell=shell, encoding='utf-8', stdout=subprocess.PIPE)
-            for line in proc.stdout.split('\n'):
-                print(f"[{command[0]}] -> {line}")
-            print(f"Command {command} executed")
+            print(f"Executing command:\n{' '.join(command)}")
+            proc = subprocess.run(command, shell=shell, encoding='utf-8', cwd=self.cwd, stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE)
+            print(f"Command executed.")
         return
 
 
@@ -54,6 +56,10 @@ class Antechamber(SimpleInterface):
     @override
     def __init__(self, *args, **kwargs) -> None:
         """ This class is a simple interface to call the Antechamber program. """
+        try:
+            self.cwd = Path(kwargs["cwd"])
+        except KeyError:
+            raise ValueError(f"ERROR: missing `cwd` arg with a path to the workdir.")
         self.set_method('antechamber')
         return
 
@@ -62,6 +68,10 @@ class ParmChk(SimpleInterface):
     @override
     def __init__(self, *args, **kwargs) -> None:
         """ This class is a simple interface to call the ParmChk program. """
+        try:
+            self.cwd = Path(kwargs["cwd"])
+        except KeyError:
+            raise ValueError(f"ERROR: missing `cwd` arg with a path to the workdir.")
         self.set_method('parmchk2')
         return
 
@@ -70,6 +80,10 @@ class Leap(SimpleInterface):
     @override
     def __init__(self, *args, **kwargs) -> None:
         """ This class is a simple interface to call the Leap program. """
+        try:
+            self.cwd = Path(kwargs["cwd"])
+        except KeyError:
+            raise ValueError(f"ERROR: missing `cwd` arg with a path to the workdir.")
         self.set_method('tleap')
         return
 
@@ -78,7 +92,17 @@ class Gaussian(SimpleInterface):
     @override
     def __init__(self, *args, **kwargs) -> None:
         """ This class is a simple interface to call the Gaussian program. """
-        self.set_method('g16')
+        try:
+            self.cwd = Path(kwargs["cwd"])
+        except KeyError:
+            raise ValueError(f"ERROR: missing `cwd` arg with a path to the workdir.")
+        for opt in ("gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
+            try:
+                setattr(self, opt, kwargs[opt])
+            except KeyError:
+                raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
+
+        self.set_method(str(self.gaussian_binary))
         return
 
     def call(self, **kwargs):
@@ -86,7 +110,6 @@ class Gaussian(SimpleInterface):
         however, it works slightly differently than the other interfaces. The Gaussian
         interface for some reason isn't compatible with the subprocess.run() function
         so we instead write a bash script to call the program and then execute the script."""
-        import subprocess
         dry_run = False
         if "dry_run" in kwargs:
             dry_run = kwargs['dry_run']
@@ -95,10 +118,10 @@ class Gaussian(SimpleInterface):
         command = [self.method]
         shell = False
         for key, value in kwargs.items():
-            if key is "inp_pipe":
+            if key == "inp_pipe":
                 command.extend([f'<', str(value)])
                 shell = True
-            elif key is "out_pipe":
+            elif key == "out_pipe":
                 command.extend([f'>', str(value)])
                 shell = True
             else:
@@ -112,14 +135,28 @@ class Gaussian(SimpleInterface):
             print(bashcommand)
         else:
             print("Executing command")
-            subprocess.run(bashcommand, shell=shell)
-            print(f"Command {bashcommand} executed")
+            env = {
+                "g16root": self.gaussian_root,
+                "GAUSS_EXEDIR": self.gauss_exedir,
+                "GAUSS_SCRDIR": self.gaussian_scratch,
+                **os.environ
+            }
+            p = subprocess.run(bashcommand, shell=shell, cwd=self.cwd, stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE, env=env)
+            if p.returncode != 0:
+                print(f"Gaussian run at {self.cwd} failed.")
+                print(p.stdout)
+                print(p.stderr)
+                raise RuntimeError
+            else:
+                print(f"Command {bashcommand} executed")
         return
 
     def write_bash(self, command):
         """ This function writes a bash script to call the Gaussian program
         with the specified arguments. """
-        with open('temp_gaussian_sub.sh', 'w') as f:
+        with open(self.cwd / "temp_gaussian_sub.sh", 'w') as f:
             f.write('#!/bin/bash\n\n')
             f.write(command)
+            f.write('\n')
         return

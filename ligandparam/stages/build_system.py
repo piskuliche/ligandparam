@@ -1,5 +1,7 @@
+import warnings
 from pathlib import Path
 from typing import Union
+from typing_extensions import override
 
 import MDAnalysis as mda
 
@@ -10,8 +12,8 @@ from ligandparam.io.leapIO import LeapWriter
 
 class StageBuild(AbstractStage):
 
-
-    def __init__(self, stage_name, name: str, cwd: Union[Path, str], *args, **kwargs) -> None:
+    @override
+    def __init__(self, stage_name: str, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         """ This class is used to initialize from pdb to mol2 file using Antechamber.
         
         Parameters
@@ -29,9 +31,7 @@ class StageBuild(AbstractStage):
         inputoptions : dict
             The input options
         """
-        self.stage_name = stage_name
-        self.name = name
-        self.cwd = Path(cwd)
+        super().__init__(stage_name, name, cwd, *args, **kwargs)
         self.target_pdb = getattr(kwargs, 'target_pdb')
         self.build_type = self._validate_build_type(getattr(kwargs, 'build_type', 'aq'))
         self.concentration = getattr(kwargs, 'concentration', 0.14)
@@ -237,8 +237,10 @@ class StageBuild(AbstractStage):
 
     def check_target(self):
         """ Check that the target pdb file is correct. """
-        u = mda.Universe(self.target_pdb)
-        u2 = mda.Universe(self.name + ".resp.mol2")
-        lig_resname = u2.residues.resnames[0]
-        if lig_resname not in u.residues.resnames:
-            raise ValueError(f"ERROR: The ligand residue name {lig_resname} is not in the target pdb file.")
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            u = mda.Universe(self.target_pdb)
+            u2 = mda.Universe(self.name + ".resp.mol2")
+            lig_resname = u2.residues.resnames[0]
+            if lig_resname not in u.residues.resnames:
+                raise ValueError(f"ERROR: The ligand residue name {lig_resname} is not in the target pdb file.")

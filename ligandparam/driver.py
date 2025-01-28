@@ -5,7 +5,7 @@ from pathlib import Path
 
 class Driver:
     @abstractmethod
-    def __init__(name: str, cwd: Union[Path, str], *args, **kwargs):
+    def __init__(self, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs):
         """ Initialize the Driver class object.
 
         This class is the base class for all parametrizations. It is designed to be subclassed, and the subclass should
@@ -102,7 +102,7 @@ class Driver:
         print("********************************")
         print("List of Stages to Run")
         for stage in self.stages:
-            print(f"-->{stage.name}")
+            print(f"-->{stage.stage_name} ({stage})")
         return
     
     def remove_stage(self, stage_name):

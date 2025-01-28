@@ -1,33 +1,25 @@
+from typing import Union
+
+from pathlib import Path
+
 from ligandparam.stages.abstractstage import AbstractStage
 from ligandparam.interfaces import Antechamber
 from ligandparam.io.coordinates import Remove_PDB_CONECT
 
 class StageInitialize(AbstractStage):
-    """ This class is used to initialize from pdb to mol2 file using Antechamber.
-
-    Parameters
-    ----------
-    name : str
-        Name of the stage.
- : object
-        Object of the base class.
-
-    """
-    def __init__(self, name, inputoptions=None) -> None:
-        """ Initialize the StageInitialize class. 
-        
-        Parameters
-        ----------
-        name : str
-            The name of the stage
-     : Ligand
-            The base class of the ligand
-        """
-        self.name = name
-        self._parse_inputoptions(inputoptions)
-
+    def __init__(self, stage_name: str, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        super().__init__(stage_name, name, cwd, *args, **kwargs)
+        self.pdb_filename = Path(name)
         self.add_required(self.pdb_filename)
-        
+        self.out_mol2 = Path(self.cwd, f"{self.name.stem}.antechamber.mol2")
+
+        self.net_charge = kwargs.get("net_charge", 0.0)
+        self.atom_type = kwargs.get("atom_type", "gaff2")
+        # for opt in ("net_charge", ):
+        #     try:
+        #         setattr(self, opt, kwargs[opt])
+        #     except KeyError:
+        #         raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
         return
     
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
@@ -47,9 +39,9 @@ class StageInitialize(AbstractStage):
         None
         """
         Remove_PDB_CONECT(self.pdb_filename)
-        ante = Antechamber()
+        ante = Antechamber(cwd=self.cwd)
         ante.call(i=self.pdb_filename, fi='pdb',
-                  o=self.name+'.antechamber.mol2', fo='mol2',
+                  o=self.out_mol2, fo='mol2',
                   c='bcc', nc=self.net_charge,
                   pf='y', at=self.atom_type,
                   dry_run = dry_run)

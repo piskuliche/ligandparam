@@ -1,27 +1,21 @@
-import MDAnalysis as mda
-import numpy as np
+from typing import Union
+from typing_extensions import override
+from pathlib import Path
 
 from ligandparam.stages.abstractstage import AbstractStage
 from ligandparam.interfaces import ParmChk
 
 class StageParmChk(AbstractStage):
     """ This is class to run parmchk on the ligand. """
-    def __init__(self, name, inputoptions=None) -> None:
-        """ Initialize the StageGaussian class. 
-        
-        Parameters
-        ----------
-        name : str
-            The name of the stage
-        inputoptions : dict
-            The input options for the stage
-        
-        """
-        self.name = name
-        self._parse_inputoptions(inputoptions)
-        self.add_required(f"{self.name}.resp.mol2")
-        return
-    
+
+    @override
+    def __init__(self, stage_name: str, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        super().__init__(stage_name, name, cwd, *args, **kwargs)
+        self.net_charge = getattr(kwargs, 'net_charge', 0.0)
+        self.inmol2 = Path(self.cwd, f"{self.name.stem}.resp.mol2")
+        self.outfrcmod = Path(self.cwd, f"{self.name.stem}.frcmod")
+        self.add_required(self.inmol2)
+
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """ Appends the stage. """
@@ -42,10 +36,8 @@ class StageParmChk(AbstractStage):
 
         """
         print(f"Executing {self.name} with netcharge={self.net_charge}")
-        parm = ParmChk()
-        parm.call(i=self.name+'.resp.mol2', f="mol2",
-                  o=self.name+'.frcmod', 
-                  s=2, dry_run = dry_run)
+        parm = ParmChk(cwd=self.cwd)
+        parm.call(i=self.inmol2, f="mol2", o=self.outfrcmod, s=2, dry_run = dry_run)
         return
     
     def _clean(self):

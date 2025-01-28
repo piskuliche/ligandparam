@@ -5,7 +5,8 @@ from pathlib import Path
 
 
 class GaussianWriter:
-    def __init__(self, filename):
+    def \
+            __init__(self, filename):
         """ Class for writing Gaussian input files
 
         The filename selected will be the name of the Gaussian input file that is written to 
@@ -23,6 +24,7 @@ class GaussianWriter:
         
         """
         self.filename = filename
+        self.out_dir = Path(filename).parent.mkdir(exist_ok=True)
         self.nlinks = 0
         self.links = []
         return

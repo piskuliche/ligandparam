@@ -1,9 +1,11 @@
-import shutil
+from typing import Union
+from typing_extensions import override
+from pathlib import Path
+import warnings
 
 import numpy as np
 import MDAnalysis as mda
 
-from pathlib import Path
 
 from ligandparam.stages.abstractstage import AbstractStage
 from ligandparam.interfaces import Antechamber
@@ -11,49 +13,17 @@ from ligandparam.io.coordinates import Mol2Writer
 
 class StageUpdateCharge(AbstractStage):
     """ This class creates a new mol2 file with updated charges. """
-    def __init__(self, name, orig_mol2=None, new_mol2=None, charge_source="multistate", charge_column=None, inputoptions=None) -> None:
-        """ Initialize the StageUpdateCharge class.
-        
-        Parameters
-        ----------
-        name : str
-            The name of the stage
-        base_cls : Ligand
-            The base class of the ligand
-        orig_mol2 : str
-            The original mol2 file
-        new_mol2 : str
-            The new mol2 file
-        charge_source : str
-            The source of the charges
-        charge_column : int
-            The column of the charges
-        """
-        self.name = name
-        self._parse_inputoptions(inputoptions)
 
-        self.orig_mol2 = orig_mol2
-        self.new_mol2 = new_mol2
-
-        if self.orig_mol2 == self.new_mol2:
-            raise ValueError("ERROR: Original and new mol2 files are the same. Please provide different files.")
-        
-        if charge_source is "multistate":
-            self.charge_source = "respfit.out"
-            self.charge_column = 3
-        else:
-            if charge_source is not None:
-                self.charge_source = charge_source
-            else:
-                raise ValueError("ERROR: Please provide a charge source file.")
-            
-            if charge_column is not None:
-                self.charge_column = charge_column
-            else:
-                raise ValueError("ERROR: Please provide a charge column.")
-        
-        self.add_required(self.orig_mol2)
-        self.add_required(self.charge_source)
+    @override
+    def __init__(self, stage_name: str, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        super().__init__(stage_name, name, cwd, *args, **kwargs)
+        for opt in ("in_mol2", "out_mol2", "charge_source", "charge_column"):
+            try:
+                setattr(self, opt, kwargs[opt])
+            except KeyError:
+                raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
+        self.add_required(Path(self.in_mol2))
+        self.add_required(Path(self.charge_source))
 
         return
     
@@ -61,27 +31,28 @@ class StageUpdateCharge(AbstractStage):
         return stage
 
     def _execute(self, dry_run=False):
-        import warnings
-        # Supress the inevitable mol2 file warnings.
-        warnings.filterwarnings("ignore")
-        if Path(self.charge_source).exists():
-            charges = np.genfromtxt(self.charge_source, usecols=(self.charge_column), unpack=True)
-        else:
-            raise FileNotFoundError(f"File {self.charge_source} not found.")
 
-        if not dry_run:
-            u = mda.Universe(self.orig_mol2, format='mol2')
-            if len(charges) != len(u.atoms):
-                raise ValueError("Error: Number of charges does not match the number of atoms.")
-            u.atoms.charges = charges
-            # Write the Mol2 temporary file
-            Mol2Writer(u, self.name + ".tmpresp.mol2", selection="all").write()
-        
-        ante = Antechamber()
-        ante.call(i=self.name + ".tmpresp.mol2", fi='mol2',
-                  o=self.new_mol2, fo='mol2',
-                  pf='y', at=self.atom_type,
-                  dry_run = dry_run)
+        # Supress the inevitable mol2 file warnings.
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            if Path(self.charge_source).exists():
+                charges = np.genfromtxt(self.charge_source, usecols=(self.charge_column), unpack=True)
+            else:
+                raise FileNotFoundError(f"File {self.charge_source} not found.")
+
+            if not dry_run:
+                u = mda.Universe(self.in_mol2, format='mol2')
+                if len(charges) != len(u.atoms):
+                    raise ValueError("Error: Number of charges does not match the number of atoms.")
+                u.atoms.charges = charges
+                # Write the Mol2 temporary file
+                Mol2Writer(u, self.name + ".tmpresp.mol2", selection="all").write()
+
+            ante = Antechamber(cwd=self.cwd)
+            ante.call(i=self.name + ".tmpresp.mol2", fi='mol2',
+                      o=self.out_mol2, fo='mol2',
+                      pf='y', at=self.atom_type,
+                      dry_run = dry_run)
 
         return
 
@@ -96,47 +67,22 @@ class StageNormalizeCharge(AbstractStage):
     based on the overall precision that you select, by adjusting each atom charge by the precision
     until the charge difference is zero."""
 
-    def __init__(self, name, orig_mol2=None, new_mol2=None, precision=0.0001, inputoptions=None) -> None:
-        """ Initialize the StageNormalizeCharge class.
-        
-        Parameters
-        ----------
-        name : str
-            The name of the stage
-        base_cls : Ligand
-            The base class of the ligand
-        orig_mol2 : str
-            The original mol2 file
-        new_mol2 : str
-            The new mol2 file
-        precision : float
-            The precision of the charge normalization
+    def __init__(self, stage_name: str, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        super().__init__(stage_name, name, cwd, *args, **kwargs)
+        for opt in ("in_mol2", "out_mol2"):
+            try:
+                setattr(self, opt, kwargs[opt])
+            except KeyError:
+                raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
+        self.atom_type = kwargs.get("atom_type", "gaff2")
+        self.net_charge = kwargs.get("net_charge", 0.0)
+        self.precision = kwargs.get("precision", 0.0001)
+        try:
+            self.decimals = len(str(self.precision).split(".")[1])
+        except IndexError:
+            raise ValueError(f"ERROR: Invalid precision: {self.precision}. It should be a float between 0 and 0.1")
 
-        Raises
-        ------
-        ValueError
-            If the original mol2 file is not provided
-        ValueError
-            If the new mol2 file is not provided
-
-        """
-        self.name = name
-        self._parse_inputoptions(inputoptions)
-        if orig_mol2 is not None:
-            self.orig_mol2 = orig_mol2
-        else:
-            raise ValueError("Please provide an original filename.")
-        
-        if new_mol2 is not None:
-            self.new_mol2 = new_mol2
-        else:
-            raise ValueError("Please provide a new filename.")
-        
-
-        self.precision = precision
-        self.decimals = len(str(precision).split(".")[1])
-
-        self.add_required(orig_mol2)
+        self.add_required(self.in_mol2)
 
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
@@ -154,35 +100,35 @@ class StageNormalizeCharge(AbstractStage):
         TODO: Check what happens when charge difference is larger than the number of atoms
 
         """
-        import warnings
-        # Supress the inevitable mol2 file warnings.
-        warnings.filterwarnings("ignore")
-        print("-> Checking charges")
-        print(f"-> Normalizing charges to {self.net_charge}")
-        print(f"-> Precision {self.precision} with {self.decimals} decimals")
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            print("-> Checking charges")
+            print(f"-> Normalizing charges to {self.net_charge}")
+            print(f"-> Precision {self.precision} with {self.decimals} decimals")
 
-        u = mda.Universe(self.orig_mol2, format='mol2')
-        total_charge, charge_difference = self.check_charge(u.atoms.charges)
-        
-        if charge_difference != 0.0:
-            print("-> Normalizing charges")
-            charges = self.normalize(u.atoms.charges, charge_difference)
-            new_total, new_diff = self.check_charge(charges)
-            if new_diff != 0.0:
-                raise ValueError("Error: Charge normalization failed.")
+            u = mda.Universe(self.in_mol2, format='mol2')
+            total_charge, charge_difference = self.check_charge(u.atoms.charges)
+
+            if charge_difference != 0.0:
+                print("-> Normalizing charges")
+                charges = self.normalize(u.atoms.charges, charge_difference)
+                new_total, new_diff = self.check_charge(charges)
+                if new_diff != 0.0:
+                    raise ValueError("Error: Charge normalization failed.")
+                else:
+                    u.atoms.charges = charges
             else:
-                u.atoms.charges = charges
-        else:
-            print("-> Charges are already normalized")
-            return
-        if not dry_run:
-            Mol2Writer(u, self.name + ".tmpnorm.mol2", selection="all").write()
+                print("-> Charges are already normalized")
+                return
+            if not dry_run:
+                tmp_mol2 = self.cwd / (self.name.stem + ".tmpnorm.mol2")
+                Mol2Writer(u, tmp_mol2, selection="all").write()
 
-        ante = Antechamber()
-        ante.call(i=self.name + ".tmpnorm.mol2", fi='mol2',
-                  o=self.new_mol2, fo='mol2',
-                  pf='y', at=self.atom_type,
-                  dry_run = dry_run)
+                ante = Antechamber(cwd=self.cwd)
+                ante.call(i=tmp_mol2, fi='mol2',
+                          o=self.out_mol2, fo='mol2',
+                          pf='y', at=self.atom_type,
+                          dry_run = dry_run)
 
     def _clean(self):
         raise NotImplementedError("clean method not implemented")

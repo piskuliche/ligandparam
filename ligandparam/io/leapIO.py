@@ -64,14 +64,14 @@ class LeapWriter:
                 self.lines.remove(line)
         return
     
-    def write(self):
+    def write(self, out_filepath):
         """ Write the tleap input file to disk.
 
         This method writes the tleap input file to disk. The filename
         is generated from the name of the LeapWriter object.
 
         """
-        with open(f"tleap.{self.name}.in", 'w') as f:
+        with open(out_filepath, 'w') as f:
             for line in self.leaprc:
                 f.write(f"source {line}\n")
             for line in self.lines:
