@@ -4,7 +4,7 @@
 from ligandparam.recipes import FreeLigand
 
 inputoptions = {
-    'base_name': 'thiophenol',
+    'name': 'thiophenol',
     'net_charge': 0,
     'mem': '60GB',
     'nproc': 12

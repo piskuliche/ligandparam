@@ -90,10 +90,10 @@ class StageUpdate(AbstractStage):
                     new_atom.name = orig_atom.name
             
         if not dry_run:
-            Mol2Writer(unew, filename=f"{self.base_name}.types.mol2").write()
+            Mol2Writer(unew, filename=f"{self.name}.types.mol2").write()
 
         ante = Antechamber()
-        ante.call(i=self.base_name + ".types.mol2", fi='mol2',
+        ante.call(i=self.name + ".types.mol2", fi='mol2',
                   o=self.new_mol2, fo='mol2',
                   pf='y', at=self.atom_type,
                   dry_run = dry_run)

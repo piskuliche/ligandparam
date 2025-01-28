@@ -31,7 +31,7 @@ reference_resname = "GUN"
 
 
 baseoptions = {
-    "base_name": None,
+    "name": None,
     "nproc": 12,
     "mem": "60GB",
     "net_charge": 0,
@@ -61,7 +61,7 @@ for i, molec in enumerate(example_set):
 
     os.chdir(newdir) 
     # Do the build
-    baseoptions["base_name"] = molec
+    baseoptions["name"] = molec
     build = BuildLigand(inputoptions=baseoptions)
     build.setup()
     build.list_stages()

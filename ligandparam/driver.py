@@ -1,5 +1,11 @@
+from abc import abstractmethod
+from typing import Union
+from pathlib import Path
+
+
 class Driver:
-    def __init__(self):
+    @abstractmethod
+    def __init__(name: str, cwd: Union[Path, str], *args, **kwargs):
         """ Initialize the Driver class object.
 
         This class is the base class for all parametrizations. It is designed to be subclassed, and the subclass should
@@ -7,8 +13,7 @@ class Driver:
 
 
         """
-        self.stages = []
-        return
+        pass
     
     def add_stage(self, stage):
         """ Add a stage to the list of stages to run.

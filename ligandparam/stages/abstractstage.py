@@ -6,7 +6,7 @@ class AbstractStage(metaclass=ABCMeta):
     """ This is an abstract class for all the stages. """
 
     default_options = {
-        "base_name": None,
+        "stage_name": None,
         "pdb_filename": None,
         "nproc": 6,
         "mem": "8GB",
@@ -19,7 +19,7 @@ class AbstractStage(metaclass=ABCMeta):
     }
 
     @abstractmethod
-    def __init__(self, name, **kwargs) -> None:
+    def __init__(self, stage_name, *args, **kwargs) -> None:
         pass
     
     @abstractmethod
@@ -39,7 +39,7 @@ class AbstractStage(metaclass=ABCMeta):
     
     def execute(self, dry_run=False) -> None:
         print("************************************")
-        print(f"Executing {self.name}")
+        print(f"Executing {self.stage_name}")
         print("************************************")
         starting_files = self.list_files_in_directory(".")
         self._check_required()
@@ -53,7 +53,7 @@ class AbstractStage(metaclass=ABCMeta):
 
     def clean(self) -> None:
         print("************************************")
-        print(f"Cleaning {self.name}")
+        print(f"Cleaning {self.stage_name}")
         print("************************************")
         self._clean()
         return
@@ -136,13 +136,13 @@ class AbstractStage(metaclass=ABCMeta):
     def _generate_implied(self):
         """ Generate the implied options. 
         
-        This function generates the implied options, such as the base_name from the pdb_filename.
+        This function generates the implied options, such as the name from the pdb_filename.
         
         """
-        if self.base_name is None and hasattr(self, 'pdb_filename'):
-            self.base_name = Path(self.pdb_filename).stem
-        if self.pdb_filename is None and hasattr(self, 'base_name'):
-            self.pdb_filename = f"{self.base_name}.pdb"
+        if self.stage_name is None and hasattr(self, 'pdb_filename'):
+            self.stage_name = Path(self.pdb_filename).stem
+        if self.pdb_filename is None and hasattr(self, 'stage_name'):
+            self.pdb_filename = f"{self.stage_name}.pdb"
 
         self.header =  [f'%NPROC={self.nproc}', f'%MEM={self.mem}']
 

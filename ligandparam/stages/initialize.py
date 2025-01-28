@@ -49,7 +49,7 @@ class StageInitialize(AbstractStage):
         Remove_PDB_CONECT(self.pdb_filename)
         ante = Antechamber()
         ante.call(i=self.pdb_filename, fi='pdb',
-                  o=self.base_name+'.antechamber.mol2', fo='mol2',
+                  o=self.name+'.antechamber.mol2', fo='mol2',
                   c='bcc', nc=self.net_charge,
                   pf='y', at=self.atom_type,
                   dry_run = dry_run)

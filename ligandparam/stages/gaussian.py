@@ -30,7 +30,7 @@ class StageGaussian(AbstractStage):
         """
         self.name = name
         self._parse_inputoptions(inputoptions)
-        self._add_outputs(f'gaussianCalcs/{self.base_name}.log')
+        self._add_outputs(f'gaussianCalcs/{self.name}.log')
         # No required files for this stage to execute.
         return
     
@@ -59,11 +59,11 @@ class StageGaussian(AbstractStage):
 
         """
         stageheader = self.header
-        stageheader.append(f"%chk={self.base_name}.antechamber.chk")
+        stageheader.append(f"%chk={self.name}.antechamber.chk")
 
         # Set up the Gaussian Block - it does not yet write anything,
         # so this part can be set up before the Gaussian calculations are run.
-        gau = GaussianWriter(f'gaussianCalcs/{self.base_name}.com')
+        gau = GaussianWriter(f'gaussianCalcs/{self.name}.com')
         gau.add_block(GaussianInput(command=f"#P {self.theory['low']} OPT(CalcFC)",
                                     initial_coordinates = self.coord_object.get_coordinates(),
                                     elements = self.coord_object.get_elements(),
@@ -82,8 +82,8 @@ class StageGaussian(AbstractStage):
 
         gau_complete = False    
         # Check if the Gaussian calculation has already been run
-        if os.path.exists(f'gaussianCalcs/{self.base_name}.log'):
-            reader = GaussianReader(f'gaussianCalcs/{self.base_name}.log')
+        if os.path.exists(f'gaussianCalcs/{self.name}.log'):
+            reader = GaussianReader(f'gaussianCalcs/{self.name}.log')
             if reader.check_complete():
                 print("Gaussian calculation already complete")
                 gau_complete = True
@@ -99,8 +99,8 @@ class StageGaussian(AbstractStage):
         os.chdir('gaussianCalcs')
         if not gau_complete:
             gau_run = Gaussian()
-            gau_run.call(inp_pipe=self.base_name+'.com', 
-                         out_pipe=self.base_name+'.log',
+            gau_run.call(inp_pipe=self.name+'.com', 
+                         out_pipe=self.name+'.log',
                          dry_run=dry_run)
         os.chdir('..')
 
@@ -178,7 +178,7 @@ class StageGaussianRotation(AbstractStage):
                     test_rotation = self.coord_object.rotate(alpha=a, beta=b, gamma=g)
                     store_coords.append(test_rotation)
                     # Write a guassian input file
-                    newgau = GaussianWriter(f'gaussianCalcs/{self.base_name}_rot_{a:0.2f}_{b:0.2f}_{g:0.2f}.com')
+                    newgau = GaussianWriter(f'gaussianCalcs/{self.name}_rot_{a:0.2f}_{b:0.2f}_{g:0.2f}.com')
                     newgau.add_block(GaussianInput(command=f"#P {self.theory['low']} SCF(Conver=6) NoSymm Test Pop=mk IOp(6/33=2) GFInput GFPrint",
                                         initial_coordinates = test_rotation,
                                         elements = self.coord_object.get_elements(),
@@ -199,11 +199,11 @@ class StageGaussianRotation(AbstractStage):
                         if dry_run:
                             print("Dry run: Gaussian calculations not run")
                             print("Would run the following file:")
-                            print(f'-->{self.base_name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.com')
+                            print(f'-->{self.name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.com')
                         else:
                             gau_run = Gaussian()
-                            gau_run.call(inp_pipe=f'{self.base_name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.com', 
-                                    out_pipe=f'{self.base_name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.log',
+                            gau_run.call(inp_pipe=f'{self.name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.com', 
+                                    out_pipe=f'{self.name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.log',
                                     dry_run=dry_run)
                         rot_count += 1
                         self._print_status(rot_count, self.alpha, self.beta, self.gamma)
@@ -238,8 +238,8 @@ class StageGaussianRotation(AbstractStage):
     
     def write_rotation(self, coords):
         """ Write the rotation to a file. """
-        print(f"--> Writing rotations to file: gaussianCalcs/{self.base_name}_rotations.xyz")
-        with open(f'gaussianCalcs/{self.base_name}_rotations.xyz', 'w') as file_obj:
+        print(f"--> Writing rotations to file: gaussianCalcs/{self.name}_rotations.xyz")
+        with open(f'gaussianCalcs/{self.name}_rotations.xyz', 'w') as file_obj:
             for frame in coords:
                 SimpleXYZ(file_obj, frame)
         return
@@ -272,8 +272,8 @@ class StageGaussiantoMol2(AbstractStage):
         self._parse_inputoptions(inputoptions)
         self.dry_run = dry_run
 
-        self.add_required(f'gaussianCalcs/{self.base_name}.log')
-        self.add_required(f'{self.base_name}.antechamber.mol2')
+        self.add_required(f'gaussianCalcs/{self.name}.log')
+        self.add_required(f'{self.name}.antechamber.mol2')
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """ Append the stage to the current stage. """
@@ -298,38 +298,38 @@ class StageGaussiantoMol2(AbstractStage):
         if self.dry_run is not None:
             dry_run = self
 
-        logfile = Path(f'gaussianCalcs/{self.base_name}.log')
+        logfile = Path(f'gaussianCalcs/{self.name}.log')
         if not logfile.exists():
             print(f"Problem with {logfile}")
             raise FileNotFoundError(f"Error (Stage {self.name}): Gaussian log file not found")
         # Convert from gaussian to mol2
         ante = Antechamber()
         ante.call(i=logfile, fi='gout',
-                  o=self.base_name+'.tmp1.mol2', fo='mol2',
+                  o=self.name+'.tmp1.mol2', fo='mol2',
                   pf='y', at=self.atom_type,
                   dry_run = dry_run)
 
         # Assign the charges 
         if not dry_run:
-            u1 = mda.Universe(self.base_name+'.antechamber.mol2')
-            u2 = mda.Universe(self.base_name+'.tmp1.mol2')
+            u1 = mda.Universe(self.name+'.antechamber.mol2')
+            u2 = mda.Universe(self.name+'.tmp1.mol2')
             assert len(u1.atoms) == len(u2.atoms), "Number of atoms in the two files do not match"
 
             u2.atoms.charges = u1.atoms.charges
             """
             ag = u2.select_atoms("all")
-            ag.write(self.base_name+'.tmp2.mol2')
+            ag.write(self.name+'.tmp2.mol2')
             # This exists because for some reason antechamber misinterprets
             # the mol2 file's blank lines in the atoms section.
-            self.remove_blank_lines(self.base_name+'.tmp2.mol2')
+            self.remove_blank_lines(self.name+'.tmp2.mol2')
             """
-            Mol2Writer(u2, self.base_name+'.tmp2.mol2', selection="all").write()
+            Mol2Writer(u2, self.name+'.tmp2.mol2', selection="all").write()
 
 
         # Use antechamber to clean up the mol2 format
         ante = Antechamber()
-        ante.call(i=self.base_name+'.tmp2.mol2', fi='mol2',
-                  o=self.base_name+'.log.mol2', fo='mol2',
+        ante.call(i=self.name+'.tmp2.mol2', fi='mol2',
+                  o=self.name+'.log.mol2', fo='mol2',
                   pf='y', at=self.atom_type,
                   dry_run = dry_run)
         

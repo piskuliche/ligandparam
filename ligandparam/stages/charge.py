@@ -75,10 +75,10 @@ class StageUpdateCharge(AbstractStage):
                 raise ValueError("Error: Number of charges does not match the number of atoms.")
             u.atoms.charges = charges
             # Write the Mol2 temporary file
-            Mol2Writer(u, self.base_name + ".tmpresp.mol2", selection="all").write()
+            Mol2Writer(u, self.name + ".tmpresp.mol2", selection="all").write()
         
         ante = Antechamber()
-        ante.call(i=self.base_name + ".tmpresp.mol2", fi='mol2',
+        ante.call(i=self.name + ".tmpresp.mol2", fi='mol2',
                   o=self.new_mol2, fo='mol2',
                   pf='y', at=self.atom_type,
                   dry_run = dry_run)
@@ -176,10 +176,10 @@ class StageNormalizeCharge(AbstractStage):
             print("-> Charges are already normalized")
             return
         if not dry_run:
-            Mol2Writer(u, self.base_name + ".tmpnorm.mol2", selection="all").write()
+            Mol2Writer(u, self.name + ".tmpnorm.mol2", selection="all").write()
 
         ante = Antechamber()
-        ante.call(i=self.base_name + ".tmpnorm.mol2", fi='mol2',
+        ante.call(i=self.name + ".tmpnorm.mol2", fi='mol2',
                   o=self.new_mol2, fo='mol2',
                   pf='y', at=self.atom_type,
                   dry_run = dry_run)

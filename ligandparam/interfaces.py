@@ -1,6 +1,11 @@
+from abc import abstractmethod
+from typing import override
+
+
 class SimpleInterface:
 
-    def __init__(self) -> None:
+    @abstractmethod
+    def __init__(self, *args, **kwargs) -> None:
         """ This class is a simple interface to call external programs.
 
         This class is a simple interface to call external programs. It is designed to be subclassed
@@ -8,28 +13,28 @@ class SimpleInterface:
         with the specified arguments.
         
         """
-        return
-    
+        pass
+
     def set_method(self, method):
         self.method = method
         return
-    
+
     def call(self, **kwargs):
         import subprocess
         dry_run = False
         if "dry_run" in kwargs:
             dry_run = kwargs['dry_run']
             del kwargs['dry_run']
-    
+
         command = [self.method]
-        shell=False
+        shell = False
         for key, value in kwargs.items():
             if key is "inp_pipe":
                 command.extend([f'<', str(value)])
-                shell=True
+                shell = True
             elif key is "out_pipe":
                 command.extend([f'>', str(value)])
-                shell=True
+                shell = True
             else:
                 if value is not None:
                     command.extend([f'-{key}', str(value)])
@@ -43,31 +48,39 @@ class SimpleInterface:
                 print(f"[{command[0]}] -> {line}")
             print(f"Command {command} executed")
         return
-   
+
+
 class Antechamber(SimpleInterface):
-    def __init__(self) -> None:
+    @override
+    def __init__(self, *args, **kwargs) -> None:
         """ This class is a simple interface to call the Antechamber program. """
         self.set_method('antechamber')
         return
-    
+
+
 class ParmChk(SimpleInterface):
-    def __init__(self) -> None:
+    @override
+    def __init__(self, *args, **kwargs) -> None:
         """ This class is a simple interface to call the ParmChk program. """
         self.set_method('parmchk2')
         return
-    
+
+
 class Leap(SimpleInterface):
-    def __init__(self) -> None:
+    @override
+    def __init__(self, *args, **kwargs) -> None:
         """ This class is a simple interface to call the Leap program. """
         self.set_method('tleap')
         return
 
+
 class Gaussian(SimpleInterface):
-    def __init__(self) -> None:
+    @override
+    def __init__(self, *args, **kwargs) -> None:
         """ This class is a simple interface to call the Gaussian program. """
         self.set_method('g16')
         return
-    
+
     def call(self, **kwargs):
         """ This function calls the Gaussian program with the specified arguments,
         however, it works slightly differently than the other interfaces. The Gaussian
@@ -78,20 +91,20 @@ class Gaussian(SimpleInterface):
         if "dry_run" in kwargs:
             dry_run = kwargs['dry_run']
             del kwargs['dry_run']
-    
+
         command = [self.method]
-        shell=False
+        shell = False
         for key, value in kwargs.items():
             if key is "inp_pipe":
                 command.extend([f'<', str(value)])
-                shell=True
+                shell = True
             elif key is "out_pipe":
                 command.extend([f'>', str(value)])
-                shell=True
+                shell = True
             else:
                 if value is not None:
                     command.extend([f'-{key}', str(value)])
-                    
+
         self.write_bash(' '.join(command))
         bashcommand = 'bash temp_gaussian_sub.sh'
 
@@ -102,7 +115,7 @@ class Gaussian(SimpleInterface):
             subprocess.run(bashcommand, shell=shell)
             print(f"Command {bashcommand} executed")
         return
-    
+
     def write_bash(self, command):
         """ This function writes a bash script to call the Gaussian program
         with the specified arguments. """
@@ -110,6 +123,3 @@ class Gaussian(SimpleInterface):
             f.write('#!/bin/bash\n\n')
             f.write(command)
         return
-    
-
-            

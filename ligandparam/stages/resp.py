@@ -25,7 +25,7 @@ class StageLazyResp(AbstractStage):
         self.name = name
         self._parse_inputoptions(inputoptions)
 
-        self.add_required(f"./gaussianCalcs/{self.base_name}.log")
+        self.add_required(f"./gaussianCalcs/{self.name}.log")
         return
     
 
@@ -44,8 +44,8 @@ class StageLazyResp(AbstractStage):
         """
         print(f"Executing {self.name} with netcharge={self.net_charge}")
         ante = Antechamber()
-        ante.call(i=f"gaussianCalcs/{self.base_name}.log", fi='gout',
-                  o=self.base_name+'.resp.mol2', fo='mol2',
+        ante.call(i=f"gaussianCalcs/{self.name}.log", fi='gout',
+                  o=self.name+'.resp.mol2', fo='mol2',
                   gv=0, c='resp',
                   nc=self.net_charge,
                   at=self.atom_type, dry_run = dry_run)
@@ -77,8 +77,8 @@ class StageMultiRespFit(AbstractStage):
         self.name = name
         self._parse_inputoptions(inputoptions)
 
-        self.add_required(f"{self.base_name}.log.mol2")
-        self.add_required(f"gaussianCalcs/{self.base_name}.log")
+        self.add_required(f"{self.name}.log.mol2")
+        self.add_required(f"gaussianCalcs/{self.name}.log")
 
         return
     
@@ -111,8 +111,8 @@ class StageMultiRespFit(AbstractStage):
         """
         comp = parmhelper.BASH( 12 )
         model = ResidueResp( comp, 1)
-        model.add_state( self.base_name, self.base_name+'.log.mol2', 
-                        glob.glob("gaussianCalcs/"+self.base_name+"_*.log"), 
+        model.add_state( self.name, self.name+'.log.mol2', 
+                        glob.glob("gaussianCalcs/"+self.name+"_*.log"), 
                         qmmask="@*" )
         model.multimolecule_fit(True)
         model.perform_fit("@*",unique_residues=False)

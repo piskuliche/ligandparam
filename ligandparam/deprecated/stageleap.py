@@ -1,13 +1,18 @@
-from ligandparam.abstractstage import AbstractStage
-from ligandparam.leapIO import LeapWriter
+from typing import Optional, List
+
+from ligandparam.stages import AbstractStage
+from ligandparam.io.leapIO import LeapWriter
 from ligandparam.interfaces import Leap
 
 class StageLeap(AbstractStage):
     
-        def __init__(self, name, base_cls=None, leaprc = []) -> None:
-            self.name = name
+        def __init__(self, stage_name, base_cls=None, leaprc: Optional[List] = None) -> None:
+            self.stage_name = stage_name
             self.base_cls = base_cls
-            self.leaprc = leaprc
+            if leaprc is None:
+                self.leaprc = []
+            else:
+                self.leaprc = leaprc
 
             return
         
@@ -17,13 +22,13 @@ class StageLeap(AbstractStage):
         
     
         def execute(self, dry_run=False):
-            print(f"Executing {self.name} with netcharge={self.base_cls.net_charge}")
+            print(f"Executing {self.stage_name} with netcharge={self.base_cls.net_charge}")
             leapgen = LeapWriter("param")
             for rc in self.leaprc:
                 leapgen.add_leaprc(rc)
-            leapgen.add_line(f"loadamberparams {self.base_cls.base_name}.frcmod")
-            leapgen.add_line(f"mol = loadmol2 {self.base_cls.base_name}.resp.mol2")
-            leapgen.add_line(f"saveOff mol {self.base_cls.base_name}.off")
+            leapgen.add_line(f"loadamberparams {self.base_cls.name}.frcmod")
+            leapgen.add_line(f"mol = loadmol2 {self.base_cls.name}.resp.mol2")
+            leapgen.add_line(f"saveOff mol {self.base_cls.name}.off")
             leapgen.add_line("quit")
             leapgen.write()
 

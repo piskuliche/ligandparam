@@ -18,8 +18,8 @@ class StageGaussian(AbstractStage):
 
     def execute(self, dry_run=False):
         stageheader = self.base_cls.header
-        stageheader.append(f"%chk={self.base_cls.base_name}.antechamber.chk")
-        gau = GaussianWriter(f'gaussianCalcs/{self.base_cls.base_name}.com')
+        stageheader.append(f"%chk={self.base_cls.name}.antechamber.chk")
+        gau = GaussianWriter(f'gaussianCalcs/{self.base_cls.name}.com')
         gau.add_block(GaussianInput(command=f"#P {self.base_cls.theory['low']} OPT(CalcFC)",
                                     initial_coordinates = self.base_cls.coord_object.get_coordinates(),
                                     elements = self.base_cls.coord_object.get_elements(),
@@ -39,8 +39,8 @@ class StageGaussian(AbstractStage):
         os.chdir('gaussianCalcs')
         if not has_run:
             gau_run = Gaussian()
-            gau_run.call(inp_pipe=self.base_cls.base_name+'.com', 
-                         out_pipe=self.base_cls.base_name+'.log',
+            gau_run.call(inp_pipe=self.base_cls.name+'.com', 
+                         out_pipe=self.base_cls.name+'.log',
                          dry_run=dry_run)
         os.chdir('..')
 

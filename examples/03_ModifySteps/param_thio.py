@@ -4,7 +4,7 @@
 from ligandparam.recipes import FreeLigand
 
 inputoptions = {
-    'base_name': 'thiophenol',
+    'name': 'thiophenol',
     'net_charge': 0,
     'mem': '60GB',
     'nproc': 12
@@ -26,12 +26,12 @@ test.remove_stage("Normalize")
 from ligandparam.stages import StageNormalizeCharge
 
 test.add_stage(StageNormalizeCharge("Normalize2", inputoptions=inputoptions, 
-                                    orig_mol2=test.base_name+".resp.mol2",
-						            new_mol2=test.base_name+".resp.mol2"))
+                                    orig_mol2=test.name+".resp.mol2",
+						            new_mol2=test.name+".resp.mol2"))
 
 test.insert_stage(StageNormalizeCharge("Normalize3", inputoptions=inputoptions,
-                                        orig_mol2=test.base_name+".resp.mol2",
-                                        new_mol2=test.base_name+".resp.mol2"),
+                                        orig_mol2=test.name+".resp.mol2",
+                                        new_mol2=test.name+".resp.mol2"),
                                         "Normalize2")
 
 test.execute()

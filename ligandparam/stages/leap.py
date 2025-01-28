@@ -19,8 +19,8 @@ class StageLeap(AbstractStage):
 
         self.name = name
         self._parse_inputoptions(inputoptions)
-        self.add_required(f"{self.base_name}.frcmod")
-        self.add_required(f"{self.base_name}.resp.mol2")
+        self.add_required(f"{self.name}.frcmod")
+        self.add_required(f"{self.name}.resp.mol2")
 
         return
     
@@ -38,12 +38,12 @@ class StageLeap(AbstractStage):
         for rc in self.leaprc:
             leapgen.add_leaprc(rc)
 
-        u = mda.Universe(f"{self.base_name}.resp.mol2")
+        u = mda.Universe(f"{self.name}.resp.mol2")
         resname = u.residues.resnames[0]
         # Add the leap commands
-        leapgen.add_line(f"loadamberparams {self.base_name}.frcmod")
-        leapgen.add_line(f"{resname} = loadmol2 {self.base_name}.resp.mol2")
-        leapgen.add_line(f"saveOff {resname} {self.base_name}.off")
+        leapgen.add_line(f"loadamberparams {self.name}.frcmod")
+        leapgen.add_line(f"{resname} = loadmol2 {self.name}.resp.mol2")
+        leapgen.add_line(f"saveOff {resname} {self.name}.off")
         leapgen.add_line("quit")
         # Write the leap input file
         leapgen.write()

@@ -15,7 +15,7 @@ class StageGaussianRotation(AbstractStage):
         if base_cls.coord_object is None:
             raise ValueError(f"Error (Stage {self.name}): Coordinate object not set")
 
-        if base_cls.base_name is None:
+        if base_cls.name is None:
             raise ValueError(f"Error (Stage {self.name}): Base name not set")
 
         if base_cls.header is None:
@@ -37,7 +37,7 @@ class StageGaussianRotation(AbstractStage):
             for b in self.beta:
                 for g in self.gamma:
                     #TODO: add elements and header, and make sure they are consistent between steps. Probably initialized with class
-                    newgau = GaussianWriter('gaussianCalcs/'+self.base_cls.base_name+f'_rot_{a}_{b}.com')
+                    newgau = GaussianWriter('gaussianCalcs/'+self.base_cls.name+f'_rot_{a}_{b}.com')
                     
                     newgau.add_block(GaussianInput(command=f"#P {self.base_cls.theory['low']} OPT(CalcFC)",
                                         initial_coordinates = self.base_cls.coord_object.rotate(alpha=a, beta=b),
