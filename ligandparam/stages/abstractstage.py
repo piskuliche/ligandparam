@@ -1,5 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from pathlib import Path
+from typing import Union
+
 from ligandparam.io.coordinates import Coordinates
 
 class AbstractStage(metaclass=ABCMeta):
@@ -19,7 +21,7 @@ class AbstractStage(metaclass=ABCMeta):
     }
 
     @abstractmethod
-    def __init__(self, stage_name, *args, **kwargs) -> None:
+    def __init__(self, stage_name, cwd: Union[Path, str], *args, **kwargs) -> None:
         pass
     
     @abstractmethod

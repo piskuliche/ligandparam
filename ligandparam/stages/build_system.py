@@ -1,3 +1,6 @@
+from pathlib import Path
+from typing import Union
+
 import MDAnalysis as mda
 
 from ligandparam.stages.abstractstage import AbstractStage
@@ -6,18 +9,9 @@ from ligandparam.io.leapIO import LeapWriter
 
 
 class StageBuild(AbstractStage):
-    """ 
 
-    Parameters
-    ----------
-    name : str
-        Name of the stage.
- : object
-        Object of the base class.
 
-    """
-
-    def __init__(self, stage_name, *args, **kwargs) -> None:
+    def __init__(self, stage_name, name: str, cwd: Union[Path, str], *args, **kwargs) -> None:
         """ This class is used to initialize from pdb to mol2 file using Antechamber.
         
         Parameters
@@ -36,9 +30,17 @@ class StageBuild(AbstractStage):
             The input options
         """
         self.stage_name = stage_name
+        self.name = name
+        self.cwd = Path(cwd)
+        self.target_pdb = getattr(kwargs, 'target_pdb')
         self.build_type = self._validate_build_type(getattr(kwargs, 'build_type', 'aq'))
         self.concentration = getattr(kwargs, 'concentration', 0.14)
         self.rbuffer = getattr(kwargs, 'rbuffer', 9.0)
+        self.leaprc = getattr(kwargs, 'leaprc', None)
+        if not self.leaprc:
+            self.leaprc = ["leaprc.water.OPC"]
+
+
 
         self.add_required(f"{self.name}.resp.mol2")
         self.add_required(f"{self.name}.frcmod")
@@ -87,9 +89,6 @@ class StageBuild(AbstractStage):
         """ Build the ligand in aqueous environment. """
         aqleap = LeapWriter("aq")
         # Add the leaprc files
-        if len(self.leaprc) == 0:
-            aqleap.add_leaprc("leaprc.water.OPC")
-
         for rc in self.leaprc:
             aqleap.add_leaprc(rc)
 
