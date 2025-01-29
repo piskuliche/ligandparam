@@ -2,6 +2,8 @@ import MDAnalysis as mda
 import numpy as np
 
 from ligandparam.abstractstage import AbstractStage
+from ligandparam.log import get_logger
+
 
 class StageNormalizeCharges(AbstractStage):
 

@@ -9,11 +9,14 @@ from pathlib import Path
 from ligandparam.stages.abstractstage import AbstractStage
 from ligandparam.interfaces import Antechamber
 from ligandparam.io.coordinates import Mol2Writer
+from ligandparam.log import get_logger
+
 
 class StageUpdate(AbstractStage):
 
     def __init__(self, stage_name: str, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, name, cwd, *args, **kwargs)
+        
         """ This class updates either (or both) the atom types and names in a mol2 file to match another mol2 file.
         
         Parameters
@@ -58,14 +61,14 @@ class StageUpdate(AbstractStage):
             warnings.simplefilter("ignore")
 
             if not self.update_names and not self.update_types:
-                print("No updates requested. Exiting.")
+                self.logger.debug("No updates requested. Exiting.")
                 return
             if self.update_names and self.update_types:
-                print("Both updates requested. This will update both atom names and types.")
+                self.logger.debug("Both updates requested. This will update both atom names and types.")
             elif self.update_names:
-                print("Only updating atom names.")
+                self.logger.debug("Only updating atom names.")
             elif self.update_types:
-                print("Only updating atom types.")
+                self.logger.debug("Only updating atom types.")
 
 
             uorig = mda.Universe(self.in_mol2, format="mol2")
@@ -75,11 +78,11 @@ class StageUpdate(AbstractStage):
             for orig_atom, new_atom in zip(uorig.atoms, unew.atoms):
                 if orig_atom.type != new_atom.type:
                     if self.update_types:
-                        print(f"Atom with {orig_atom.name} has type {orig_atom.type} and will be updated to {new_atom.type}")
+                        self.logger.debug(f"Atom with {orig_atom.name} has type {orig_atom.type} and will be updated to {new_atom.type}")
                         new_atom.type = orig_atom.type
                 if orig_atom.name != new_atom.name:
                     if self.update_names:
-                        print(f"Atom with {new_atom.name} will be updated to {orig_atom.name}")
+                        self.logger.debug(f"Atom with {new_atom.name} will be updated to {orig_atom.name}")
                         new_atom.name = orig_atom.name
 
             types_mol2 = Path(self.cwd, f"{self.name.stem}.types.mol2")
@@ -88,7 +91,7 @@ class StageUpdate(AbstractStage):
                     warnings.simplefilter("ignore")
                     Mol2Writer(unew, filename=types_mol2).write()
 
-            ante = Antechamber(cwd=self.cwd)
+            ante = Antechamber(cwd=self.cwd, logger=self.logger)
             ante.call(i=types_mol2, fi='mol2',
                       o=self.out_mol2, fo='mol2',
                       pf='y', at=self.atom_type,

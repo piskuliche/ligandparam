@@ -1,4 +1,6 @@
 from ligandparam.stages.abstractstage import AbstractStage
+from ligandparam.log import get_logger
+
 
 class TestStage(AbstractStage):
     """ This is an abstract class for all the stages. """
@@ -11,7 +13,7 @@ class TestStage(AbstractStage):
         return stage
 
     def _execute(self, dry_run=False):
-        print("This worked!")
+        self.logger.info("This worked!")
         return
 
     def _clean(self):

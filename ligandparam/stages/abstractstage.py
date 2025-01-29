@@ -3,6 +3,10 @@ from pathlib import Path
 from typing import Union
 
 from ligandparam.io.coordinates import Coordinates
+import logging
+from ligandparam.log import get_logger
+
+
 
 
 class AbstractStage(metaclass=ABCMeta):
@@ -34,7 +38,7 @@ class AbstractStage(metaclass=ABCMeta):
         self.mem = getattr(kwargs, 'mem', 48)
         self.header = [f'%NPROC={self.nproc}', f'%MEM={self.mem}GB']
         self.required = []
-
+        self.logger = kwargs.get('logger', get_logger())
 
     @abstractmethod
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
@@ -52,23 +56,20 @@ class AbstractStage(metaclass=ABCMeta):
         return self._append_stage(stage)
 
     def execute(self, dry_run=False) -> None:
-        print("************************************")
-        print(f"Executing {self.stage_name}")
-        print("************************************")
+        self.logger.info(f"Executing {self.stage_name}")
         starting_files = self.list_files_in_directory(".")
         self._check_required()
         self._execute(dry_run=dry_run)
         ending_files = self.list_files_in_directory(".")
         self.new_files = [f for f in ending_files if f not in starting_files]
-        print("\nFiles generated:")
-        for fnames in self.new_files:
-            print(f"------> {fnames}")
+        # TODO: Write code to ctually assert that the files are there and raise an error if they are not.
+        # self.logger.info("\nFiles generated:")
+        # for fnames in self.new_files:
+        #     self.logger.info(f"------> {fnames}")
         return
 
     def clean(self) -> None:
-        print("************************************")
-        print(f"Cleaning {self.stage_name}")
-        print("************************************")
+        self.logger.info(f"Cleaning {self.stage_name}")
         self._clean()
         return
 
@@ -158,4 +159,3 @@ class AbstractStage(metaclass=ABCMeta):
     def __str__(self) -> str:
         # return str(type(self))
         return str(type(self)).split("'")[1].split(".")[-1]
-

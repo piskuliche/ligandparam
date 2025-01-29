@@ -3,6 +3,8 @@ import numpy as np
 
 from ligandparam.abstractstage import AbstractStage
 from ligandparam.interfaces import Antechamber
+from ligandparam.log import get_logger
+
 
 class StageLazyResp(AbstractStage):
 
@@ -17,7 +19,7 @@ class StageLazyResp(AbstractStage):
 
 
     def execute(self, dry_run=False):
-        print(f"Executing {self.name} with netcharge={self.base_cls.net_charge}")
+        self.logger.info(f"Executing {self.name} with netcharge={self.base_cls.net_charge}")
         ante = Antechamber()
         ante.call(i=f"gaussianCalcs/{self.base_cls.name}.log", fi='gout',
                   o=self.base_cls.name+'.resp.mol2', fo='mol2',

@@ -1,10 +1,12 @@
 from pathlib import Path
 from typing import Union
 
+from pygments.lexer import default
 from typing_extensions import override
 
 from ligandparam.parametrization import Recipe
 from ligandparam.stages import *
+from ligandparam.log import get_logger
 
 
 class LazyLigand(Recipe):
@@ -35,6 +37,7 @@ class LazyLigand(Recipe):
                 raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
         # required options with defaults
         # TODO: defaults should be a global singleton dict
+        default_logger = get_logger()
         for opt, default in zip(("theory", "leaprc", "force_gaussian_rerun"),
                                 ({"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"}, ["leaprc.gaff2"], False)):
             try:
@@ -42,6 +45,7 @@ class LazyLigand(Recipe):
                 del kwargs[opt]
             except KeyError:
                 setattr(self, opt, default)
+        self.logger = kwargs.get('logger', get_logger())
         self.kwargs = kwargs
 
     def setup(self):
@@ -73,3 +77,9 @@ class LazyLigand(Recipe):
             StageParmChk("ParmChk", name=self.name, cwd=self.cwd, **self.kwargs),
             StageLeap("Leap", name=self.name, cwd=self.cwd, **self.kwargs)
         ]
+
+    @override
+    def execute(self, dry_run=False):
+        self.logger.warning("Starting the LazyLigand recipe")
+        super().execute(dry_run=dry_run)
+        self.logger.info("Done with the LazyLigand recipe")

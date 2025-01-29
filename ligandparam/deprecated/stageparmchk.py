@@ -3,6 +3,8 @@ import numpy as np
 
 from ligandparam.abstractstage import AbstractStage
 from ligandparam.interfaces import ParmChk
+from ligandparam.log import get_logger
+
 
 class StageParmChk(AbstractStage):
 

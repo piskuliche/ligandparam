@@ -5,10 +5,13 @@ from pathlib import Path
 from ligandparam.stages.abstractstage import AbstractStage
 from ligandparam.interfaces import Antechamber
 from ligandparam.io.coordinates import Remove_PDB_CONECT
+from ligandparam.log import get_logger
+
 
 class StageInitialize(AbstractStage):
     def __init__(self, stage_name: str, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, name, cwd, *args, **kwargs)
+        
         self.pdb_filename = Path(name)
         self.add_required(self.pdb_filename)
         self.out_mol2 = Path(self.cwd, f"{self.name.stem}.antechamber.mol2")
@@ -39,7 +42,7 @@ class StageInitialize(AbstractStage):
         None
         """
         Remove_PDB_CONECT(self.pdb_filename)
-        ante = Antechamber(cwd=self.cwd)
+        ante = Antechamber(cwd=self.cwd, logger=self.logger)
         ante.call(i=self.pdb_filename, fi='pdb',
                   o=self.out_mol2, fo='mol2',
                   c='bcc', nc=self.net_charge,

@@ -4,6 +4,8 @@ from pathlib import Path
 
 from ligandparam.stages.abstractstage import AbstractStage
 from ligandparam.interfaces import ParmChk
+from ligandparam.log import get_logger
+
 
 class StageParmChk(AbstractStage):
     """ This is class to run parmchk on the ligand. """
@@ -11,6 +13,7 @@ class StageParmChk(AbstractStage):
     @override
     def __init__(self, stage_name: str, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, name, cwd, *args, **kwargs)
+        
         self.net_charge = getattr(kwargs, 'net_charge', 0.0)
         self.inmol2 = Path(self.cwd, f"{self.name.stem}.resp.mol2")
         self.outfrcmod = Path(self.cwd, f"{self.name.stem}.frcmod")
@@ -35,8 +38,7 @@ class StageParmChk(AbstractStage):
         None
 
         """
-        print(f"Executing {self.name} with netcharge={self.net_charge}")
-        parm = ParmChk(cwd=self.cwd)
+        parm = ParmChk(cwd=self.cwd, logger=self.logger)
         parm.call(i=self.inmol2, f="mol2", o=self.outfrcmod, s=2, dry_run = dry_run)
         return
     

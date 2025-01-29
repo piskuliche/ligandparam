@@ -6,10 +6,11 @@ import warnings
 import numpy as np
 import MDAnalysis as mda
 
-
 from ligandparam.stages.abstractstage import AbstractStage
 from ligandparam.interfaces import Antechamber
 from ligandparam.io.coordinates import Mol2Writer
+from ligandparam.log import get_logger
+
 
 class StageUpdateCharge(AbstractStage):
     """ This class creates a new mol2 file with updated charges. """
@@ -17,6 +18,7 @@ class StageUpdateCharge(AbstractStage):
     @override
     def __init__(self, stage_name: str, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, name, cwd, *args, **kwargs)
+        
         for opt in ("in_mol2", "out_mol2", "charge_source", "charge_column"):
             try:
                 setattr(self, opt, kwargs[opt])
@@ -48,7 +50,7 @@ class StageUpdateCharge(AbstractStage):
                 # Write the Mol2 temporary file
                 Mol2Writer(u, self.name + ".tmpresp.mol2", selection="all").write()
 
-            ante = Antechamber(cwd=self.cwd)
+            ante = Antechamber(cwd=self.cwd, logger=self.logger)
             ante.call(i=self.name + ".tmpresp.mol2", fi='mol2',
                       o=self.out_mol2, fo='mol2',
                       pf='y', at=self.atom_type,
@@ -69,6 +71,7 @@ class StageNormalizeCharge(AbstractStage):
 
     def __init__(self, stage_name: str, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, name, cwd, *args, **kwargs)
+        
         for opt in ("in_mol2", "out_mol2"):
             try:
                 setattr(self, opt, kwargs[opt])
@@ -102,15 +105,15 @@ class StageNormalizeCharge(AbstractStage):
         """
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            print("-> Checking charges")
-            print(f"-> Normalizing charges to {self.net_charge}")
-            print(f"-> Precision {self.precision} with {self.decimals} decimals")
+            self.logger.debug("Checking charges")
+            self.logger.debug(f"Normalizing charges to {self.net_charge}")
+            self.logger.debug(f"Precision {self.precision} with {self.decimals} decimals")
 
             u = mda.Universe(self.in_mol2, format='mol2')
             total_charge, charge_difference = self.check_charge(u.atoms.charges)
 
             if charge_difference != 0.0:
-                print("-> Normalizing charges")
+                self.logger.info("Normalizing charges")
                 charges = self.normalize(u.atoms.charges, charge_difference)
                 new_total, new_diff = self.check_charge(charges)
                 if new_diff != 0.0:
@@ -118,13 +121,13 @@ class StageNormalizeCharge(AbstractStage):
                 else:
                     u.atoms.charges = charges
             else:
-                print("-> Charges are already normalized")
+                self.logger.info("Charges are already normalized")
                 return
             if not dry_run:
                 tmp_mol2 = self.cwd / (self.name.stem + ".tmpnorm.mol2")
                 Mol2Writer(u, tmp_mol2, selection="all").write()
 
-                ante = Antechamber(cwd=self.cwd)
+                ante = Antechamber(cwd=self.cwd, logger=self.logger)
                 ante.call(i=tmp_mol2, fi='mol2',
                           o=self.out_mol2, fo='mol2',
                           pf='y', at=self.atom_type,
@@ -178,8 +181,8 @@ class StageNormalizeCharge(AbstractStage):
         """
         total_charge = np.round(sum(charges), self.decimals)
         charge_difference = np.round(self.net_charge - total_charge, self.decimals)
-        print(f"-> Total Charge is {total_charge}")
-        print(f"-> Charge difference is {charge_difference}")
+        self.logger.debug(f"-> Total Charge is {total_charge}")
+        self.logger.debug(f"-> Charge difference is {charge_difference}")
         return total_charge, charge_difference
 
 

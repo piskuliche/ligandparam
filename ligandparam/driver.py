@@ -59,7 +59,7 @@ class Driver:
             try:
                 stage.execute(dry_run=dry_run)
             except Exception as e:
-                print(f"Error in stage {stage.name}: {e}")
+                print(f"Error in stage {stage.stage_name}: {e}")
                 print("Exiting")
                 raise e
         return
@@ -99,7 +99,6 @@ class Driver:
         -------
         None
         """
-        print("********************************")
         print("List of Stages to Run")
         for stage in self.stages:
             print(f"-->{stage.stage_name} ({stage})")

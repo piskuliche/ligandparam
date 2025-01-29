@@ -1,5 +1,6 @@
 import os
 from typing import Union
+import logging
 
 import MDAnalysis as mda
 
@@ -10,7 +11,9 @@ from ligandparam.stages.abstractstage import AbstractStage
 from ligandparam.io.coordinates import Coordinates, SimpleXYZ, Mol2Writer
 from ligandparam.io.gaussianIO import GaussianWriter, GaussianInput, GaussianReader
 from ligandparam.interfaces import Gaussian, Antechamber
-
+from ligandparam.log import get_logger
+# 
+logger = logging.getLogger("ligandparam.gaussian")
 
 class StageGaussian(AbstractStage):
     """
@@ -32,13 +35,11 @@ class StageGaussian(AbstractStage):
 
     def __init__(self, stage_name: str, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, name, cwd, *args, **kwargs)
-
+        
         self._validate_input_paths(**kwargs)
-
         self.theory = kwargs.get("theory", {"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"})
         self.net_charge = kwargs.get("net_charge", 0.0)
         self.force_gaussian_rerun = kwargs.get("force_gaussian_rerun", False)
-
         self.gaussian_cwd = Path(self.cwd, "gaussianCalcs")
         self.out_log = self.gaussian_cwd / f"{self.name.stem}.log"
         self._add_outputs(self.out_log)
@@ -108,16 +109,14 @@ class StageGaussian(AbstractStage):
             charge=self.net_charge,
             header=stageheader))
 
-        # Check if the path exists, and make if needed.
-        if not os.path.exists(f'gaussianCalcs'):
-            os.mkdir('gaussianCalcs')
+        self.gaussian_cwd.mkdir(exist_ok=True)
 
         gau_complete = False
         # Check if the Gaussian calculation has already been run
         if os.path.exists(self.out_gaussian_log):
             reader = GaussianReader(self.out_gaussian_log)
             if reader.check_complete():
-                print("Gaussian calculation already complete")
+                self.logger.info("Gaussian calculation already complete")
                 gau_complete = True
 
         # Check if the Gaussian calculation should be rerun
@@ -129,7 +128,7 @@ class StageGaussian(AbstractStage):
 
         # Run the Gaussian calculations in the gaussianCalcs directory
         if not gau_complete:
-            gau_run = Gaussian(cwd=self.gaussian_cwd, gaussian_root=self.gaussian_root, gauss_exedir=self.gauss_exedir,
+            gau_run = Gaussian(cwd=self.gaussian_cwd, logger=self.logger, gaussian_root=self.gaussian_root, gauss_exedir=self.gauss_exedir,
                                gaussian_binary=self.gaussian_binary, gaussian_scratch=self.gaussian_scratch)
             gau_run.call(inp_pipe=self.name.stem + '.com',
                          out_pipe=self.out_log.name,
@@ -164,6 +163,7 @@ class StageGaussianRotation(AbstractStage):
         inputoptions : dict
             The input options for the stage
         """
+        
         self.name = name
         self._parse_inputoptions(inputoptions)
 
@@ -231,11 +231,11 @@ class StageGaussianRotation(AbstractStage):
                     for g in self.gamma:
                         self._print_rotation(a, b, g)
                         if dry_run:
-                            print("Dry run: Gaussian calculations not run")
-                            print("Would run the following file:")
-                            print(f'-->{self.name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.com')
+                            self.logger.info("Dry run: Gaussian calculations not run")
+                            self.logger.info("Would run the following file:")
+                            self.logger.info(f'-->{self.name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.com')
                         else:
-                            gau_run = Gaussian()
+                            gau_run = Gaussian(cwd=self.cwd, logger=self.logger)
                             gau_run.call(inp_pipe=f'{self.name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.com',
                                          out_pipe=f'{self.name}_rot_{a:.2f}_{b:.2f}_{g:.2f}.log',
                                          dry_run=dry_run)
@@ -248,7 +248,7 @@ class StageGaussianRotation(AbstractStage):
 
     def _print_rotation(self, alpha, beta, gamma):
         """ Print the rotation to the user. """
-        print(f"---> Rotation: alpha={alpha}, beta={beta}, gamma={gamma}")
+        self.logger.info(f"---> Rotation: alpha={alpha}, beta={beta}, gamma={gamma}")
         return
 
     def _print_status(self, count, alphas, betas, gammas):
@@ -267,12 +267,12 @@ class StageGaussianRotation(AbstractStage):
         """
         total_count = len(alphas) * len(betas) * len(gammas)
         percent = count / total_count * 100
-        print(f"Current Rotation Progress: {percent:.2f}%%")
+        self.logger.info(f"Current Rotation Progress: {percent:.2f}%%")
         return
 
     def write_rotation(self, coords):
         """ Write the rotation to a file. """
-        print(f"--> Writing rotations to file: gaussianCalcs/{self.name}_rotations.xyz")
+        self.logger.info(f"--> Writing rotations to file: gaussianCalcs/{self.name}_rotations.xyz")
         with open(f'gaussianCalcs/{self.name}_rotations.xyz', 'w') as file_obj:
             for frame in coords:
                 SimpleXYZ(file_obj, frame)
@@ -303,6 +303,7 @@ class StageGaussiantoMol2(AbstractStage):
         None
         
         """
+        
         self.name = name
         self._parse_inputoptions(inputoptions)
         self.dry_run = dry_run
@@ -335,10 +336,10 @@ class StageGaussiantoMol2(AbstractStage):
 
         logfile = Path(f'gaussianCalcs/{self.name}.log')
         if not logfile.exists():
-            print(f"Problem with {logfile}")
+            self.logger.info(f"Problem with {logfile}")
             raise FileNotFoundError(f"Error (Stage {self.name}): Gaussian log file not found")
         # Convert from gaussian to mol2
-        ante = Antechamber()
+        ante = Antechamber(cwd=self.cwd, logger=self.logger)
         ante.call(i=logfile, fi='gout',
                   o=self.name + '.tmp1.mol2', fo='mol2',
                   pf='y', at=self.atom_type,
@@ -361,7 +362,7 @@ class StageGaussiantoMol2(AbstractStage):
             Mol2Writer(u2, self.name + '.tmp2.mol2', selection="all").write()
 
         # Use antechamber to clean up the mol2 format
-        ante = Antechamber()
+        ante = Antechamber(cwd=self.cwd, logger=self.logger)
         ante.call(i=self.name + '.tmp2.mol2', fi='mol2',
                   o=self.name + '.log.mol2', fo='mol2',
                   pf='y', at=self.atom_type,

@@ -1,9 +1,13 @@
+import logging
 import os
 from abc import abstractmethod
 from typing_extensions import override
 import subprocess
-
 from pathlib import Path
+
+from ligandparam.log import get_logger
+
+
 
 
 class SimpleInterface:
@@ -43,12 +47,17 @@ class SimpleInterface:
                     command.extend([f'-{key}', str(value)])
 
         if dry_run:
-            print(command)
+            self.logger.info(f"Command: {' '.join(command)}")
         else:
-            print(f"Executing command:\n{' '.join(command)}")
-            proc = subprocess.run(command, shell=shell, encoding='utf-8', cwd=self.cwd, stdout=subprocess.PIPE,
-                                  stderr=subprocess.PIPE)
-            print(f"Command executed.")
+            self.logger.info('\t' + ' '.join(command))
+            p = subprocess.run(command, shell=shell, encoding='utf-8', cwd=self.cwd, stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+            if p.returncode != 0:
+                logging.error(f"Command at {self.cwd} failed.")
+                logging.error(p.stdout)
+                logging.error(p.stderr)
+                raise RuntimeError
+
         return
 
 
@@ -60,6 +69,7 @@ class Antechamber(SimpleInterface):
             self.cwd = Path(kwargs["cwd"])
         except KeyError:
             raise ValueError(f"ERROR: missing `cwd` arg with a path to the workdir.")
+        self.logger = kwargs.get('logger', get_logger())
         self.set_method('antechamber')
         return
 
@@ -72,6 +82,7 @@ class ParmChk(SimpleInterface):
             self.cwd = Path(kwargs["cwd"])
         except KeyError:
             raise ValueError(f"ERROR: missing `cwd` arg with a path to the workdir.")
+        self.logger = kwargs.get('logger', get_logger())
         self.set_method('parmchk2')
         return
 
@@ -84,6 +95,7 @@ class Leap(SimpleInterface):
             self.cwd = Path(kwargs["cwd"])
         except KeyError:
             raise ValueError(f"ERROR: missing `cwd` arg with a path to the workdir.")
+        self.logger = kwargs.get('logger', get_logger())
         self.set_method('tleap')
         return
 
@@ -102,6 +114,7 @@ class Gaussian(SimpleInterface):
             except KeyError:
                 raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
 
+        self.logger = kwargs.get('logger', get_logger())
         self.set_method(str(self.gaussian_binary))
         return
 
@@ -110,6 +123,8 @@ class Gaussian(SimpleInterface):
         however, it works slightly differently than the other interfaces. The Gaussian
         interface for some reason isn't compatible with the subprocess.run() function
         so we instead write a bash script to call the program and then execute the script."""
+        
+
         dry_run = False
         if "dry_run" in kwargs:
             dry_run = kwargs['dry_run']
@@ -132,9 +147,9 @@ class Gaussian(SimpleInterface):
         bashcommand = 'bash temp_gaussian_sub.sh'
 
         if dry_run:
-            print(bashcommand)
+            self.logger.info(f"Command: {bashcommand}")
         else:
-            print("Executing command")
+            self.logger.info('\t' + bashcommand)
             env = {
                 "g16root": self.gaussian_root,
                 "GAUSS_EXEDIR": self.gauss_exedir,
@@ -144,12 +159,11 @@ class Gaussian(SimpleInterface):
             p = subprocess.run(bashcommand, shell=shell, cwd=self.cwd, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, env=env)
             if p.returncode != 0:
-                print(f"Gaussian run at {self.cwd} failed.")
-                print(p.stdout)
-                print(p.stderr)
+                logging.error(f"Gaussian run at {self.cwd} failed.")
+                logging.error(p.stdout)
+                logging.error(p.stderr)
                 raise RuntimeError
-            else:
-                print(f"Command {bashcommand} executed")
+
         return
 
     def write_bash(self, command):

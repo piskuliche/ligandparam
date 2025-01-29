@@ -7,6 +7,7 @@ from ligandparam.interfaces import Antechamber
 
 from ligandparam.multiresp import parmhelper
 from ligandparam.multiresp.residueresp import ResidueResp
+from ligandparam.log import get_logger
 
 
 class StageLazyResp(AbstractStage):
@@ -34,8 +35,7 @@ class StageLazyResp(AbstractStage):
         dry_run : bool, optional
             If True, the stage will not be executed, but the function will print the commands that would
         """
-        print(f"Executing {self.name} with netcharge={self.net_charge}")
-        ante = Antechamber(cwd=self.cwd)
+        ante = Antechamber(cwd=self.cwd, logger=self.logger)
         ante.call(i=self.in_gaussian_log, fi='gout',
                   o=self.out_mol2, fo='mol2',
                   gv=0, c='resp',
@@ -60,6 +60,7 @@ class StageMultiRespFit(AbstractStage):
 
     def __init__(self, stage_name: str, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, name, cwd, *args, **kwargs)
+        
         self.net_charge = getattr(kwargs, 'net_charge', 0.0)
         self.gauss_logmol2_fname = Path(self.cwd, f"{self.name.stem}.log.mol2")
         self.add_required(self.gauss_logmol2_fname)

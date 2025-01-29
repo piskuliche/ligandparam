@@ -8,6 +8,7 @@ import MDAnalysis as mda
 from ligandparam.stages.abstractstage import AbstractStage
 from ligandparam.interfaces import Leap
 from ligandparam.io.leapIO import LeapWriter
+from ligandparam.log import get_logger
 
 
 class StageBuild(AbstractStage):
@@ -32,6 +33,7 @@ class StageBuild(AbstractStage):
             The input options
         """
         super().__init__(stage_name, name, cwd, *args, **kwargs)
+        
         self.target_pdb = getattr(kwargs, 'target_pdb')
         self.build_type = self._validate_build_type(getattr(kwargs, 'build_type', 'aq'))
         self.concentration = getattr(kwargs, 'concentration', 0.14)
@@ -218,13 +220,13 @@ class StageBuild(AbstractStage):
         parmconc = 0
         if num_waters > 0:
             parmconc = min(num_NA, num_CL) * water_concentration / (num_waters + num_NA + num_CL)
-        print(f"-> Current system is {total_charge}")
-        print(f"-> Current system has {non_ion_charge} non-ion charge")
-        print(f"-> Current system has {num_waters} water molecules")
-        print(f"-> Current system has {num_waters} water molecules")
-        print(f"-> Current system has {num_NA} NA ions")
-        print(f"-> Current system has {num_CL} CL ions")
-        print(f"-> Current concentration is {parmconc}")
+        self.logger.info(f"-> Current system is {total_charge}")
+        self.logger.info(f"-> Current system has {non_ion_charge} non-ion charge")
+        self.logger.info(f"-> Current system has {num_waters} water molecules")
+        self.logger.info(f"-> Current system has {num_waters} water molecules")
+        self.logger.info(f"-> Current system has {num_NA} NA ions")
+        self.logger.info(f"-> Current system has {num_CL} CL ions")
+        self.logger.info(f"-> Current concentration is {parmconc}")
         if conc_na > 0:
             num_NA = int(conc_na)
         else:

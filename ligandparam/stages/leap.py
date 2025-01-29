@@ -7,6 +7,7 @@ from pathlib import Path
 from ligandparam.stages.abstractstage import AbstractStage
 from ligandparam.io.leapIO import LeapWriter
 from ligandparam.interfaces import Leap
+from ligandparam.log import get_logger
 
 
 class StageLeap(AbstractStage):
@@ -14,7 +15,7 @@ class StageLeap(AbstractStage):
 
     def __init__(self, stage_name: str, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, name, cwd, *args, **kwargs)
-
+        
         self.in_frcmod = Path(self.cwd, f"{self.name.stem}.frcmod")
         self.add_required(self.in_frcmod)
         self.in_resp_mol2 = Path(self.cwd, f"{self.name.stem}.resp.mol2")
@@ -46,7 +47,7 @@ class StageLeap(AbstractStage):
         # Write the leap input file
         leapgen.write(self.cwd / "tleap.param.in")
         # Call the leap program
-        leap = Leap(cwd=self.cwd)
+        leap = Leap(cwd=self.cwd, logger=self.logger)
         leap.call(f=self.cwd / "tleap.param.in", dry_run=dry_run)
         return
 

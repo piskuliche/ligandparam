@@ -4,6 +4,9 @@ from ligandparam.abstractstage import AbstractStage
 from ligandparam.coordinates import Coordinates
 from ligandparam.gaussianIO import GaussianWriter, GaussianInput
 
+from ligandparam.log import get_logger
+
+
 
 class StageGaussianRotation(AbstractStage):
     def __init__(self, name, alpha = [0.0], beta = [0.0], gamma = [0.0], base_cls=None) -> None:
@@ -29,7 +32,7 @@ class StageGaussianRotation(AbstractStage):
         return stage
 
     def execute(self, dry_run=False):
-        print(f"Executing {self.name} with alpha={self.alpha}, beta={self.beta}, and gamma={self.gamma}")
+        self.logger.info(f"Executing {self.stage_name} with alpha={self.alpha}, beta={self.beta}, and gamma={self.gamma}")
 
         run_apply = print
 
