@@ -46,6 +46,7 @@ class LazyLigand(Recipe):
             except KeyError:
                 setattr(self, opt, default)
         self.logger = kwargs.get('logger', get_logger())
+        self.logger.warning(f"Initialized LazyLigand recipe at {self.cwd}")
         self.kwargs = kwargs
 
     def setup(self):
@@ -80,6 +81,6 @@ class LazyLigand(Recipe):
 
     @override
     def execute(self, dry_run=False):
-        self.logger.warning("Starting the LazyLigand recipe")
+        self.logger.warning(f"Starting the LazyLigand recipe at {self.cwd}")
         super().execute(dry_run=dry_run)
         self.logger.info("Done with the LazyLigand recipe")
