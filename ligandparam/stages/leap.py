@@ -20,7 +20,7 @@ class StageLeap(AbstractStage):
         self.in_resp_mol2 = Path(self.cwd, f"{self.name.stem}.resp.mol2")
         self.add_required(self.in_resp_mol2)
         self.leaprc = kwargs.get("leaprc", ["leaprc.gaff2"])
-        self.out_off = getattr(kwargs, "out_off", Path(self.cwd, f"{self.name.stem}.off"))
+        self.out_off = getattr(kwargs, "out_off", Path(self.cwd, f"{self.name.stem}.lib"))
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """ Appends the stage. """

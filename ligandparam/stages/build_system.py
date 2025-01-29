@@ -44,7 +44,7 @@ class StageBuild(AbstractStage):
 
         self.add_required(f"{self.name}.resp.mol2")
         self.add_required(f"{self.name}.frcmod")
-        self.add_required(f"{self.name}.off")
+        self.add_required(f"{self.name}.lib")
 
     def _validate_build_type(self, build_type: str) -> int:
         """ Validate the build type. """
@@ -105,7 +105,7 @@ class StageBuild(AbstractStage):
 
         # Add the leap commands
         aqleap.add_line(f"loadamberparams {self.name}.frcmod")
-        aqleap.add_line(f"loadoff {self.name}.off")
+        aqleap.add_line(f"loadoff {self.name}.lib")
         aqleap.add_line(f"mol = loadmol2 {self.name}.resp.mol2")
         aqleap.add_line("\n")
         # Add counter ions
@@ -138,7 +138,7 @@ class StageBuild(AbstractStage):
             gasleap.add_leaprc(rc)
         # Add the leap commands
         gasleap.add_line(f"loadamberparams {self.name}.frcmod")
-        gasleap.add_line(f"loadoff {self.name}.off")
+        gasleap.add_line(f"loadoff {self.name}.lib")
         gasleap.add_line(f"mol = loadmol2 {self.name}.resp.mol2")
         gasleap.add_line("\n")
         gasleap.add_line(f"saveamberparm mol {self.name}_gas.parm7 {self.name}_gas.rst7")
@@ -173,7 +173,7 @@ class StageBuild(AbstractStage):
 
         # Add the leap commands
         targetleap.add_line(f"loadamberparams {self.name}.frcmod")
-        targetleap.add_line(f"loadoff {self.name}.off")
+        targetleap.add_line(f"loadoff {self.name}.lib")
         # targetleap.add_line(f"mol = loadmol2 {self.name}.resp.mol2")
         targetleap.add_line(f"mol = loadpdb {self.target_pdb}")
         targetleap.add_line("\n")
