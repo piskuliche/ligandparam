@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from pathlib import Path
 
 # Import the module
 from ligandparam.recipes import LazyLigand
@@ -15,8 +16,9 @@ inputoptions = {
 
 }
 
+cwd = Path("./examples/01_LazyLigand/")
 # Load the pdb as a instance of the LazyLigand class
-test = LazyLigand(name= cwd/"thiophenol.pdb", cwd=cwd, **inputoptions)
+test = LazyLigand(name=cwd / "thiophenol.pdb", cwd=cwd, **inputoptions) -
 
 # Select the pre-initialized stages for Lazy Ligand
 test.setup()
