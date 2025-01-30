@@ -30,7 +30,7 @@ class LazyLigand(Recipe):
         self.label = self.in_filename.stem
         # required options
         for opt in (
-                "net_charge", "nproc", "mem", "gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
+            "net_charge", "nproc", "mem", "gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
             try:
                 setattr(self, opt, kwargs[opt])
                 del kwargs[opt]
@@ -61,7 +61,7 @@ class LazyLigand(Recipe):
                           gaussian_binary=self.gaussian_binary, gaussian_scratch=self.gaussian_scratch,
                           net_charge=self.net_charge, theory=self.theory,
                           force_gaussian_rerun=self.force_gaussian_rerun,
-                          in_filename = self.in_filename,
+                          in_filename=self.in_filename,
                           out_gaussian_log=self.cwd / f"{self.label}.log", **self.kwargs),
             StageLazyResp("LazyResp", cwd=self.cwd, **self.kwargs,
                           in_filename=self.cwd / f"{self.label}.log",
