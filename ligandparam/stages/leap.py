@@ -13,15 +13,16 @@ from ligandparam.log import get_logger
 class StageLeap(AbstractStage):
     """ This is class to run a basic leap calculations on the ligand. """
 
-    def __init__(self, stage_name: str, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
-        super().__init__(stage_name, name, cwd, *args, **kwargs)
-        
-        self.in_frcmod = Path(self.cwd, f"{self.name.stem}.frcmod")
+    def __init__(self, stage_name: str, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        super().__init__(stage_name, in_filename, cwd, *args, **kwargs)
+        self.in_mol2 = Path(in_filename)
+        self.add_required(self.in_mol2)
+        self.in_frcmod = Path(in_filename)
         self.add_required(self.in_frcmod)
-        self.in_resp_mol2 = Path(self.cwd, f"{self.name.stem}.resp.mol2")
-        self.add_required(self.in_resp_mol2)
+        self.out_lib = getattr(kwargs, "out_lib", Path(self.cwd, f"{self.in_frcmod.stem}.lib"))
+
         self.leaprc = kwargs.get("leaprc", ["leaprc.gaff2"])
-        self.out_off = getattr(kwargs, "out_off", Path(self.cwd, f"{self.name.stem}.lib"))
+
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """ Appends the stage. """
@@ -37,12 +38,12 @@ class StageLeap(AbstractStage):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            u = mda.Universe(self.in_resp_mol2)
+            u = mda.Universe(self.in_mol2)
         resname = u.residues.resnames[0]
         # Add the leap commands
         leapgen.add_line(f"loadamberparams {self.in_frcmod.name}")
-        leapgen.add_line(f"{resname} = loadmol2 {self.in_resp_mol2.name}")
-        leapgen.add_line(f"saveOff {resname} {self.out_off}")
+        leapgen.add_line(f"{resname} = loadmol2 {self.in_mol2.name}")
+        leapgen.add_line(f"saveOff {resname} {self.out_lib}")
         leapgen.add_line("quit")
         # Write the leap input file
         leapgen.write(self.cwd / "tleap.param.in")

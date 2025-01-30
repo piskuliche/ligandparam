@@ -14,13 +14,14 @@ class StageLazyResp(AbstractStage):
     """ This class runs a 'lazy' resp calculation based on only
         a single gaussian output file. """
 
-    def __init__(self, stage_name: str, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
-        super().__init__(stage_name, name, cwd, *args, **kwargs)
-        self.net_charge = getattr(kwargs, 'net_charge', 0.0)
-        self.atom_type = getattr(kwargs, 'atom_type', "gaff2")
-        self.in_gaussian_log = Path(kwargs["in_gaussian_log"])
+    def __init__(self, stage_name: str, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        super().__init__(stage_name, in_filename, cwd, *args, **kwargs)
+        self.in_gaussian_log = Path(in_filename)
         self.add_required(self.in_gaussian_log)
         self.out_mol2 = Path(kwargs["out_mol2"])
+
+        self.net_charge = getattr(kwargs, 'net_charge', 0.0)
+        self.atom_type = getattr(kwargs, 'atom_type', "gaff2")
 
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
@@ -58,12 +59,18 @@ class StageMultiRespFit(AbstractStage):
         TODO: Add a check that a multistate resp fit is possible. 
         """
 
-    def __init__(self, stage_name: str, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
-        super().__init__(stage_name, name, cwd, *args, **kwargs)
+    def __init__(self, stage_name: str, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        super().__init__(stage_name, in_filename, cwd, *args, **kwargs)
+        # in_gaussian_log could be any log file? This is where the assumption of each stage taking a filename breaks down.
+        # This should only take a working dir.
+        self.in_gaussian_log = Path(in_filename)
+        # self.add_required(self.in_gaussian_log)
+        self.out_mol2 = Path(kwargs["out_mol2"])
+        self.add_required(self.out_mol2)
+        self.out_respfit = Path(kwargs["out_respfit"])
         
         self.net_charge = getattr(kwargs, 'net_charge', 0.0)
-        self.gauss_logmol2_fname = Path(self.cwd, f"{self.name.stem}.log.mol2")
-        self.add_required(self.gauss_logmol2_fname)
+
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """ Appends the stage. """
@@ -94,11 +101,11 @@ class StageMultiRespFit(AbstractStage):
         """
         comp = parmhelper.BASH(12)
         model = ResidueResp(comp, 1)
-        gaussian_out_files = Path(self.cwd, "gaussianCalcs", f"{self.name.stem}_*.log")
-        model.add_state(self.name.name, self.gauss_logmol2_fname, glob.glob(gaussian_out_files), qmmask="@*")
+        gaussian_out_files = Path(self.cwd, f"{self.in_gaussian_log.stem}_*.log")
+        model.add_state(self.out_mol2.name, self.gauss_logmol2_fname, glob.glob(gaussian_out_files), qmmask="@*")
         model.multimolecule_fit(True)
         model.perform_fit("@*", unique_residues=False)
-        with open(self.cwd / "respfit.out", "w") as f:
+        with open(self.out_respfit, "w") as f:
             model.print_resp(fh=f)
 
         return

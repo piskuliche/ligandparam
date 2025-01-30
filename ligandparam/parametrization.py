@@ -9,12 +9,12 @@ from ligandparam.stages import *
 
 class Parametrization(Driver):
     @override
-    def __init__(self, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs):
+    def __init__(self, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs):
         """
         The rough approach to using this class is to generate a new Parametrization class, and then generate self.stages as a list
         of stages that you want to run.
         Args:
-            name (str): The name of the ligand.
+            in_filename (str): The in_filename of the ligand.
             cwd (Union[Path, str]): The current working directory.
             *args: Additional positional arguments.
             **kwargs: Additional keyword arguments.
@@ -24,7 +24,7 @@ class Parametrization(Driver):
         Raises:
             ValueError: If neither 'name' nor 'pdb_filename' is provided in inputoptions.
         """
-        self.name = Path(name)
+        self.in_filename = Path(in_filename)
         self.cwd = Path(cwd)
         self.stages = []
         self.leaprc = []

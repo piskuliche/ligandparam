@@ -11,19 +11,16 @@ class StageParmChk(AbstractStage):
     """ This is class to run parmchk on the ligand. """
 
     @override
-    def __init__(self, stage_name: str, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
-        super().__init__(stage_name, name, cwd, *args, **kwargs)
-        
+    def __init__(self, stage_name: str, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        super().__init__(stage_name, in_filename, cwd, *args, **kwargs)
+        self.in_mol2 = Path(in_filename)
+        self.add_required(self.in_mol2)
+        self.out_frcmod = Path(kwargs["out_frcmod"])
         self.net_charge = getattr(kwargs, 'net_charge', 0.0)
-        self.inmol2 = Path(self.cwd, f"{self.name.stem}.resp.mol2")
-        self.outfrcmod = Path(self.cwd, f"{self.name.stem}.frcmod")
-        self.add_required(self.inmol2)
-
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """ Appends the stage. """
         return stage
-
 
     def _execute(self, dry_run=False):
         """ Execute the parmchk calcualtion to obtain the frcmod.
@@ -39,9 +36,9 @@ class StageParmChk(AbstractStage):
 
         """
         parm = ParmChk(cwd=self.cwd, logger=self.logger)
-        parm.call(i=self.inmol2, f="mol2", o=self.outfrcmod, s=2, dry_run = dry_run)
+        parm.call(i=self.in_mol2, f="mol2", o=self.out_frcmod, s=2, dry_run=dry_run)
         return
-    
+
     def _clean(self):
         """ Clean the files generated during the stage. """
         raise NotImplementedError("clean method not implemented")

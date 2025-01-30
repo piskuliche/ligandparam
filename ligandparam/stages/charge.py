@@ -16,10 +16,13 @@ class StageUpdateCharge(AbstractStage):
     """ This class creates a new mol2 file with updated charges. """
 
     @override
-    def __init__(self, stage_name: str, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
-        super().__init__(stage_name, name, cwd, *args, **kwargs)
-        
-        for opt in ("in_mol2", "out_mol2", "charge_source", "charge_column"):
+    def __init__(self, stage_name: str, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        super().__init__(stage_name, in_filename, cwd, *args, **kwargs)
+        self.in_mol2 = Path(in_filename)
+        self.out_mol2 = Path(kwargs["out_mol2"])
+        self.tmp_mol2 = self.cwd / f"{self.in_mol2.stem}_tmp_update.mol2"
+
+        for opt in ("charge_source", "charge_column"):
             try:
                 setattr(self, opt, kwargs[opt])
             except KeyError:
@@ -48,10 +51,10 @@ class StageUpdateCharge(AbstractStage):
                     raise ValueError("Error: Number of charges does not match the number of atoms.")
                 u.atoms.charges = charges
                 # Write the Mol2 temporary file
-                Mol2Writer(u, self.name + ".tmpresp.mol2", selection="all").write()
+                Mol2Writer(u, self.tmp_mol2, selection="all").write()
 
             ante = Antechamber(cwd=self.cwd, logger=self.logger)
-            ante.call(i=self.name + ".tmpresp.mol2", fi='mol2',
+            ante.call(i=self.tmp_mol2 + ".tmpresp.mol2", fi='mol2',
                       o=self.out_mol2, fo='mol2',
                       pf='y', at=self.atom_type,
                       dry_run = dry_run)
@@ -69,14 +72,12 @@ class StageNormalizeCharge(AbstractStage):
     based on the overall precision that you select, by adjusting each atom charge by the precision
     until the charge difference is zero."""
 
-    def __init__(self, stage_name: str, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
-        super().__init__(stage_name, name, cwd, *args, **kwargs)
-        
-        for opt in ("in_mol2", "out_mol2"):
-            try:
-                setattr(self, opt, kwargs[opt])
-            except KeyError:
-                raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
+    def __init__(self, stage_name: str, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        super().__init__(stage_name, in_filename, cwd, *args, **kwargs)
+        self.in_mol2 = Path(in_filename)
+        self.out_mol2 = Path(kwargs["out_mol2"])
+        self.tmp_mol2 = self.cwd / f"{self.in_mol2.stem}_tmp_norm.mol2"
+
         self.atom_type = kwargs.get("atom_type", "gaff2")
         self.net_charge = kwargs.get("net_charge", 0.0)
         self.precision = kwargs.get("precision", 0.0001)
@@ -124,11 +125,10 @@ class StageNormalizeCharge(AbstractStage):
                 self.logger.info("Charges are already normalized")
                 return
             if not dry_run:
-                tmp_mol2 = self.cwd / (self.name.stem + ".tmpnorm.mol2")
-                Mol2Writer(u, tmp_mol2, selection="all").write()
+                Mol2Writer(u, self.tmp_mol2, selection="all").write()
 
                 ante = Antechamber(cwd=self.cwd, logger=self.logger)
-                ante.call(i=tmp_mol2, fi='mol2',
+                ante.call(i=self.tmp_mol2, fi='mol2',
                           o=self.out_mol2, fo='mol2',
                           pf='y', at=self.atom_type,
                           dry_run = dry_run)

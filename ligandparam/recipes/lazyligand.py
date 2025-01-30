@@ -25,8 +25,9 @@ class LazyLigand(Recipe):
     """
 
     @override
-    def __init__(self, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs):
-        super().__init__(name, cwd, *args, **kwargs)
+    def __init__(self, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs):
+        super().__init__(in_filename, cwd, *args, **kwargs)
+        self.label = self.in_filename.stem
         # required options
         for opt in (
                 "net_charge", "nproc", "mem", "gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
@@ -46,41 +47,45 @@ class LazyLigand(Recipe):
             except KeyError:
                 setattr(self, opt, default)
         self.logger = kwargs.get('logger', get_logger())
-        self.logger.warning(f"Initialized LazyLigand recipe at {self.cwd}")
         self.kwargs = kwargs
 
     def setup(self):
-        base_name = Path(self.name).stem
         self.stages = [
-            StageInitialize("Initialize", name=self.name, cwd=self.cwd, **self.kwargs),
-            StageNormalizeCharge("Normalize1", name=self.name, cwd=self.cwd, net_charge=self.net_charge, **self.kwargs,
-                                 in_mol2=self.cwd / f"{base_name}.antechamber.mol2",
-                                 out_mol2=self.cwd / f"{base_name}.antechamber.mol2"),
-            StageGaussian("Minimize", name=self.name, cwd=self.cwd,
+            StageInitialize("Initialize", in_filename=self.in_filename, cwd=self.cwd,
+                            out_mol2=self.cwd / f"{self.label}.antechamber.mol2", **self.kwargs),
+            StageNormalizeCharge("Normalize1", cwd=self.cwd, net_charge=self.net_charge, **self.kwargs,
+                                 in_filename=self.cwd / f"{self.label}.antechamber.mol2",
+                                 out_mol2=self.cwd / f"{self.label}.antechamber.mol2"),
+            StageGaussian("Minimize", cwd=self.cwd, nproc=self.nproc, mem=self.mem,
                           gaussian_root=self.gaussian_root, gauss_exedir=self.gauss_exedir,
                           gaussian_binary=self.gaussian_binary, gaussian_scratch=self.gaussian_scratch,
                           net_charge=self.net_charge, theory=self.theory,
                           force_gaussian_rerun=self.force_gaussian_rerun,
-                          out_gaussian_log=self.cwd / f"{base_name}.log", **self.kwargs),
-            StageLazyResp("LazyResp", name=self.name, cwd=self.cwd, **self.kwargs,
-                          in_gaussian_log=self.cwd / f"{base_name}.log",
-                          out_mol2=self.cwd / f"{base_name}.resp.mol2"),
-            StageNormalizeCharge("Normalize2", name=self.name, cwd=self.cwd, net_charge=self.net_charge, **self.kwargs,
-                                 in_mol2=self.cwd / f"{base_name}.resp.mol2",
-                                 out_mol2=self.cwd / f"{base_name}.resp.mol2"),
-            StageUpdate("UpdateNames", name=self.name, cwd=self.cwd,
-                        in_mol2=self.cwd / f"{base_name}.antechamber.mol2",
-                        to_update=self.cwd / f"{base_name}.resp.mol2",
-                        out_mol2=self.cwd / f"{base_name}.resp.mol2",
+                          # in_filename=self.cwd / f"{self.label}.antechamber.mol2",
+                          in_filename = self.in_filename,
+                          out_gaussian_log=self.cwd / f"{self.label}.log", **self.kwargs),
+            StageLazyResp("LazyResp", cwd=self.cwd, **self.kwargs,
+                          in_filename=self.cwd / f"{self.label}.log",
+                          out_mol2=self.cwd / f"{self.label}.resp.mol2"),
+            StageNormalizeCharge("Normalize2", cwd=self.cwd, net_charge=self.net_charge, **self.kwargs,
+                                 in_filename=self.cwd / f"{self.label}.resp.mol2",
+                                 out_mol2=self.cwd / f"{self.label}.resp.mol2"),
+            StageUpdate("UpdateNames", cwd=self.cwd,
+                        in_filename=self.cwd / f"{self.label}.antechamber.mol2",
+                        to_update=self.cwd / f"{self.label}.resp.mol2",
+                        out_mol2=self.cwd / f"{self.label}.resp.mol2",
                         update_names=True,
                         update_types=False,
                         update_resname=True, **self.kwargs),
-            StageParmChk("ParmChk", name=self.name, cwd=self.cwd, **self.kwargs),
-            StageLeap("Leap", name=self.name, cwd=self.cwd, **self.kwargs)
+            StageParmChk("ParmChk", in_filename=self.cwd / f"{self.label}.resp.mol2",
+                         out_frcmod=self.cwd / f"{self.label}.frcmod", cwd=self.cwd, **self.kwargs),
+            StageLeap("Leap", in_filename=self.cwd / f"{self.label}.resp.mol2",
+                      in_frcmod=self.cwd / f"{self.label}.frcmod", out_lib=self.cwd / f"{self.label}.lib",
+                      cwd=self.cwd, **self.kwargs)
         ]
 
     @override
     def execute(self, dry_run=False):
-        self.logger.warning(f"Starting the LazyLigand recipe at {self.cwd}")
+        self.logger.info(f"Starting the LazyLigand recipe at {self.cwd}")
         super().execute(dry_run=dry_run)
         self.logger.info("Done with the LazyLigand recipe")

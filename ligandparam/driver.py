@@ -5,7 +5,7 @@ from pathlib import Path
 
 class Driver:
     @abstractmethod
-    def __init__(self, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs):
+    def __init__(self, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs):
         """ Initialize the Driver class object.
 
         This class is the base class for all parametrizations. It is designed to be subclassed, and the subclass should

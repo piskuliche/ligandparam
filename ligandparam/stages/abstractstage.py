@@ -3,10 +3,8 @@ from pathlib import Path
 from typing import Union
 
 from ligandparam.io.coordinates import Coordinates
-import logging
 from ligandparam.log import get_logger
-
-
+import warnings
 
 
 class AbstractStage(metaclass=ABCMeta):
@@ -25,18 +23,18 @@ class AbstractStage(metaclass=ABCMeta):
         "force_gaussian_rerun": False
     }
 
-    def __init__(self, stage_name: str, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
-        self.name = Path(name)
+    def __init__(self, stage_name: str, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        #TODO Fix: we assume that all stages deal with an input file, but don't read it yet. Make in_filename a kwarg.
         try:
-            self.coord_object = Coordinates(self.name, filetype='pdb')
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                self.coord_object = Coordinates(in_filename, filetype='pdb')
         except Exception as e:
-            raise ValueError(f"ERROR: Invalid input file: {self.name}") from e
+            # TODO: Fix Not a pdb, no problem. This shouldn't be in this class.
+            pass
 
         self.stage_name = stage_name
         self.cwd = Path(cwd)
-        self.nproc = getattr(kwargs, 'nproc', 12)
-        self.mem = getattr(kwargs, 'mem', 48)
-        self.header = [f'%NPROC={self.nproc}', f'%MEM={self.mem}GB']
         self.required = []
         self.logger = kwargs.get('logger', get_logger())
 
