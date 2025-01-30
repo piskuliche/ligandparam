@@ -37,6 +37,8 @@ class AbstractStage(metaclass=ABCMeta):
         self.cwd = Path(cwd)
         self.required = []
         self.logger = kwargs.get('logger', get_logger())
+        self.nproc = getattr(kwargs, 'nproc', 1)
+        self.mem = getattr(kwargs, 'mem', 512)
 
     @abstractmethod
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":

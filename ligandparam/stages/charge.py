@@ -53,10 +53,10 @@ class StageUpdateCharge(AbstractStage):
                 # Write the Mol2 temporary file
                 Mol2Writer(u, self.tmp_mol2, selection="all").write()
 
-            ante = Antechamber(cwd=self.cwd, logger=self.logger)
+            ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
             ante.call(i=self.tmp_mol2 + ".tmpresp.mol2", fi='mol2',
-                      o=self.out_mol2, fo='mol2',
-                      pf='y', at=self.atom_type,
+                      o=self.out_mol2, fo='mol2', pf='y', at=self.atom_type,
+                      gn=f"%nproc={self.nproc}", gm=f"%mem={self.mem}MB",
                       dry_run = dry_run)
 
         return
@@ -127,10 +127,11 @@ class StageNormalizeCharge(AbstractStage):
             if not dry_run:
                 Mol2Writer(u, self.tmp_mol2, selection="all").write()
 
-                ante = Antechamber(cwd=self.cwd, logger=self.logger)
+                ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
                 ante.call(i=self.tmp_mol2, fi='mol2',
                           o=self.out_mol2, fo='mol2',
                           pf='y', at=self.atom_type,
+                          gn=f"%nproc={self.nproc}", gm=f"%mem={self.mem}MB",
                           dry_run = dry_run)
 
     def _clean(self):

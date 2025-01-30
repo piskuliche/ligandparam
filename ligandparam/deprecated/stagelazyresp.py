@@ -23,7 +23,7 @@ class StageLazyResp(AbstractStage):
         ante = Antechamber()
         ante.call(i=f"gaussianCalcs/{self.base_cls.name}.log", fi='gout',
                   o=self.base_cls.name+'.resp.mol2', fo='mol2',
-                  gv=0, c='resp',
-                  nc=self.base_cls.net_charge,
-                  at='gaff2', dry_run = dry_run)
+                  gv=0, c='resp', nc=self.base_cls.net_charge, at='gaff2',
+                  gn=f"%nproc={self.nproc}", gm=f"%mem={self.mem}MB",
+                  dry_run = dry_run)
         return

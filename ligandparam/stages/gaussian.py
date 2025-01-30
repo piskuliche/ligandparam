@@ -46,7 +46,7 @@ class StageGaussian(AbstractStage):
         self.out_log = self.gaussian_cwd / f"{self.out_gaussian_log.stem}.log"
         self._add_outputs(self.out_log)
 
-        self.header = [f"%NPROC={kwargs.get('nproc', 6)}', f'%MEM={kwargs.get('mem', 24)}GB"]
+        self.header = [f"%NPROC={self.nproc}', f'%MEM={self.mem}MB"]
 
         # No required files for this stage to execute.
         return
@@ -178,7 +178,7 @@ class StageGaussianRotation(AbstractStage):
         self.beta = [float(b) for b in beta]
         self.gamma = [float(g) for g in gamma]
 
-        self.header = [f"%NPROC={getattr(kwargs, 'nproc', 12)}', f'%MEM={getattr(kwargs, 'mem', 48)}GB"]
+        self.header = [f"%NPROC={self.nproc}', f'%MEM={self.mem}MB"]
 
         return
 
@@ -354,10 +354,11 @@ class StageGaussiantoMol2(AbstractStage):
             self.logger.info(f"Problem with {self.in_log}")
             raise FileNotFoundError(f"Error (Stage {self.stage_name}): Gaussian log file not found")
         # Convert from gaussian to mol2
-        ante = Antechamber(cwd=self.cwd, logger=self.logger)
+        ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
         ante.call(i=self.in_log, fi='gout',
                   o=self.temp1_mol2, fo='mol2',
                   pf='y', at=self.atom_type,
+                  gn=f"%nproc={self.nproc}", gm=f"%mem={self.mem}MB",
                   dry_run=dry_run)
 
         # Assign the charges 
@@ -377,10 +378,11 @@ class StageGaussiantoMol2(AbstractStage):
             Mol2Writer(u2, self.temp2_mol2, selection="all").write()
 
         # Use antechamber to clean up the mol2 format
-        ante = Antechamber(cwd=self.cwd, logger=self.logger)
+        ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
         ante.call(i=self.temp2_mol2, fi='mol2',
                   o=self.out_mol2, fo='mol2',
                   pf='y', at=self.atom_type,
+                  gn=f"%nproc={self.nproc}", gm=f"%mem={self.mem}MB",
                   dry_run=dry_run)
 
         return

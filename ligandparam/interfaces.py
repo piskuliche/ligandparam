@@ -49,9 +49,12 @@ class SimpleInterface:
         if dry_run:
             self.logger.info(f"Command: {' '.join(command)}")
         else:
+            # Prevent antechamber from using more than a thread
+            env = os.environ
+            env["OMP_NUM_THREADS"] = str(self.nproc)
             self.logger.info('\t' + ' '.join(command))
             p = subprocess.run(command, shell=shell, encoding='utf-8', cwd=self.cwd, stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+                               stderr=subprocess.PIPE, env=env)
             if p.returncode != 0:
                 logging.error(f"Command at {self.cwd} failed.")
                 logging.error(p.stdout)
@@ -70,6 +73,7 @@ class Antechamber(SimpleInterface):
         except KeyError:
             raise ValueError(f"ERROR: missing `cwd` arg with a path to the workdir.")
         self.logger = kwargs.get('logger', get_logger())
+        self.nproc = kwargs.get('nproc', 1)
         self.set_method('antechamber')
         return
 

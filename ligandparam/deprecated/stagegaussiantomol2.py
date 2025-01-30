@@ -24,6 +24,7 @@ class StageGaussiantoMol2(AbstractStage):
         ante.call(i=self.base_cls.name+'.log', fi='gout',
                   o=self.base_cls.name+'.tmp1.mol2', fo='mol2',
                   pf='y', at=self.base_cls.atom_type,
+                  gn=f"%nproc={self.nproc}", gm=f"%mem={self.mem}MB",
                   run=(not dry_run))
 
         # Assign the charges 

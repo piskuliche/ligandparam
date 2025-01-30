@@ -72,10 +72,11 @@ class StageUpdate(AbstractStage):
                     warnings.simplefilter("ignore")
                     Mol2Writer(unew, filename=types_mol2).write()
 
-            ante = Antechamber(cwd=self.cwd, logger=self.logger)
+            ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
             ante.call(i=types_mol2, fi='mol2',
                       o=self.out_mol2, fo='mol2',
                       pf='y', at=self.atom_type,
+                      gn=f"%nproc={self.nproc}", gm=f"%mem={self.mem}MB",
                       dry_run=dry_run)
 
     def _clean(self):

@@ -61,7 +61,6 @@ class LazyLigand(Recipe):
                           gaussian_binary=self.gaussian_binary, gaussian_scratch=self.gaussian_scratch,
                           net_charge=self.net_charge, theory=self.theory,
                           force_gaussian_rerun=self.force_gaussian_rerun,
-                          # in_filename=self.cwd / f"{self.label}.antechamber.mol2",
                           in_filename = self.in_filename,
                           out_gaussian_log=self.cwd / f"{self.label}.log", **self.kwargs),
             StageLazyResp("LazyResp", cwd=self.cwd, **self.kwargs,
