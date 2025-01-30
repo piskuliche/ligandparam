@@ -49,9 +49,10 @@ class SimpleInterface:
         if dry_run:
             self.logger.info(f"Command: {' '.join(command)}")
         else:
-            # Prevent antechamber from using more than a thread
             env = os.environ
-            env["OMP_NUM_THREADS"] = str(self.nproc)
+            if hasattr(self, "nproc"):
+                # Prevent antechamber from using more threads than available
+                env["OMP_NUM_THREADS"] = str(self.nproc)
             self.logger.info('\t' + ' '.join(command))
             p = subprocess.run(command, shell=shell, encoding='utf-8', cwd=self.cwd, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, env=env)
