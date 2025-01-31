@@ -42,6 +42,7 @@ class LazyLigand(Recipe):
                 del kwargs[opt]
             except KeyError:
                 setattr(self, opt, default_val)
+        self.kwargs = kwargs
 
     def setup(self):
         self.stages = [

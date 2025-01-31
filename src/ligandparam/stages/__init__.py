@@ -7,3 +7,4 @@ from .initialize import StageInitialize
 from .gaussian import StageGaussian, StageGaussianRotation, StageGaussiantoMol2
 from .charge import StageUpdateCharge, StageNormalizeCharge
 from .build_system import StageBuild
+from .typematching import StageUpdate

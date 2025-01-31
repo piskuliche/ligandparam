@@ -29,10 +29,8 @@ class Parametrization(Driver):
         self.label = self.in_filename.stem
         self.cwd = Path(cwd)
         self.logger = kwargs.get('logger', get_logger())
-        self.kwargs = kwargs
         self.stages = []
         self.leaprc = kwargs.get('leaprc', ['leaprc.gaff2'])
-
 
     def add_leaprc(self, leaprc) -> None:
         self.leaprc.append(leaprc)

@@ -29,6 +29,7 @@ class LazierLigand(Recipe):
                 del kwargs[opt]
             except KeyError:
                 raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
+        self.kwargs = kwargs
 
     def setup(self):
         self.stages = [
@@ -43,6 +44,6 @@ class LazierLigand(Recipe):
 
     @override
     def execute(self, dry_run=False):
-        self.logger.info(f"Starting the LazyLigand recipe at {self.cwd}")
+        self.logger.info(f"Starting the LazierLigand recipe at {self.cwd}")
         super().execute(dry_run=dry_run)
-        self.logger.info("Done with the LazyLigand recipe")
+        self.logger.info("Done with the LazierLigand recipe")
