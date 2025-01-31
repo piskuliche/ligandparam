@@ -18,11 +18,6 @@ class StageInitialize(AbstractStage):
 
         self.net_charge = kwargs.get("net_charge", 0.0)
         self.atom_type = kwargs.get("atom_type", "gaff2")
-        # for opt in ("net_charge", ):
-        #     try:
-        #         setattr(self, opt, kwargs[opt])
-        #     except KeyError:
-        #         raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
         return
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":

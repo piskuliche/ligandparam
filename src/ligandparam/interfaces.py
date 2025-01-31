@@ -57,9 +57,9 @@ class SimpleInterface:
             p = subprocess.run(command, shell=shell, encoding='utf-8', cwd=self.cwd, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, env=env)
             if p.returncode != 0:
-                logging.error(f"Command at {self.cwd} failed.")
-                logging.error(p.stdout)
-                logging.error(p.stderr)
+                self.logger.error(f"Command at {self.cwd} failed.")
+                self.logger.error(p.stdout)
+                self.logger.error(p.stderr)
                 raise RuntimeError
 
         return

@@ -21,11 +21,3 @@ dependencies = [
 ]
 urls = { "Homepage" = "https://github.com/piskulichz/ligandparam" }
 
-[tool.setuptools]
-packages = [
-      "ligandparam",
-      "ligandparam.io", 
-      "ligandparam.multiresp",
-      "ligandparam.recipes", 
-      "ligandparam.stages"
-  ]

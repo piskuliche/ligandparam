@@ -4,6 +4,7 @@ from typing_extensions import override
 
 from ligandparam.driver import Driver
 from ligandparam.io.coordinates import Coordinates
+from ligandparam.log import get_logger
 from ligandparam.stages import *
 
 
@@ -25,11 +26,12 @@ class Parametrization(Driver):
             ValueError: If neither 'name' nor 'pdb_filename' is provided in inputoptions.
         """
         self.in_filename = Path(in_filename)
+        self.label = self.in_filename.stem
         self.cwd = Path(cwd)
+        self.logger = kwargs.get('logger', get_logger())
+        self.kwargs = kwargs
         self.stages = []
-        self.leaprc = []
-        if hasattr(kwargs, 'leaprc'):
-            self.leaprc = kwargs['leaprc']
+        self.leaprc = kwargs.get('leaprc', ['leaprc.gaff2'])
 
 
     def add_leaprc(self, leaprc) -> None:

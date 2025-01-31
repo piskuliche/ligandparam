@@ -1,12 +1,10 @@
 from pathlib import Path
 from typing import Union
 
-from pygments.lexer import default
 from typing_extensions import override
 
 from ligandparam.parametrization import Recipe
 from ligandparam.stages import *
-from ligandparam.log import get_logger
 
 
 class LazyLigand(Recipe):
@@ -21,13 +19,12 @@ class LazyLigand(Recipe):
     4. Calculate the RESP charges using Gaussian at the low level of theory.
     5. Check the parameters using ParmChk.
     6. Generate the Leap input files.
-    
     """
 
     @override
     def __init__(self, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs):
         super().__init__(in_filename, cwd, *args, **kwargs)
-        self.label = self.in_filename.stem
+
         # required options
         for opt in (
             "net_charge", "nproc", "mem", "gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
@@ -38,16 +35,13 @@ class LazyLigand(Recipe):
                 raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
         # required options with defaults
         # TODO: defaults should be a global singleton dict
-        default_logger = get_logger()
-        for opt, default in zip(("theory", "leaprc", "force_gaussian_rerun"),
+        for opt, default_val in zip(("theory", "leaprc", "force_gaussian_rerun"),
                                 ({"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"}, ["leaprc.gaff2"], False)):
             try:
                 setattr(self, opt, kwargs[opt])
                 del kwargs[opt]
             except KeyError:
-                setattr(self, opt, default)
-        self.logger = kwargs.get('logger', get_logger())
-        self.kwargs = kwargs
+                setattr(self, opt, default_val)
 
     def setup(self):
         self.stages = [

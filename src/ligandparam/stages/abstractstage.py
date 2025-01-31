@@ -9,19 +9,19 @@ import warnings
 
 class AbstractStage(metaclass=ABCMeta):
     """ This is an abstract class for all the stages. """
-
-    default_options = {
-        "stage_name": None,
-        "pdb_filename": None,
-        "nproc": 6,
-        "mem": "8GB",
-        "net_charge": 0.0,
-        "theory": {"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"},
-        "atom_type": "gaff2",
-        "leaprc": ["leaprc.gaff2"],
-        "target_pdb": None,
-        "force_gaussian_rerun": False
-    }
+    #
+    # default_options = {
+    #     "stage_name": None,
+    #     "pdb_filename": None,
+    #     "nproc": 6,
+    #     "mem": "8GB",
+    #     "net_charge": 0.0,
+    #     "theory": {"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"},
+    #     "atom_type": "gaff2",
+    #     "leaprc": ["leaprc.gaff2"],
+    #     "target_pdb": None,
+    #     "force_gaussian_rerun": False
+    # }
 
     def __init__(self, stage_name: str, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         #TODO Fix: we assume that all stages deal with an input file, but don't read it yet. Make in_filename a kwarg.
@@ -37,8 +37,8 @@ class AbstractStage(metaclass=ABCMeta):
         self.cwd = Path(cwd)
         self.required = []
         self.logger = kwargs.get('logger', get_logger())
-        self.nproc = getattr(kwargs, 'nproc', 1)
-        self.mem = getattr(kwargs, 'mem', 512)
+        self.nproc = kwargs.get('nproc', 1)
+        self.mem = kwargs.get('mem', 512)
 
     @abstractmethod
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
@@ -115,33 +115,6 @@ class AbstractStage(metaclass=ABCMeta):
             self.outputs = []
         self.outputs.append(outputs)
         return
-
-    # def _parse_inputoptions(self, inputoptions=None, **kwargs):
-    #     """ Parse the input options.
-    #
-    #     Parameters
-    #     ----------
-    #     inputoptions : dict
-    #         A dictionary of input options.
-    #     **kwargs: dict
-    #         A dictionary of input options
-    #
-    #     """
-    #     for key, value in self.default_options.items():
-    #         setattr(self, key, value)
-    #     if inputoptions is not None:
-    #         for key in inputoptions:
-    #             if key not in self.default_options:
-    #                 raise KeyError(f"ERROR: {key} is not a valid input option.")
-    #         for key, value in inputoptions.items():
-    #             setattr(self, key, value)
-    #     for key, value in kwargs.items():
-    #         if key not in self.default_options:
-    #             raise KeyError(f"ERROR: {key} is not a valid input option.")
-    #         setattr(self, key, value)
-    #     self._generate_implied()
-    #     self._check_self()
-    #     return
 
     def _generate_implied(self):
         """ Generate the implied options. 

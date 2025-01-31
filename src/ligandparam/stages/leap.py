@@ -8,6 +8,7 @@ from ligandparam.stages.abstractstage import AbstractStage
 from ligandparam.io.leapIO import LeapWriter
 from ligandparam.interfaces import Leap
 from ligandparam.log import get_logger
+from ligandparam.utils import find_word_and_get_line
 
 
 class StageLeap(AbstractStage):
@@ -17,12 +18,11 @@ class StageLeap(AbstractStage):
         super().__init__(stage_name, in_filename, cwd, *args, **kwargs)
         self.in_mol2 = Path(in_filename)
         self.add_required(self.in_mol2)
-        self.in_frcmod = Path(in_filename)
+        self.in_frcmod = kwargs["in_frcmod"]
         self.add_required(self.in_frcmod)
-        self.out_lib = getattr(kwargs, "out_lib", Path(self.cwd, f"{self.in_frcmod.stem}.lib"))
+        self.out_lib = kwargs["out_lib"]
 
         self.leaprc = kwargs.get("leaprc", ["leaprc.gaff2"])
-
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """ Appends the stage. """
@@ -39,7 +39,8 @@ class StageLeap(AbstractStage):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             u = mda.Universe(self.in_mol2)
-        resname = u.residues.resnames[0]
+        # Used to be: `resname = u.residues.resnames[0]`, but sometimes the resname is just a number, tripping tleap
+        resname = "LIG"
         # Add the leap commands
         leapgen.add_line(f"loadamberparams {self.in_frcmod.name}")
         leapgen.add_line(f"{resname} = loadmol2 {self.in_mol2.name}")
@@ -47,9 +48,15 @@ class StageLeap(AbstractStage):
         leapgen.add_line("quit")
         # Write the leap input file
         leapgen.write(self.cwd / "tleap.param.in")
+        leap_log = Path(self.cwd, "leap.log")
+        leap_log.unlink(missing_ok=True)
         # Call the leap program
         leap = Leap(cwd=self.cwd, logger=self.logger)
         leap.call(f=self.cwd / "tleap.param.in", dry_run=dry_run)
+
+        if lines := find_word_and_get_line(leap_log, "Warning!"):
+            self.logger.warning(f"Warning! found in {Path}\n{lines}")
+
         return
 
     def _clean(self):
