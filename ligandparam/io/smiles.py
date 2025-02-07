@@ -84,7 +84,8 @@ class RenamePDBTypes:
         if len(self.mols) != 2:
             raise ValueError("ERROR: Only two molecules can be compared for reference.")
         st_comm, rf_comm = self.common_atoms()
-        available_names = set(self.mols[0].names()) | set(self.mols[1].names())
+        codes = [f"C{i}" for i in range(1, 41)]
+        available_names = set(self.mols[0].names()) | set(self.mols[1].names() | set(codes))
         new_names = np.zeros_like(self.mols[0].names())
         for i, j in zip(st_comm, rf_comm):
             new_names[i] = self.mols[1].names()[j]
