@@ -70,7 +70,7 @@ class RenamePDBTypes:
     def __init__(self, primary_pdb, resname):
         self.primary_pdb = primary_pdb
         self.mols = []
-        self.mols.append(MolFromPDB(primary_pdb))
+        self.mols.append(MolFromPDB(primary_pdb,removeHs=False))
         self.resname = resname
         return
     
