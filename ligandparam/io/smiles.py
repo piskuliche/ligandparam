@@ -87,6 +87,8 @@ class RenamePDBTypes:
         codes = [f"C{i}" for i in range(1, 41)]
         available_names = set(self.mols[0].names()) | set(self.mols[1].names()) | set(codes)
         new_names = np.zeros_like(self.mols[0].names())
+        print(self.mols[0].names()[st_comm])
+        print(self.mols[1].names()[rf_comm])
         for i, j in zip(st_comm, rf_comm):
             new_names[i] = self.mols[1].names()[j]
             available_names.remove(self.mols[1].names()[j])
