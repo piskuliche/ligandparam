@@ -33,7 +33,8 @@ class PDBFromSMILES:
         return 
     
 class MolFromPDB:
-    def __init__(self, pdb_filename):
+    def __init__(self, pdb_filename, removeHs=False):
+        self.remove_Hs = removeHs
         self.pdb_filename = pdb_filename
         self._rdkit_representation()
         self._mda_representation()
@@ -42,7 +43,7 @@ class MolFromPDB:
     
     def _rdkit_representation(self):
         """ Generate an RDKit molecule from a PDB file. """
-        self.rdkit_mol = rdkit.Chem.rdmolfiles.MolFromPDBFile(self.pdb_filename)
+        self.rdkit_mol = rdkit.Chem.rdmolfiles.MolFromPDBFile(self.pdb_filename, removeHs=self.remove_Hs)
         return
     
     def _mda_representation(self):
@@ -70,7 +71,7 @@ class RenamePDBTypes:
     def __init__(self, primary_pdb, resname):
         self.primary_pdb = primary_pdb
         self.mols = []
-        self.mols.append(MolFromPDB(primary_pdb))
+        self.mols.append(MolFromPDB(primary_pdb, removeHs=False))
         self.resname = resname
         return
     
