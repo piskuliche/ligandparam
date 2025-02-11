@@ -55,10 +55,10 @@ class StageLeap(AbstractStage):
         leap.call(f=self.cwd / "tleap.param.in", dry_run=dry_run)
 
         if lines := find_word_and_get_line(leap_log, "Warning!"):
-            self.logger.warning(f"Warning! found in {Path}\n{lines}")
+            self.logger.warning(f"Warning! found in {leap_log}\n{lines}")
 
         return
 
     def _clean(self):
-        """ Clean the files generated during the stage. """
+        """Clean the files generated during the stage."""
         raise NotImplementedError("clean method not implemented")
