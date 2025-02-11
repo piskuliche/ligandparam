@@ -21,3 +21,10 @@ dependencies = [
 ]
 urls = { "Homepage" = "https://github.com/piskulichz/ligandparam" }
 
+[tool.ruff]
+line-length = 120
+indent-width = 4
+
+[tool.ruff.format]
+skip-magic-trailing-comma = true
+
