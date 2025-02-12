@@ -76,6 +76,7 @@ class StageGaussian(AbstractStage):
                                     charge=self.base_cls.net_charge,
                                     header=stageheader))
         
+        print("TEST!!!!", self.base_cls.coord_object.get_elements())
         # Check if the path exists, and make if needed.
         if not os.path.exists(f'gaussianCalcs'):
             os.mkdir('gaussianCalcs')
