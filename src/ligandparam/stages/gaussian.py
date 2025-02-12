@@ -54,19 +54,21 @@ class StageGaussian(AbstractStage):
     def _validate_input_paths(self, **kwargs):
         for opt in ("gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
             try:
-                setattr(self, opt, Path(kwargs[opt]))
+                setattr(self, opt, kwargs.get(opt, ""))
             except KeyError:
                 raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
+        if self.gaussian_binary is None:
+            self.gaussian_binary = "g16"
 
-        if not self.gaussian_root.is_dir():
-            raise ValueError(f"ERROR: input gaussian root is not an existing directory: {self.gaussian_root}")
-        for dir in str(self.gauss_exedir).split(":"):
-            if not Path(dir).is_dir():
-                raise ValueError(f"ERROR: input gaussian executable directory is not an existing directory: {dir}")
-        if not self.gaussian_scratch.is_dir():
-            raise ValueError(f"ERROR: input gaussian scratch is not an existing directory: {self.gaussian_scratch}")
-        if not self.gaussian_binary.is_file():
-            raise ValueError(f"ERROR: input gaussian binary is not an existing file: {self.gaussian_binary}")
+        # if not self.gaussian_root.is_dir():
+        #     raise ValueError(f"ERROR: input gaussian root is not an existing directory: {self.gaussian_root}")
+        # for dir in str(self.gauss_exedir).split(":"):
+        #     if not Path(dir).is_dir():
+        #         raise ValueError(f"ERROR: input gaussian executable directory is not an existing directory: {dir}")
+        # if not self.gaussian_scratch.is_dir():
+        #     raise ValueError(f"ERROR: input gaussian scratch is not an existing directory: {self.gaussian_scratch}")
+        # if not self.gaussian_binary.is_file():
+        #     raise ValueError(f"ERROR: input gaussian binary is not an existing file: {self.gaussian_binary}")
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """Appends the stage.

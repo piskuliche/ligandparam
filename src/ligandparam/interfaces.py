@@ -8,8 +8,6 @@ from pathlib import Path
 from ligandparam.log import get_logger
 
 
-
-
 class SimpleInterface:
 
     @abstractmethod
@@ -128,7 +126,6 @@ class Gaussian(SimpleInterface):
         however, it works slightly differently than the other interfaces. The Gaussian
         interface for some reason isn't compatible with the subprocess.run() function
         so we instead write a bash script to call the program and then execute the script."""
-        
 
         dry_run = False
         if "dry_run" in kwargs:
@@ -155,12 +152,13 @@ class Gaussian(SimpleInterface):
             self.logger.info(f"Command: {bashcommand}")
         else:
             self.logger.info('\t' + bashcommand)
-            env = {
-                "g16root": self.gaussian_root,
-                "GAUSS_EXEDIR": self.gauss_exedir,
-                "GAUSS_SCRDIR": self.gaussian_scratch,
-                **os.environ
-            }
+
+            # Set the Gaussian environment variables if they weren't already set
+            env = os.environ
+            env.setdefault("g16root", str(self.gaussian_root))
+            env.setdefault("GAUSS_EXEDIR", str(self.gauss_exedir))
+            env.setdefault("GAUSS_SCRDIR", str(self.gaussian_scratch))
+
             p = subprocess.run(bashcommand, shell=shell, cwd=self.cwd, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, env=env)
             if p.returncode != 0:

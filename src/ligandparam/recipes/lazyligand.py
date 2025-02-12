@@ -26,8 +26,7 @@ class LazyLigand(Recipe):
         super().__init__(in_filename, cwd, *args, **kwargs)
 
         # required options
-        for opt in (
-            "net_charge", "nproc", "mem", "gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
+        for opt in ("net_charge", "nproc", "mem"):
             try:
                 setattr(self, opt, kwargs[opt])
                 del kwargs[opt]
@@ -36,12 +35,17 @@ class LazyLigand(Recipe):
         # required options with defaults
         # TODO: defaults should be a global singleton dict
         for opt, default_val in zip(("theory", "leaprc", "force_gaussian_rerun"),
-                                ({"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"}, ["leaprc.gaff2"], False)):
+                                    ({"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"}, ["leaprc.gaff2"], False)):
             try:
                 setattr(self, opt, kwargs[opt])
                 del kwargs[opt]
             except KeyError:
                 setattr(self, opt, default_val)
+
+        # optional options, without defaults
+        for opt in ("gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
+            setattr(self, opt, kwargs.pop(opt, None))
+
         self.kwargs = kwargs
 
     def setup(self):
