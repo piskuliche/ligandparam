@@ -16,8 +16,6 @@ class StageLeap(AbstractStage):
         self.in_frcmod = kwargs["in_frcmod"]
         self.add_required(self.in_frcmod)
         self.out_lib = Path(kwargs["out_lib"])
-        # Write a PDB as well
-        self.out_pdb = Path(self.out_lib.parent, f"parametrized_{self.out_lib.stem}.pdb")
 
         self.leaprc = kwargs.get("leaprc", ["leaprc.gaff2"])
 
@@ -32,6 +30,11 @@ class StageLeap(AbstractStage):
         # Add the leaprc files
         for rc in self.leaprc:
             leapgen.add_leaprc(rc)
+
+        # Try not to overwrite an existing pdb file
+        self.out_pdb = Path(self.out_lib.parent, f"{self.out_lib.stem}.pdb")
+        if self.out_pdb.is_file():
+            self.out_pdb = Path(self.out_lib.parent, f"tleap_{self.out_lib.stem}.pdb")
 
         # resname might become user settable later
         resname = "LIG"
