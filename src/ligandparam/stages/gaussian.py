@@ -35,7 +35,7 @@ class StageGaussian(AbstractStage):
 
     def __init__(self, stage_name: str, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, in_filename, cwd, *args, **kwargs)
-        self.in_pdb = Path(in_filename)
+        self.in_mol2 = Path(in_filename)
         self.out_gaussian_log = Path(kwargs["out_gaussian_log"])
 
         self._validate_input_paths(**kwargs)
@@ -51,15 +51,6 @@ class StageGaussian(AbstractStage):
         # No required files for this stage to execute.
         return
 
-    def _validate_input_paths(self, **kwargs):
-        for opt in ("gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
-            try:
-                setattr(self, opt, kwargs.get(opt, ""))
-            except KeyError:
-                raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
-        if self.gaussian_binary is None:
-            self.gaussian_binary = "g16"
-
         # if not self.gaussian_root.is_dir():
         #     raise ValueError(f"ERROR: input gaussian root is not an existing directory: {self.gaussian_root}")
         # for dir in str(self.gauss_exedir).split(":"):
@@ -69,6 +60,15 @@ class StageGaussian(AbstractStage):
         #     raise ValueError(f"ERROR: input gaussian scratch is not an existing directory: {self.gaussian_scratch}")
         # if not self.gaussian_binary.is_file():
         #     raise ValueError(f"ERROR: input gaussian binary is not an existing file: {self.gaussian_binary}")
+
+    def _validate_input_paths(self, **kwargs):
+        for opt in ("gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
+            try:
+                setattr(self, opt, kwargs.get(opt, ""))
+            except KeyError:
+                raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
+        if self.gaussian_binary is None:
+            self.gaussian_binary = "g16"
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """Appends the stage.
@@ -96,7 +96,7 @@ class StageGaussian(AbstractStage):
         """
         stageheader = self.header
 
-        stageheader.append(f"%chk={self.in_pdb.stem}.antechamber.chk")
+        stageheader.append(f"%chk={self.in_mol2.stem}.antechamber.chk")
 
         # Set up the Gaussian Block - it does not yet write anything,
         # so this part can be set up before the Gaussian calculations are run.
@@ -136,7 +136,7 @@ class StageGaussian(AbstractStage):
             gau_run = Gaussian(cwd=self.gaussian_cwd, logger=self.logger, gaussian_root=self.gaussian_root,
                                gauss_exedir=self.gauss_exedir,
                                gaussian_binary=self.gaussian_binary, gaussian_scratch=self.gaussian_scratch)
-            gau_run.call(inp_pipe=self.in_pdb.stem + '.com',
+            gau_run.call(inp_pipe=self.in_mol2.stem + '.com',
                          out_pipe=self.out_log.name,
                          dry_run=dry_run)
 
@@ -152,8 +152,7 @@ class StageGaussian(AbstractStage):
 
 class StageGaussianRotation(AbstractStage):
 
-    def __init__(self, stage_name, in_filename, cwd, alpha=[0.0], beta=[0.0], gamma=[0.0], inputoptions=None, *args,
-                 **kwargs) -> None:
+    def __init__(self, stage_name: str, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         """ This is class to rotate the ligand and run Gaussian calculations of the resp charges
         for each rotated ligand. 
         
@@ -174,15 +173,36 @@ class StageGaussianRotation(AbstractStage):
         super().__init__(stage_name, in_filename, cwd, *args, **kwargs)
         self.in_mol2 = Path(in_filename)
         self.out_gaussian_log = Path(kwargs["out_gaussian_log"])
-        self._parse_inputoptions(inputoptions)
 
-        self.alpha = [float(a) for a in alpha]
-        self.beta = [float(b) for b in beta]
-        self.gamma = [float(g) for g in gamma]
+        self._validate_input_paths(**kwargs)
+        self.theory = kwargs.get("theory", {"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"})
+        self.net_charge = kwargs.get("net_charge", 0.0)
+        self.force_gaussian_rerun = kwargs.get("force_gaussian_rerun", False)
+        self.gaussian_cwd = Path(self.cwd, "gaussianCalcs")
+        self.out_log = self.gaussian_cwd / f"{self.out_gaussian_log.stem}.log"
+        self._add_outputs(self.out_log)
+
+        self.header = [f"%NPROC={self.nproc}', f'%MEM={self.mem}MB"]
+
+        if "alpha" not in kwargs or "beta" not in kwargs or "gamma" not in kwargs:
+            raise ValueError("Please provide the alpha, beta, and gamma angles as lists")
+
+        self.alpha = [float(a) for a in kwargs["alpha"]]
+        self.beta = [float(b) for b in kwargs["beta"]]
+        self.gamma = [float(g) for g in kwargs["gamma"]]
 
         self.header = [f"%NPROC={self.nproc}', f'%MEM={self.mem}MB"]
 
         return
+
+    def _validate_input_paths(self, **kwargs):
+        for opt in ("gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
+            try:
+                setattr(self, opt, kwargs.get(opt, ""))
+            except KeyError:
+                raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
+        if self.gaussian_binary is None:
+            self.gaussian_binary = "g16"
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """ Append the stage to the current stage. 
@@ -295,27 +315,26 @@ class StageGaussianRotation(AbstractStage):
 
 
 class StageGaussiantoMol2(AbstractStage):
+    """ Convert Gaussian output to mol2 format.
+
+    This class converts the Gaussian output to mol2 format, and assigns the charges to the mol2 file.
+
+    Parameters
+    ----------
+    name : str
+        The name of the stage
+    inputoptions : dict
+        The input options for the stage
+    dry_run : bool, optional
+        If True, the stage will not be executed, but the function will print the commands that would
+
+    Returns
+    -------
+    None
+    """
+
 
     def __init__(self, stage_name: str, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
-        """ Convert Gaussian output to mol2 format. 
-    
-        This class converts the Gaussian output to mol2 format, and assigns the charges to the mol2 file.
-        
-        Parameters
-        ----------
-        name : str
-            The name of the stage
-        inputoptions : dict
-            The input options for the stage
-        dry_run : bool, optional
-            If True, the stage will not be executed, but the function will print the commands that would
-        
-        Returns
-        -------
-        None
-        
-        """
-
         super().__init__(stage_name, in_filename, cwd, *args, **kwargs)
         self.in_log = Path(in_filename)
         self.in_mol2 = Path(kwargs["in_mol2"])
@@ -323,15 +342,33 @@ class StageGaussiantoMol2(AbstractStage):
         self.temp1_mol2 = Path(self.cwd, f"{self.out_mol2.stem}.tmp1.mol2")
         self.temp2_mol2 = Path(self.cwd, f"{self.out_mol2.stem}.tmp2.mol2")
 
-        self._parse_inputoptions(kwargs)
-        self.dry_run = kwargs.get("dry_run", False)
+        self._validate_input_paths(**kwargs)
+        self.theory = kwargs.get("theory", {"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"})
+        self.net_charge = kwargs.get("net_charge", 0.0)
+        self.force_gaussian_rerun = kwargs.get("force_gaussian_rerun", False)
+        self.gaussian_cwd = Path(self.cwd, "gaussianCalcs")
+        self.out_log = self.gaussian_cwd / f"{self.out_gaussian_log.stem}.log"
+        self._add_outputs(self.out_log)
+
         self.add_required(self.in_log)
 
-        self.header = [f"%NPROC={getattr(kwargs, 'nproc', 12)}', f'%MEM={getattr(kwargs, 'mem', 48)}GB"]
+        self.header = [f"%NPROC={self.nproc}', f'%MEM={self.mem}MB"]
+
+
+    def _validate_input_paths(self, **kwargs) -> None:
+        for opt in ("gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
+            try:
+                setattr(self, opt, kwargs.get(opt, ""))
+            except KeyError:
+                raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
+        if self.gaussian_binary is None:
+            self.gaussian_binary = "g16"
+
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """ Append the stage to the current stage. """
         return stage
+
 
     def _execute(self, dry_run=False):
         """ Execute the Gaussian to mol2 conversion.
@@ -340,7 +377,7 @@ class StageGaussiantoMol2(AbstractStage):
         ----------
         dry_run : bool, optional
             If True, the stage will not be executed, but the function will print the commands that would
-        
+
         Returns
         -------
         None
@@ -363,7 +400,7 @@ class StageGaussiantoMol2(AbstractStage):
                   gn=f"%nproc={self.nproc}", gm=f"%mem={self.mem}MB",
                   dry_run=dry_run)
 
-        # Assign the charges 
+        # Assign the charges
         if not dry_run:
             u1 = mda.Universe(self.in_mol2)
             u2 = mda.Universe(self.temp1_mol2)
@@ -389,21 +426,23 @@ class StageGaussiantoMol2(AbstractStage):
 
         return
 
+
     def _clean(self):
         return
 
+
     def remove_blank_lines(self, file_path):
         """ Remove blank lines from a file.
-        
+
         Parameters
         ----------
         file_path : str
             The path to the file to remove blank lines from
-        
+
         Returns
         -------
         None
-        
+
         """
         if Path(file_path).exists():
             # Read the file and filter out blank lines

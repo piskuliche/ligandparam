@@ -9,6 +9,7 @@ import warnings
 
 class AbstractStage(metaclass=ABCMeta):
     """ This is an abstract class for all the stages. """
+
     #
     # default_options = {
     #     "stage_name": None,
@@ -24,7 +25,7 @@ class AbstractStage(metaclass=ABCMeta):
     # }
 
     def __init__(self, stage_name: str, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
-        #TODO Fix: we assume that all stages deal with an input file, but don't read it yet. Make in_filename a kwarg.
+        # TODO Fix: we assume that all stages deal with an input file, but don't read it yet. Make in_filename a kwarg.
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")

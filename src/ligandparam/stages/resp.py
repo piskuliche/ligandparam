@@ -70,9 +70,8 @@ class StageMultiRespFit(AbstractStage):
 
     def __init__(self, stage_name: str, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, in_filename, cwd, *args, **kwargs)
-        # in_gaussian_log could be any log file? This is where the assumption of each stage taking a filename breaks down.
-        # This should only take a working dir.
-        self.in_gaussian_log = Path(in_filename)
+        # self.in_gaussian_log = Path(in_filename)
+        self.in_gaussian_dir = Path(in_filename)
         # self.add_required(self.in_gaussian_log)
         self.out_mol2 = Path(kwargs["out_mol2"])
         self.add_required(self.out_mol2)

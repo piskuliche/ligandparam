@@ -1,5 +1,11 @@
+from pathlib import Path
+from typing import Union
+
+from typing_extensions import override
+
 from ligandparam.parametrization import Recipe
 from ligandparam.stages import *
+
 
 class FreeLigand(Recipe):
     """ This is a class for parametrizing a ligand that is free in solution.
@@ -24,42 +30,93 @@ class FreeLigand(Recipe):
     11. Generate the lib file with leap.
 
     """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        return
+
+    @override
+    def __init__(self, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs):
+        super().__init__(in_filename, cwd, *args, **kwargs)
+
+        # required options
+        for opt in ("net_charge", "nproc", "mem"):
+            try:
+                setattr(self, opt, kwargs[opt])
+                del kwargs[opt]
+            except KeyError:
+                raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
+        # required options with defaults
+        # TODO: defaults should be a global singleton dict
+        for opt, default_val in zip(("theory", "leaprc", "force_gaussian_rerun"),
+                                    ({"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"}, ["leaprc.gaff2"], False)):
+            try:
+                setattr(self, opt, kwargs[opt])
+                del kwargs[opt]
+            except KeyError:
+                setattr(self, opt, default_val)
+
+        # optional options, without defaults
+        for opt in ("gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
+            setattr(self, opt, kwargs.pop(opt, None))
+
+        self.kwargs = kwargs
+
     def setup(self):
         self.stages = [
-            StageInitialize("Initialize", inputoptions=self.inputoptions),
-            StageNormalizeCharge("Normalize1", inputoptions=self.inputoptions, 
-                                in_mol2=self.name+".antechamber.mol2", 
-                                out_mol2=self.name+".antechamber.mol2"),
-            StageGaussian("Minimize", inputoptions=self.inputoptions),
-            StageGaussianRotation("Rotate", inputoptions=self.inputoptions,
-                                  alpha=[0, 30, 60, 90, 120, 150, 180],
-                                  beta=[0, 30, 60, 90],
-                                  gamma=[0]),
-            StageGaussiantoMol2("GrabGaussianCharge", inputoptions=self.inputoptions),
-            StageMultiRespFit("MultiRespFit", inputoptions=self.inputoptions),
-            StageUpdateCharge("UpdateCharge", inputoptions=self.inputoptions,
-                              in_mol2=self.name+".antechamber.mol2",
-                              out_mol2=self.name+".resp.mol2",
-                              charge_source="multistate"),
-            StageNormalizeCharge("Normalize2", inputoptions=self.inputoptions, 
-                                in_mol2=self.name+".resp.mol2", 
-                                out_mol2=self.name+".resp.mol2"),
-            StageUpdate("UpdateNames", inputoptions=self.inputoptions,
-                                in_mol2=self.name+'.antechamber.mol2',
-                                to_update=self.name+'.resp.mol2',
-                                out_mol2=self.name+'.resp.mol2', 
-                                update_names=True, 
-                                update_types=False,
-                                update_resname=True),
-            StageUpdate("UpdateTypes", inputoptions=self.inputoptions,
-                                in_mol2=self.name+'.log.mol2',
-                                to_update=self.name+'.resp.mol2',
-                                out_mol2=self.name+'.resp.mol2', 
-                                update_names=False, 
-                                update_types=True),
-            StageParmChk("ParmChk", inputoptions=self.inputoptions),
-            StageLeap("Leap", inputoptions=self.inputoptions)
+            StageInitialize("Initialize", in_filename=self.in_filename, cwd=self.cwd,
+                            out_mol2=self.cwd / f"{self.label}.antechamber.mol2", **self.kwargs),
+            StageNormalizeCharge("Normalize1", cwd=self.cwd, net_charge=self.net_charge, **self.kwargs,
+                                 in_filename=self.cwd / f"{self.label}.antechamber.mol2",
+                                 out_mol2=self.cwd / f"{self.label}.antechamber.mol2"),
+            StageGaussian("Minimize", cwd=self.cwd, nproc=self.nproc, mem=self.mem,
+                          gaussian_root=self.gaussian_root, gauss_exedir=self.gauss_exedir,
+                          gaussian_binary=self.gaussian_binary, gaussian_scratch=self.gaussian_scratch,
+                          net_charge=self.net_charge, theory=self.theory,
+                          force_gaussian_rerun=self.force_gaussian_rerun,
+                          in_filename=self.cwd / f"{self.label}.antechamber.mol2",
+                          out_gaussian_log=self.cwd / f"{self.label}.log", **self.kwargs),
+
+            StageGaussianRotation("Rotate",
+                                  cwd=self.cwd, nproc=self.nproc, mem=self.mem,
+                                  gaussian_root=self.gaussian_root, gauss_exedir=self.gauss_exedir,
+                                  gaussian_binary=self.gaussian_binary, gaussian_scratch=self.gaussian_scratch,
+                                  net_charge=self.net_charge, theory=self.theory,
+                                  force_gaussian_rerun=self.force_gaussian_rerun,
+                                  in_filename=self.in_filename,
+                                  out_gaussian_log=self.cwd / f"{self.label}.log",
+                                  alpha=[0, 30, 60, 90, 120, 150, 180], beta=[0, 30, 60, 90], gamma=[0],
+                                  **self.kwargs),
+            # StageGaussiantoMol2("GrabGaussianCharge", cwd=self.cwd, nproc=self.nproc, mem=self.mem,
+            #                     gaussian_root=self.gaussian_root, gauss_exedir=self.gauss_exedir,
+            #                     gaussian_binary=self.gaussian_binary, gaussian_scratch=self.gaussian_scratch,
+            #                     net_charge=self.net_charge, theory=self.theory,
+            #                     force_gaussian_rerun=self.force_gaussian_rerun,
+            #                     in_filename=self.cwd / f"{self.label}.log",
+            #                     in_mol2=self.cwd / f"{self.label}.antechamber.mol2",
+            #                     out_mol2=self.cwd / f"{self.label}.gaussian.mol2", **self.kwargs),
+            # StageMultiRespFit("MultiRespFit", inputoptions=self.inputoptions),
+            #
+            # StageUpdateCharge("UpdateCharge", inputoptions=self.inputoptions,
+            #                   in_mol2=self.name + ".antechamber.mol2",
+            #                   out_mol2=self.name + ".resp.mol2",
+            #                   charge_source="multistate"),
+            # StageNormalizeCharge("Normalize2", cwd=self.cwd, net_charge=self.net_charge,
+            #                      in_filename=self.cwd / f"{self.label}.resp.mol2",
+            #                      out_mol2=self.cwd / f"{self.label}.resp.mol2", **self.kwargs),
+            # StageUpdate("UpdateNames", cwd=self.cwd,
+            #             in_filename=self.cwd / f"{self.label}.antechamber.mol2",
+            #             to_update=self.cwd / f"{self.label}.resp.mol2",
+            #             out_mol2=self.cwd / f"{self.label}.resp.mol2",
+            #             update_names=True,
+            #             update_types=False,
+            #             update_resname=True, **self.kwargs),
+            # StageUpdate("UpdateNames", cwd=self.cwd,
+            #             in_filename=self.cwd / f"{self.label}.antechamber.mol2",
+            #             to_update=self.cwd / f"{self.label}.resp.mol2",
+            #             out_mol2=self.cwd / f"{self.label}.resp.mol2",
+            #             update_names=False,
+            #             update_types=True,
+            #             **self.kwargs),
+            # StageParmChk("ParmChk", in_filename=self.cwd / f"{self.label}.resp.mol2",
+            #              out_frcmod=self.cwd / f"{self.label}.frcmod", cwd=self.cwd, **self.kwargs),
+            # StageLeap("Leap", in_filename=self.cwd / f"{self.label}.resp.mol2",
+            #           in_frcmod=self.cwd / f"{self.label}.frcmod", out_lib=self.cwd / f"{self.label}.lib",
+            #           cwd=self.cwd, **self.kwargs)
         ]
