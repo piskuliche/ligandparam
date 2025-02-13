@@ -42,7 +42,7 @@ class MolFromPDB:
     
     def _rdkit_representation(self):
         """ Generate an RDKit molecule from a PDB file. """
-        self.rdkit_mol = rdkit.Chem.rdmolfiles.MolFromPDBFile(self.pdb_filename)
+        self.rdkit_mol = rdkit.Chem.rdmolfiles.MolFromPDBFile(self.pdb_filename, removeHs=False)
         return
     
     def _mda_representation(self):
