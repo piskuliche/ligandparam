@@ -113,7 +113,7 @@ class Gaussian(SimpleInterface):
             raise ValueError(f"ERROR: missing `cwd` arg with a path to the workdir.")
         for opt in ("gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
             try:
-                setattr(self, opt, kwargs[opt])
+                setattr(self, opt, kwargs.get(opt, ""))
             except KeyError:
                 raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
 
@@ -162,9 +162,9 @@ class Gaussian(SimpleInterface):
             p = subprocess.run(bashcommand, shell=shell, cwd=self.cwd, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, env=env)
             if p.returncode != 0:
-                logging.error(f"Gaussian run at {self.cwd} failed.")
-                logging.error(p.stdout)
-                logging.error(p.stderr)
+                self.logger.error(f"Gaussian run at {self.cwd} failed.")
+                self.logger.error(p.stdout)
+                self.logger.error(p.stderr)
                 raise RuntimeError
 
         return

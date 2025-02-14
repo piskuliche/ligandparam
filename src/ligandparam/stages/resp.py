@@ -70,11 +70,11 @@ class StageMultiRespFit(AbstractStage):
 
     def __init__(self, stage_name: str, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, in_filename, cwd, *args, **kwargs)
-        # self.in_gaussian_log = Path(in_filename)
-        self.in_gaussian_dir = Path(in_filename)
+        self.in_gaussian_label = kwargs["in_gaussian_label"]
+        self.in_mol2 = Path(in_filename)
+        self.in_gaussian_dir = Path(cwd)
+        self.glob_str = str(self.in_gaussian_dir/f"*{self.in_gaussian_label}_*.log")
         # self.add_required(self.in_gaussian_log)
-        self.out_mol2 = Path(kwargs["out_mol2"])
-        self.add_required(self.out_mol2)
         self.out_respfit = Path(kwargs["out_respfit"])
 
         self.net_charge = getattr(kwargs, "net_charge", 0.0)
@@ -108,8 +108,7 @@ class StageMultiRespFit(AbstractStage):
         """
         comp = parmhelper.BASH(12)
         model = ResidueResp(comp, 1)
-        gaussian_out_files = Path(self.cwd, f"{self.in_gaussian_log.stem}_*.log")
-        model.add_state(self.out_mol2.name, self.gauss_logmol2_fname, glob.glob(gaussian_out_files), qmmask="@*")
+        model.add_state(self.in_gaussian_label, str(self.in_mol2), glob.glob(self.glob_str), qmmask="@*")
         model.multimolecule_fit(True)
         model.perform_fit("@*", unique_residues=False)
         with open(self.out_respfit, "w") as f:

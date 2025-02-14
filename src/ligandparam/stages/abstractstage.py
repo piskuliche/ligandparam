@@ -40,6 +40,7 @@ class AbstractStage(metaclass=ABCMeta):
         self.logger = kwargs.get('logger', get_logger())
         self.nproc = kwargs.get('nproc', 1)
         self.mem = kwargs.get('mem', 512)
+        self.dry_run = kwargs.get('dry_run', False)
 
     @abstractmethod
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":

@@ -59,39 +59,44 @@ class FreeLigand(Recipe):
         self.kwargs = kwargs
 
     def setup(self):
+        initial_mol2 = self.cwd / f"{self.label}.antechamber.mol2"
+        minimization_gaussian_log = self.cwd / f"{self.label}.minimization.log"
+        minimized_mol2 = self.cwd / f"{self.label}.minimized.mol2"
+        rotation_label = f"{self.label}.rotation"
+        rotated_mol2 = self.cwd / f"{self.label}.rotated.mol2"
+        out_respfit = self.cwd / f"{self.label}.respfit"
+
         self.stages = [
             StageInitialize("Initialize", in_filename=self.in_filename, cwd=self.cwd,
-                            out_mol2=self.cwd / f"{self.label}.antechamber.mol2", **self.kwargs),
+                            out_mol2=initial_mol2, **self.kwargs),
             StageNormalizeCharge("Normalize1", cwd=self.cwd, net_charge=self.net_charge, **self.kwargs,
-                                 in_filename=self.cwd / f"{self.label}.antechamber.mol2",
-                                 out_mol2=self.cwd / f"{self.label}.antechamber.mol2"),
+                                 in_filename=initial_mol2, out_mol2=initial_mol2),
             StageGaussian("Minimize", cwd=self.cwd, nproc=self.nproc, mem=self.mem,
                           gaussian_root=self.gaussian_root, gauss_exedir=self.gauss_exedir,
                           gaussian_binary=self.gaussian_binary, gaussian_scratch=self.gaussian_scratch,
                           net_charge=self.net_charge, theory=self.theory,
                           force_gaussian_rerun=self.force_gaussian_rerun,
-                          in_filename=self.cwd / f"{self.label}.antechamber.mol2",
-                          out_gaussian_log=self.cwd / f"{self.label}.log", **self.kwargs),
-
+                          in_filename=initial_mol2, out_gaussian_log=minimization_gaussian_log, **self.kwargs),
+            StageGaussiantoMol2("GrabGaussianCharge", cwd=self.cwd, nproc=self.nproc, mem=self.mem,
+                                gaussian_root=self.gaussian_root, gauss_exedir=self.gauss_exedir,
+                                gaussian_binary=self.gaussian_binary, gaussian_scratch=self.gaussian_scratch,
+                                net_charge=self.net_charge, theory=self.theory,
+                                force_gaussian_rerun=self.force_gaussian_rerun,
+                                in_filename=minimization_gaussian_log, template_mol2=initial_mol2,
+                                out_mol2=minimized_mol2, **self.kwargs),
             StageGaussianRotation("Rotate",
                                   cwd=self.cwd, nproc=self.nproc, mem=self.mem,
                                   gaussian_root=self.gaussian_root, gauss_exedir=self.gauss_exedir,
                                   gaussian_binary=self.gaussian_binary, gaussian_scratch=self.gaussian_scratch,
                                   net_charge=self.net_charge, theory=self.theory,
                                   force_gaussian_rerun=self.force_gaussian_rerun,
-                                  in_filename=self.in_filename,
-                                  out_gaussian_log=self.cwd / f"{self.label}.log",
+                                  in_filename=minimized_mol2, out_gaussian_label=rotation_label,
                                   alpha=[0, 30, 60, 90, 120, 150, 180], beta=[0, 30, 60, 90], gamma=[0],
                                   **self.kwargs),
-            # StageGaussiantoMol2("GrabGaussianCharge", cwd=self.cwd, nproc=self.nproc, mem=self.mem,
-            #                     gaussian_root=self.gaussian_root, gauss_exedir=self.gauss_exedir,
-            #                     gaussian_binary=self.gaussian_binary, gaussian_scratch=self.gaussian_scratch,
-            #                     net_charge=self.net_charge, theory=self.theory,
-            #                     force_gaussian_rerun=self.force_gaussian_rerun,
-            #                     in_filename=self.cwd / f"{self.label}.log",
-            #                     in_mol2=self.cwd / f"{self.label}.antechamber.mol2",
-            #                     out_mol2=self.cwd / f"{self.label}.gaussian.mol2", **self.kwargs),
-            # StageMultiRespFit("MultiRespFit", inputoptions=self.inputoptions),
+            # We know that the gaussian stages work in a "gaussianCalcs" directory. Quite hacky.
+            StageMultiRespFit("MultiRespFit", in_filename=minimized_mol2,
+                              in_gaussian_label=rotation_label,
+                              cwd=self.cwd / "gaussianCalcs", out_respfit=out_respfit),
             #
             # StageUpdateCharge("UpdateCharge", inputoptions=self.inputoptions,
             #                   in_mol2=self.name + ".antechamber.mol2",
