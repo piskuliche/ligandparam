@@ -8,7 +8,7 @@ import warnings
 
 
 class AbstractStage(metaclass=ABCMeta):
-    """ This is an abstract class for all the stages. """
+    """This is an abstract class for all the stages."""
 
     #
     # default_options = {
@@ -29,18 +29,18 @@ class AbstractStage(metaclass=ABCMeta):
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                self.coord_object = Coordinates(in_filename, filetype='pdb')
-        except Exception as e:
+                self.coord_object = Coordinates(in_filename, filetype="pdb")
+        except Exception:
             # TODO: Fix Not a pdb, no problem. This shouldn't be in this class.
             pass
 
         self.stage_name = stage_name
         self.cwd = Path(cwd)
         self.required = []
-        self.logger = kwargs.get('logger', get_logger())
-        self.nproc = kwargs.get('nproc', 1)
-        self.mem = kwargs.get('mem', 512)
-        self.dry_run = kwargs.get('dry_run', False)
+        self.logger = kwargs.get("logger", get_logger())
+        self.nproc = kwargs.get("nproc", 1)
+        self.mem = kwargs.get("mem", 512)
+        self.dry_run = kwargs.get("dry_run", False)
 
     @abstractmethod
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
@@ -76,19 +76,19 @@ class AbstractStage(metaclass=ABCMeta):
         return
 
     def list_files_in_directory(self, directory):
-        """ List all the files in a directory. 
-        
+        """List all the files in a directory.
+
         Parameters
         ----------
         directory : str
             The directory to list the files from.
-            
+
         """
         return [f.name for f in Path(directory).iterdir() if f.is_file()]
 
     def add_required(self, filename: Union[Path, str]):
-        """ Add a required file to the stage. 
-        
+        """Add a required file to the stage.
+
         Parameters
         ----------
         filename : str
@@ -99,30 +99,30 @@ class AbstractStage(metaclass=ABCMeta):
         return
 
     def _check_required(self):
-        """ Check if the required files are present. """
+        """Check if the required files are present."""
         for fname in self.required:
             if not Path(fname).exists():
                 raise FileNotFoundError(f"ERROR: File {fname} not found.")
         return
 
     def _add_outputs(self, outputs):
-        """ Add the outputs to the stage. 
-        
+        """Add the outputs to the stage.
+
         Parameters
         ----------
         outputs : str
             The output file to add to the stage.
         """
-        if not hasattr(self, 'outputs'):
+        if not hasattr(self, "outputs"):
             self.outputs = []
         self.outputs.append(outputs)
         return
 
     def _generate_implied(self):
-        """ Generate the implied options. 
-        
+        """Generate the implied options.
+
         This function generates the implied options, such as the name from the pdb_filename.
-        
+
         """
 
         return
