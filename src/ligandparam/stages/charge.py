@@ -9,20 +9,20 @@ import MDAnalysis as mda
 from ligandparam.stages.abstractstage import AbstractStage
 from ligandparam.interfaces import Antechamber
 from ligandparam.io.coordinates import Mol2Writer
-from ligandparam.log import get_logger
 
 
 class StageUpdateCharge(AbstractStage):
-    """ This class creates a new mol2 file with updated charges. """
+    """This class creates a new mol2 file with updated charges."""
 
     @override
     def __init__(self, stage_name: str, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, in_filename, cwd, *args, **kwargs)
-        # self.in_mol2 = Path(in_filename)
-        self.charge_source = Path(in_filename)
-        self.charge_column = kwargs.get("charge_column", 5)
+        self.in_mol2 = Path(in_filename)
+        self.charge_source = kwargs["charge_source"]
+        self.charge_column = kwargs.get("charge_column", 3)
         self.out_mol2 = Path(kwargs["out_mol2"])
-        self.tmp_mol2 = self.cwd / f"{self.in_mol2.stem}_tmp_update.mol2"
+        self.tmp_mol2 = self.cwd / f"{self.out_mol2.stem}_tmp_update.mol2" # tmpresp
+        self.atom_type = kwargs.get("atom_type", "gaff2")
 
         self.add_required(Path(self.in_mol2))
         self.add_required(Path(self.charge_source))
@@ -33,17 +33,16 @@ class StageUpdateCharge(AbstractStage):
         return stage
 
     def _execute(self, dry_run=False):
-
         # Supress the inevitable mol2 file warnings.
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             if Path(self.charge_source).exists():
-                charges = np.genfromtxt(self.charge_source, usecols=(self.charge_column), unpack=True)
+                charges = np.genfromtxt(self.charge_source, usecols=self.charge_column, unpack=True)
             else:
                 raise FileNotFoundError(f"File {self.charge_source} not found.")
 
             if not dry_run:
-                u = mda.Universe(self.in_mol2, format='mol2')
+                u = mda.Universe(self.in_mol2, format="mol2")
                 if len(charges) != len(u.atoms):
                     raise ValueError("Error: Number of charges does not match the number of atoms.")
                 u.atoms.charges = charges
@@ -51,10 +50,17 @@ class StageUpdateCharge(AbstractStage):
                 Mol2Writer(u, self.tmp_mol2, selection="all").write()
 
             ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
-            ante.call(i=self.tmp_mol2 + ".tmpresp.mol2", fi='mol2',
-                      o=self.out_mol2, fo='mol2', pf='y', at=self.atom_type,
-                      gn=f"%nproc={self.nproc}", gm=f"%mem={self.mem}MB",
-                      dry_run=dry_run)
+            ante.call(
+                i=self.tmp_mol2,
+                fi="mol2",
+                o=self.out_mol2,
+                fo="mol2",
+                pf="y",
+                at=self.atom_type,
+                gn=f"%nproc={self.nproc}",
+                gm=f"%mem={self.mem}MB",
+                dry_run=dry_run,
+            )
 
         return
 
@@ -63,8 +69,8 @@ class StageUpdateCharge(AbstractStage):
 
 
 class StageNormalizeCharge(AbstractStage):
-    """ This class normalizes the charges to the net charge. 
-    
+    """This class normalizes the charges to the net charge.
+
     This class works by calculating the charge difference, and then normalizing the charges
     based on the overall precision that you select, by adjusting each atom charge by the precision
     until the charge difference is zero."""
@@ -89,13 +95,13 @@ class StageNormalizeCharge(AbstractStage):
         return stage
 
     def _execute(self, dry_run=False):
-        """ Execute the stage. 
+        """Execute the stage.
 
         Raises
         ------
         ValueError
             If the charge normalization fails
-        
+
         TODO: Check what happens when netcharge is nonzero
         TODO: Check what happens when charge difference is larger than the number of atoms
 
@@ -106,7 +112,7 @@ class StageNormalizeCharge(AbstractStage):
             self.logger.debug(f"Normalizing charges to {self.net_charge}")
             self.logger.debug(f"Precision {self.precision} with {self.decimals} decimals")
 
-            u = mda.Universe(self.in_mol2, format='mol2')
+            u = mda.Universe(self.in_mol2, format="mol2")
             total_charge, charge_difference = self.check_charge(u.atoms.charges)
 
             if charge_difference != 0.0:
@@ -124,25 +130,31 @@ class StageNormalizeCharge(AbstractStage):
                 Mol2Writer(u, self.tmp_mol2, selection="all").write()
 
                 ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
-                ante.call(i=self.tmp_mol2, fi='mol2',
-                          o=self.out_mol2, fo='mol2',
-                          pf='y', at=self.atom_type,
-                          gn=f"%nproc={self.nproc}", gm=f"%mem={self.mem}MB",
-                          dry_run=dry_run)
+                ante.call(
+                    i=self.tmp_mol2,
+                    fi="mol2",
+                    o=self.out_mol2,
+                    fo="mol2",
+                    pf="y",
+                    at=self.atom_type,
+                    gn=f"%nproc={self.nproc}",
+                    gm=f"%mem={self.mem}MB",
+                    dry_run=dry_run,
+                )
 
     def _clean(self):
         raise NotImplementedError("clean method not implemented")
 
     def normalize(self, charges, charge_difference):
-        """ This function normalizes the charges to the net charge. 
-        
+        """This function normalizes the charges to the net charge.
+
         Parameters
         ----------
         charges : np.array
             The charges
         charge_difference : float
             The charge difference
-        
+
         Returns
         -------
         charges : np.array
@@ -162,13 +174,13 @@ class StageNormalizeCharge(AbstractStage):
         return charges
 
     def check_charge(self, charges):
-        """ This function checks the total charge and the charge difference.
-        
+        """This function checks the total charge and the charge difference.
+
         Parameters
         ----------
         charges : np.array
             The charges
-        
+
         Returns
         -------
         total_charge : float

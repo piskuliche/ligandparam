@@ -25,14 +25,14 @@ class StageUpdate(AbstractStage):
         self.in_mol2 = Path(in_filename)
         self.out_mol2 = Path(kwargs["out_mol2"])
 
-        self.to_update = Path(kwargs["to_update"])
+        self.source_mol2 = Path(kwargs["source_mol2"])
         self.update_names = kwargs.get('update_names', False)
         self.update_types = kwargs.get('update_types', False)
         self.update_resname = kwargs.get('update_resname', False)
         self.atom_type = kwargs.get('atom_type', 'gaff2')
 
         self.add_required(Path(self.in_mol2))
-        self.add_required(Path(self.to_update))
+        self.add_required(Path(self.source_mol2))
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
@@ -51,8 +51,8 @@ class StageUpdate(AbstractStage):
             elif self.update_types:
                 self.logger.debug("Only updating atom types.")
 
-            uorig = mda.Universe(self.in_mol2, format="mol2")
-            unew = mda.Universe(self.to_update, format="mol2")
+            unew = mda.Universe(self.in_mol2, format="mol2")
+            uorig = mda.Universe(self.source_mol2, format="mol2")
             if self.update_resname:
                 unew.residues.resnames = uorig.residues.resnames
             for orig_atom, new_atom in zip(uorig.atoms, unew.atoms):
