@@ -18,20 +18,17 @@ class StageUpdateCharge(AbstractStage):
     @override
     def __init__(self, stage_name: str, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, in_filename, cwd, *args, **kwargs)
-        self.in_mol2 = Path(in_filename)
+        # self.in_mol2 = Path(in_filename)
+        self.charge_source = Path(in_filename)
+        self.charge_column = kwargs.get("charge_column", 5)
         self.out_mol2 = Path(kwargs["out_mol2"])
         self.tmp_mol2 = self.cwd / f"{self.in_mol2.stem}_tmp_update.mol2"
 
-        for opt in ("charge_source", "charge_column"):
-            try:
-                setattr(self, opt, kwargs[opt])
-            except KeyError:
-                raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
         self.add_required(Path(self.in_mol2))
         self.add_required(Path(self.charge_source))
 
         return
-    
+
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
@@ -57,14 +54,14 @@ class StageUpdateCharge(AbstractStage):
             ante.call(i=self.tmp_mol2 + ".tmpresp.mol2", fi='mol2',
                       o=self.out_mol2, fo='mol2', pf='y', at=self.atom_type,
                       gn=f"%nproc={self.nproc}", gm=f"%mem={self.mem}MB",
-                      dry_run = dry_run)
+                      dry_run=dry_run)
 
         return
 
     def _clean(self):
         raise NotImplementedError("clean method not implemented")
 
-    
+
 class StageNormalizeCharge(AbstractStage):
     """ This class normalizes the charges to the net charge. 
     
@@ -87,7 +84,6 @@ class StageNormalizeCharge(AbstractStage):
             raise ValueError(f"ERROR: Invalid precision: {self.precision}. It should be a float between 0 and 0.1")
 
         self.add_required(self.in_mol2)
-
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
@@ -132,7 +128,7 @@ class StageNormalizeCharge(AbstractStage):
                           o=self.out_mol2, fo='mol2',
                           pf='y', at=self.atom_type,
                           gn=f"%nproc={self.nproc}", gm=f"%mem={self.mem}MB",
-                          dry_run = dry_run)
+                          dry_run=dry_run)
 
     def _clean(self):
         raise NotImplementedError("clean method not implemented")
@@ -153,8 +149,8 @@ class StageNormalizeCharge(AbstractStage):
             The normalized charges
         """
 
-        count = np.round(np.abs(charge_difference)/self.precision)
-        adjust = np.round(charge_difference/count, self.decimals)
+        count = np.round(np.abs(charge_difference) / self.precision)
+        adjust = np.round(charge_difference / count, self.decimals)
         natoms = len(charges)
         # Choosing charges closest to zero.
         sorted_indices = np.argsort(np.abs(charges))
@@ -185,7 +181,3 @@ class StageNormalizeCharge(AbstractStage):
         self.logger.debug(f"-> Total Charge is {total_charge}")
         self.logger.debug(f"-> Charge difference is {charge_difference}")
         return total_charge, charge_difference
-
-
-
-
