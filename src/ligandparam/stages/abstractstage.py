@@ -59,10 +59,10 @@ class AbstractStage(metaclass=ABCMeta):
 
     def execute(self, dry_run=False) -> None:
         self.logger.info(f"Executing {self.stage_name}")
-        starting_files = self.list_files_in_directory(".")
+        starting_files = self.list_files_in_directory(self.cwd)
         self._check_required()
         self._execute(dry_run=dry_run)
-        ending_files = self.list_files_in_directory(".")
+        ending_files = self.list_files_in_directory(self.cwd)
         self.new_files = [f for f in ending_files if f not in starting_files]
         # TODO: Write code to ctually assert that the files are there and raise an error if they are not.
         # self.logger.info("\nFiles generated:")
