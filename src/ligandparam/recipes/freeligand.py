@@ -45,8 +45,8 @@ class FreeLigand(Recipe):
         # required options with defaults
         # TODO: defaults should be a global singleton dict
         for opt, default_val in zip(
-                ("theory", "leaprc", "force_gaussian_rerun"),
-                ({"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"}, ["leaprc.gaff2"], False),
+            ("theory", "leaprc", "force_gaussian_rerun"),
+            ({"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"}, ["leaprc.gaff2"], False),
         ):
             try:
                 setattr(self, opt, kwargs[opt])
@@ -83,7 +83,6 @@ class FreeLigand(Recipe):
                 **self.kwargs,
                 in_filename=initial_mol2,
                 out_mol2=initial_mol2,
-
             ),
             StageGaussian(
                 "Minimize",
@@ -184,19 +183,6 @@ class FreeLigand(Recipe):
                 update_types=True,
                 **self.kwargs,
             ),
-            StageParmChk(
-                "ParmChk",
-                in_filename=final_mol2,
-                out_frcmod=frcmod,
-                cwd=self.cwd,
-                **self.kwargs,
-            ),
-            StageLeap(
-                "Leap",
-                in_filename=final_mol2,
-                in_frcmod=frcmod,
-                out_lib=lib,
-                cwd=self.cwd,
-                **self.kwargs,
-            ),
+            StageParmChk("ParmChk", in_filename=final_mol2, out_frcmod=frcmod, cwd=self.cwd, **self.kwargs),
+            StageLeap("Leap", in_filename=final_mol2, in_frcmod=frcmod, out_lib=lib, cwd=self.cwd, **self.kwargs),
         ]
