@@ -27,12 +27,12 @@ def set_file_logger(logfilename: Path, logname: str = None, filemode: str = 'a')
 cwd = Path(".").resolve()
 
 # Environment variables for Gaussian. If your environment is already set up, you can ignore this.
-# gaussian_paths = {
-#     "gaussian_root": "/home/pb777/GAUSSIAN",
-#     "gauss_exedir": "/home/pb777/GAUSSIAN/g16/bsd:/home/pb777/GAUSSIAN/g16",
-#     "gaussian_binary": "/home/pb777/GAUSSIAN/g16/g16",
-#     "gaussian_scratch": "/home/pb777/GAUSSIAN/g16/scratch",
-# }
+gaussian_paths = {
+    "gaussian_root": "/home/pb777/GAUSSIAN",
+    "gauss_exedir": "/home/pb777/GAUSSIAN/g16/bsd:/home/pb777/GAUSSIAN/g16",
+    "gaussian_binary": "/home/pb777/GAUSSIAN/g16/g16",
+    "gaussian_scratch": "/home/pb777/GAUSSIAN/g16/scratch",
+}
 
 logger = set_file_logger(cwd / "lazyligand.log", filemode="w")
 parametrize_ligand = LazyLigand(
@@ -43,7 +43,10 @@ parametrize_ligand = LazyLigand(
     nproc=12,
     atom_type="gaff2",
     mem="8192",
-    # **gaussian_paths,
+    # antechamber will name your residue 'MOL' by default, and we follow that standard by default,
+    # so you probably want to set it yourself:
+    molname="LIG",
+    **gaussian_paths,
 )
 
 # Set the pre-initialized stages for Lazy Ligand
