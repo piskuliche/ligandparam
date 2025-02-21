@@ -54,7 +54,8 @@ class LazyLigand(Recipe):
         initial_mol2 = self.cwd / f"{self.label}.initial.mol2"
         minimization_gaussian_log = self.cwd / f"{self.label}.minimization.log"
         resp_mol2 = self.cwd / f"{self.label}.resp.mol2"
-        final_mol2 = self.cwd / f"{self.label}.mol2"
+        final_mol2 = self.cwd / f"final_{self.label}.mol2"
+        nonminimized_mol2 = self.cwd / f"{self.label}.mol2"
         frcmod = self.cwd / f"{self.label}.frcmod"
         lib = self.cwd / f"{self.label}.lib"
 
@@ -106,6 +107,15 @@ class LazyLigand(Recipe):
                 update_names=True,
                 update_types=False,
                 update_resname=True,
+                **self.kwargs,
+            ),
+            StageUpdate(
+                "UpdateCharges",
+                cwd=self.cwd,
+                in_filename=initial_mol2,
+                source_mol2=final_mol2,
+                out_mol2=nonminimized_mol2,
+                update_charges=True,
                 **self.kwargs,
             ),
             StageParmChk("ParmChk", in_filename=final_mol2, out_frcmod=frcmod, cwd=self.cwd, **self.kwargs),
