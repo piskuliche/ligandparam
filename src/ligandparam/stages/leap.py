@@ -16,6 +16,7 @@ class StageLeap(AbstractStage):
         self.in_frcmod = kwargs["in_frcmod"]
         self.add_required(self.in_frcmod)
         self.out_lib = Path(kwargs["out_lib"])
+        self.resname = kwargs.get("resname", "LIG")
 
         self.leaprc = kwargs.get("leaprc", ["leaprc.gaff2"])
 
@@ -36,14 +37,12 @@ class StageLeap(AbstractStage):
         if self.out_pdb.is_file():
             self.out_pdb = Path(self.out_lib.parent, f"tleap_{self.out_lib.stem}.pdb")
 
-        # resname might become user settable later
-        resname = "LIG"
         # Add the leap commands
         leapgen.add_line(f"loadamberparams {self.in_frcmod.name}")
-        leapgen.add_line(f"{resname} = loadmol2 {self.in_mol2.name}")
-        leapgen.add_line(f'set {resname}.1 name "{resname}"')
-        leapgen.add_line(f"saveOff {resname} {self.out_lib}")
-        leapgen.add_line(f"savePDB {resname} {self.out_pdb}")
+        leapgen.add_line(f"{self.resname} = loadmol2 {self.in_mol2.name}")
+        leapgen.add_line(f'set {self.resname}.1 name "{self.resname}"')
+        leapgen.add_line(f"saveOff {self.resname} {self.out_lib}")
+        leapgen.add_line(f"savePDB {self.resname} {self.out_pdb}")
         leapgen.add_line("quit")
         # Write the leap input file
         leapgen.write(self.cwd / "tleap.param.in")
