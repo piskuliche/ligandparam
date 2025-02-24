@@ -56,8 +56,10 @@ class StageUpdate(AbstractStage):
             elif self.update_types:
                 self.logger.debug("Only updating atom types.")
 
-            dest_u = mda.Universe(self.in_mol2, format="mol2")
-            source_u = mda.Universe(self.source_mol2, format="mol2")
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                dest_u = mda.Universe(self.in_mol2, format="mol2")
+                source_u = mda.Universe(self.source_mol2, format="mol2")
             if self.update_resname:
                 dest_u.residues.resnames = source_u.residues.resnames
             for orig_atom, new_atom in zip(source_u.atoms, dest_u.atoms):

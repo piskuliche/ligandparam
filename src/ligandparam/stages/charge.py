@@ -42,7 +42,9 @@ class StageUpdateCharge(AbstractStage):
                 raise FileNotFoundError(f"File {self.charge_source} not found.")
 
             if not dry_run:
-                u = mda.Universe(self.in_mol2, format="mol2")
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    u = mda.Universe(self.in_mol2, format="mol2")
                 if len(charges) != len(u.atoms):
                     raise ValueError("Error: Number of charges does not match the number of atoms.")
                 u.atoms.charges = charges
@@ -112,7 +114,9 @@ class StageNormalizeCharge(AbstractStage):
             self.logger.debug(f"Normalizing charges to {self.net_charge}")
             self.logger.debug(f"Precision {self.precision} with {self.decimals} decimals")
 
-            u = mda.Universe(self.in_mol2, format="mol2")
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                u = mda.Universe(self.in_mol2, format="mol2")
             total_charge, charge_difference = self.check_charge(u.atoms.charges)
 
             if charge_difference != 0.0:
