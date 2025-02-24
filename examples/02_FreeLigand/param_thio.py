@@ -44,7 +44,7 @@ parametrize_ligand = FreeLigand(
     nproc=24,
     atom_type="gaff2",
     mem="20480",
-    # **gaussian_paths,
+    **gaussian_paths,
 )
 
 # Select the pre-initialized stages for Lazy Ligand
