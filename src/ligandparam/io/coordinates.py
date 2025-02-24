@@ -1,3 +1,4 @@
+import warnings
 from typing import Union
 import shutil
 from pathlib import Path
@@ -29,7 +30,7 @@ class Coordinates:
 
         # If the mol2 comes from antechaamber, then the atom names are weird and both rdkit and mda will have trouble
         if np.any(np.isclose(self.u.atoms.masses, 0, atol=0.1)):
-            self.u.atoms.masses = guess_masses([guess_atom_element(a) for a in self.u.atoms.names])
+            self.u.guess_TopologyAttrs(to_guess=['elements'], force_guess=['masses'])
         # We tried to get correct masses but may have failed in the process. Lack of masses will fail
         # MDAnalysis's center_of_mass(), so just set them to 1.0, since the exact values are not important
         self.u.atoms.masses[np.isclose(self.u.atoms.masses, 0, atol=0.1)] = 1.0
