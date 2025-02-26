@@ -120,7 +120,7 @@ class Driver:
         None
         """
         for stage in self.stages:
-            if stage.name == stage_name:
+            if stage.stage_name == stage_name:
                 self.stages.remove(stage)
                 print(f"Stage {stage_name} removed.")
                 self.list_stages()
@@ -141,10 +141,10 @@ class Driver:
         """
         idx = -1
         for stage in self.stages:
-            if stage.name == stage_name:
+            if stage.stage_name == stage_name:
                 idx = self.stages.index(stage)
                 self.stages.insert(idx, newstage)
-                print(f"Stage {newstage.name} inserted before {stage_name}")
+                print(f"Stage {newstage.stage_name} inserted before {stage_name}")
                 self.list_stages()
                 return
         raise ValueError(f"Stage {stage_name} not found in list of stages.")
