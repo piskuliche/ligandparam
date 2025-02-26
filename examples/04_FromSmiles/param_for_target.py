@@ -1,11 +1,12 @@
 import os
+import logging
+import sys
 
 from pathlib import Path
+import shutil as sh
 
 from ligandparam.io.smiles  import *
 from ligandparam.recipes import BuildLigand
-
-
 
 # Here is an initial set of molecules 
 example_set = {
@@ -28,39 +29,54 @@ leaprc.append("leaprc.water.tip4pew")
 reference_structure = "1y27.pdb"
 reference_resname = "GUN"
 
-
-baseoptions = {
-    "name": None,
-    "nproc": 12,
-    "mem": "60GB",
-    "net_charge": 0,
-    "atom_type": "gaff2",
-    "leaprc": leaprc,
-    "target_pdb": reference_structure,
-    "force_gaussian_rerun": False
+# Environment variables for Gaussian. If your environment is already set up, you can ignore this.
+gaussian_paths = {
+    "gaussian_root": "/home/pb777/GAUSSIAN",
+    "gauss_exedir": "/home/pb777/GAUSSIAN/g16/bsd:/home/pb777/GAUSSIAN/g16",
+    "gaussian_binary": "/home/pb777/GAUSSIAN/g16/g16",
+    "gaussian_scratch": "/home/pb777/GAUSSIAN/g16/scratch",
 }
 
-for i, molec in enumerate(example_set):
+cwd = Path(".").resolve()
+
+# Send output to stdout
+logger = logging.getLogger("mylog")
+stream_handler = logging.StreamHandler(sys.stdout)
+stream_handler.setLevel(logging.INFO)
+logger.addHandler(stream_handler)
+
+# baseoptions = {
+#     "name": None,
+#     "nproc": 12,
+#     "mem": "60GB",
+#     "net_charge": 0,
+#     "atom_type": "gaff2",
+#     "leaprc": leaprc,
+#     "target_pdb": reference_structure,
+#     "force_gaussian_rerun": False
+# }
+
+for resname, mol in example_set.items():
     # Generate the PDB from SMILES
-    pdb = PDBFromSMILES(molec, example_set[molec])
+    pdb = PDBFromSMILES(resname, mol)
     pdb.mol_from_smiles()
-    pdb.write_pdb(f"{molec}_input.pdb")
+    pdb.write_pdb(f"{resname}_input.pdb")
     
-    new = RenamePDBTypes(f"{molec}_input.pdb", molec)
+    new = RenamePDBTypes(f"{resname}_input.pdb", mol)
     new.add_mol("1y27_lig.pdb")
     new.rename_by_reference()
      
     # Make a directory for the molecule and cd into it.
-    newdir = Path(f"{molec}")
+    newdir = Path(f"{mol}")
     newdir.mkdir(exist_ok=True)
     
-    shutil.copyfile(reference_structure, f"{molec}/{reference_structure}")
-    shutil.copyfile(f"{molec}.pdb", f"{molec}/{molec}.pdb")
-    os.system(f"sed -i -e 's@{reference_resname}@{molec}@g' {molec}/{reference_structure}")
+    sh.copyfile(reference_structure, f"{mol}/{reference_structure}")
+    sh.copyfile(f"{mol}.pdb", f"{mol}/{mol}.pdb")
+    os.system(f"sed -i -e 's@{reference_resname}@{mol}@g' {mol}/{reference_structure}")
 
-    os.chdir(newdir) 
+    os.chdir(newdir)
     # Do the build
-    baseoptions["name"] = molec
+    baseoptions["name"] = mol
     build = BuildLigand(inputoptions=baseoptions)
     build.setup()
     build.list_stages()
