@@ -131,6 +131,7 @@ sqm*
 /examples/02_FreeLigand/*
 /examples/03_ModifySteps/*
 /examples/04_MultiResp/*
+/examples/04_FromSmiles/*
 
 # Allow specific files
 !/examples/01_LazyLigand/thiophenol.pdb
@@ -146,6 +147,6 @@ sqm*
 !/examples/04_MultiResp/1Y27_lig.pdb
 !/examples/04_MultiResp/1Y27.pdb
 
-!/examples/04_FromSmiles/*.pdb
+!/examples/04_FromSmiles/*py
 
 localtest/
