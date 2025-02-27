@@ -146,4 +146,6 @@ sqm*
 !/examples/04_MultiResp/1Y27_lig.pdb
 !/examples/04_MultiResp/1Y27.pdb
 
+!/examples/04_FromSmiles/*.pdb
+
 localtest/
