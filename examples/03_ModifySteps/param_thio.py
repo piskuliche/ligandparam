@@ -48,7 +48,7 @@ test.remove_stage("Normalize1")
 
 test.insert_stage(
     StageNormalizeCharge(
-        "mynormalization", cwd=cwd, net_charge=0, in_filename="thiophenol.initial.mol2", out_mol2="thiophenol.initial.mol2"
+        "mynormalization", cwd=cwd, net_charge=0, input="thiophenol.initial.mol2", out_mol2="thiophenol.initial.mol2"
     ),
     "LazyResp",
 )
