@@ -21,7 +21,11 @@ class StageSmilesToPDB(AbstractStage):
 
     def _execute(self, dry_run=False):
         # First, create the molecule
-        mol = Chem.MolFromSmiles(self.smiles)
+        try:
+            mol = Chem.MolFromSmiles(self.in_smiles)
+        except Exception as e:
+            self.logger.error(
+                f"Failed to generate an rdkit molecule from input SMILES {self.in_smiles}. Got exception: {e}")
         if self.reduce:
             mol = Chem.rdmolops.AddHs(mol)
         # All the atoms have their coordinates set to zero. Come up with some values
@@ -39,10 +43,13 @@ class StageSmilesToPDB(AbstractStage):
         mi.SetTempFactor(0.0)
         [a.SetMonomerInfo(mi) for a in mol.GetAtoms()]
         flavor = 0 if self.add_conect else 2
-        #
-        Chem.MolToPDBFile(mol, self.out_pdb, flavor=flavor)
+        self.logger.info(f"Writing {self.in_smiles} to {self.out_pdb}")
 
-        Chem.rdmolfiles.MolToPDBFile(mol, self.out_pdb)
+        try:
+            Chem.MolToPDBFile(mol, self.out_pdb, flavor=flavor)
+        except Exception as e:
+            self.logger.error(
+                f"Failed to write to  {self.out_pdb}. Got exception: {e}")
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         raise NotImplementedError
