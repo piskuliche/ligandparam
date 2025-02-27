@@ -9,10 +9,10 @@ from ligandparam.log import get_logger
 
 
 class StageInitialize(AbstractStage):
-    def __init__(self, stage_name: str, in_filename: Union[Path, str],
+    def __init__(self, stage_name: str, input: Union[Path, str],
                  cwd: Union[Path, str], *args, **kwargs) -> None:
-        super().__init__(stage_name, in_filename, cwd, *args, **kwargs)
-        self.in_pdb = Path(in_filename)
+        super().__init__(stage_name, input, cwd, *args, **kwargs)
+        self.in_pdb = Path(input)
         self.add_required(self.in_pdb)
         self.out_mol2 = Path(kwargs["out_mol2"])
 

@@ -61,14 +61,14 @@ class LazyLigand(Recipe):
 
         self.stages = [
             StageInitialize(
-                "Initialize", in_filename=self.in_filename, cwd=self.cwd, out_mol2=initial_mol2, **self.kwargs
+                "Initialize", input=self.in_filename, cwd=self.cwd, out_mol2=initial_mol2, **self.kwargs
             ),
             StageNormalizeCharge(
                 "Normalize1",
                 cwd=self.cwd,
                 net_charge=self.net_charge,
                 **self.kwargs,
-                in_filename=initial_mol2,
+                input=initial_mol2,
                 out_mol2=initial_mol2,
             ),
             StageGaussian(
@@ -83,25 +83,25 @@ class LazyLigand(Recipe):
                 net_charge=self.net_charge,
                 theory=self.theory,
                 force_gaussian_rerun=self.force_gaussian_rerun,
-                in_filename=initial_mol2,
+                input=initial_mol2,
                 out_gaussian_log=minimization_gaussian_log,
                 **self.kwargs,
             ),
             StageLazyResp(
-                "LazyResp", cwd=self.cwd, **self.kwargs, in_filename=minimization_gaussian_log, out_mol2=resp_mol2
+                "LazyResp", cwd=self.cwd, **self.kwargs, input=minimization_gaussian_log, out_mol2=resp_mol2
             ),
             StageNormalizeCharge(
                 "Normalize2",
                 cwd=self.cwd,
                 net_charge=self.net_charge,
                 **self.kwargs,
-                in_filename=resp_mol2,
+                input=resp_mol2,
                 out_mol2=resp_mol2,
             ),
             StageUpdate(
                 "UpdateNames",
                 cwd=self.cwd,
-                in_filename=resp_mol2,
+                input=resp_mol2,
                 source_mol2=initial_mol2,
                 out_mol2=final_mol2,
                 update_names=True,
@@ -112,14 +112,14 @@ class LazyLigand(Recipe):
             StageUpdate(
                 "UpdateCharges",
                 cwd=self.cwd,
-                in_filename=initial_mol2,
+                input=initial_mol2,
                 source_mol2=final_mol2,
                 out_mol2=nonminimized_mol2,
                 update_charges=True,
                 **self.kwargs,
             ),
-            StageParmChk("ParmChk", in_filename=final_mol2, out_frcmod=frcmod, cwd=self.cwd, **self.kwargs),
-            StageLeap("Leap", in_filename=final_mol2, in_frcmod=frcmod, out_lib=lib, cwd=self.cwd, **self.kwargs),
+            StageParmChk("ParmChk", input=final_mol2, out_frcmod=frcmod, cwd=self.cwd, **self.kwargs),
+            StageLeap("Leap", input=final_mol2, in_frcmod=frcmod, out_lib=lib, cwd=self.cwd, **self.kwargs),
         ]
 
     @override

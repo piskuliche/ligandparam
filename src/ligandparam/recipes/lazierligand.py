@@ -33,11 +33,11 @@ class LazierLigand(Recipe):
 
     def setup(self):
         self.stages = [
-            StageInitialize("Initialize", in_filename=self.in_filename, cwd=self.cwd,
+            StageInitialize("Initialize", input=self.in_filename, cwd=self.cwd,
                             out_mol2=self.cwd / f"{self.label}.bcc.mol2", **self.kwargs),
-            StageParmChk("ParmChk", in_filename=self.cwd / f"{self.label}.bcc.mol2",
+            StageParmChk("ParmChk", input=self.cwd / f"{self.label}.bcc.mol2",
                          out_frcmod=self.cwd / f"{self.label}.frcmod", cwd=self.cwd, **self.kwargs),
-            StageLeap("Leap", in_filename=self.cwd / f"{self.label}.bcc.mol2",
+            StageLeap("Leap", input=self.cwd / f"{self.label}.bcc.mol2",
                       in_frcmod=self.cwd / f"{self.label}.frcmod", out_lib=self.cwd / f"{self.label}.lib",
                       cwd=self.cwd, **self.kwargs)
         ]

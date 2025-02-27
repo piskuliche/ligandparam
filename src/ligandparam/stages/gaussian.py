@@ -33,9 +33,9 @@ class StageGaussian(AbstractStage):
     None
     """
 
-    def __init__(self, stage_name: str, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
-        super().__init__(stage_name, in_filename, cwd, *args, **kwargs)
-        self.in_mol2 = Path(in_filename)
+    def __init__(self, stage_name: str, input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        super().__init__(stage_name, input, cwd, *args, **kwargs)
+        self.in_mol2 = Path(input)
         self.out_gaussian_log = Path(kwargs["out_gaussian_log"])
 
         self._validate_input_paths(**kwargs)
@@ -150,7 +150,7 @@ class StageGaussian(AbstractStage):
 
 class StageGaussianRotation(AbstractStage):
 
-    def __init__(self, stage_name: str, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+    def __init__(self, stage_name: str, input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         """ This is class to rotate the ligand and run Gaussian calculations of the resp charges
         for each rotated ligand. 
         
@@ -168,8 +168,8 @@ class StageGaussianRotation(AbstractStage):
             The input options for the stage
         """
 
-        super().__init__(stage_name, in_filename, cwd, *args, **kwargs)
-        self.in_mol2 = Path(in_filename)
+        super().__init__(stage_name, input, cwd, *args, **kwargs)
+        self.in_mol2 = Path(input)
         self.out_gaussian_label = kwargs["out_gaussian_label"]
 
         self._validate_input_paths(**kwargs)
@@ -377,9 +377,9 @@ class StageGaussiantoMol2(AbstractStage):
     None
     """
 
-    def __init__(self, stage_name: str, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
-        super().__init__(stage_name, in_filename, cwd, *args, **kwargs)
-        self.in_log = Path(in_filename)
+    def __init__(self, stage_name: str, input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        super().__init__(stage_name, input, cwd, *args, **kwargs)
+        self.in_log = Path(input)
         self.template_mol2 = Path(kwargs["template_mol2"])
         self.out_mol2 = Path(kwargs["out_mol2"])
         self.temp1_mol2 = Path(self.cwd, f"{self.out_mol2.stem}.tmp1.mol2")

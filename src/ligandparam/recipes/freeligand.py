@@ -74,14 +74,14 @@ class FreeLigand(Recipe):
 
         self.stages = [
             StageInitialize(
-                "Initialize", in_filename=self.in_filename, cwd=self.cwd, out_mol2=initial_mol2, **self.kwargs
+                "Initialize", input=self.in_filename, cwd=self.cwd, out_mol2=initial_mol2, **self.kwargs
             ),
             StageNormalizeCharge(
                 "Normalize1",
                 cwd=self.cwd,
                 net_charge=self.net_charge,
                 **self.kwargs,
-                in_filename=initial_mol2,
+                input=initial_mol2,
                 out_mol2=initial_mol2,
             ),
             StageGaussian(
@@ -96,7 +96,7 @@ class FreeLigand(Recipe):
                 net_charge=self.net_charge,
                 theory=self.theory,
                 force_gaussian_rerun=self.force_gaussian_rerun,
-                in_filename=initial_mol2,
+                input=initial_mol2,
                 out_gaussian_log=minimization_gaussian_log,
                 **self.kwargs,
             ),
@@ -112,7 +112,7 @@ class FreeLigand(Recipe):
                 net_charge=self.net_charge,
                 theory=self.theory,
                 force_gaussian_rerun=self.force_gaussian_rerun,
-                in_filename=minimization_gaussian_log,
+                input=minimization_gaussian_log,
                 template_mol2=initial_mol2,
                 out_mol2=minimized_mol2,
                 **self.kwargs,
@@ -129,7 +129,7 @@ class FreeLigand(Recipe):
                 net_charge=self.net_charge,
                 theory=self.theory,
                 force_gaussian_rerun=self.force_gaussian_rerun,
-                in_filename=minimized_mol2,
+                input=minimized_mol2,
                 out_gaussian_label=rotation_label,
                 alpha=[0, 30, 60, 90, 120, 150, 180],
                 beta=[0, 30, 60, 90],
@@ -139,7 +139,7 @@ class FreeLigand(Recipe):
             # We know that the gaussian stages work in a "gaussianCalcs" directory. Quite hacky.
             StageMultiRespFit(
                 "MultiRespFit",
-                in_filename=minimized_mol2,
+                input=minimized_mol2,
                 in_gaussian_label=rotation_label,
                 out_respfit=out_respfit,
                 cwd=self.cwd / "gaussianCalcs",
@@ -148,7 +148,7 @@ class FreeLigand(Recipe):
             StageUpdateCharge(
                 "UpdateCharge",
                 cwd=self.cwd,
-                in_filename=minimized_mol2,
+                input=minimized_mol2,
                 out_mol2=resp_mol2,
                 charge_column=3,
                 charge_source=out_respfit,
@@ -158,14 +158,14 @@ class FreeLigand(Recipe):
                 "Normalize2",
                 cwd=self.cwd,
                 net_charge=self.net_charge,
-                in_filename=resp_mol2,
+                input=resp_mol2,
                 out_mol2=resp_mol2,
                 **self.kwargs,
             ),
             StageUpdate(
                 "UpdateNames",
                 cwd=self.cwd,
-                in_filename=resp_mol2,
+                input=resp_mol2,
                 source_mol2=initial_mol2,
                 out_mol2=resp_mol2,
                 update_names=True,
@@ -176,13 +176,13 @@ class FreeLigand(Recipe):
             StageUpdate(
                 "UpdateTypes",
                 cwd=self.cwd,
-                in_filename=resp_mol2,
+                input=resp_mol2,
                 source_mol2=initial_mol2,
                 out_mol2=final_mol2,
                 update_names=False,
                 update_types=True,
                 **self.kwargs,
             ),
-            StageParmChk("ParmChk", in_filename=final_mol2, out_frcmod=frcmod, cwd=self.cwd, **self.kwargs),
-            StageLeap("Leap", in_filename=final_mol2, in_frcmod=frcmod, out_lib=lib, cwd=self.cwd, **self.kwargs),
+            StageParmChk("ParmChk", input=final_mol2, out_frcmod=frcmod, cwd=self.cwd, **self.kwargs),
+            StageLeap("Leap", input=final_mol2, in_frcmod=frcmod, out_lib=lib, cwd=self.cwd, **self.kwargs),
         ]
