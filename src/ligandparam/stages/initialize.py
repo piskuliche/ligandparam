@@ -21,6 +21,10 @@ class StageInitialize(AbstractStage):
         self.charge_model = kwargs.get("charge_model", "bcc")
         if self.charge_model not in  ("bcc", "abcg2"):
             raise ValueError(f"Unknown charge model '{self.charge_model}'. Must be 'bcc' or 'abcg2'")
+        if "molname" in kwargs:
+            self.additional_args = {"rn": kwargs["molname"]}
+        else:
+            self.additional_args = {}
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """ Appends the stage. """
@@ -45,7 +49,8 @@ class StageInitialize(AbstractStage):
                   c=self.charge_model, nc=self.net_charge,
                   pf='y', at=self.atom_type,
                   gn=f"%nproc={self.nproc}", gm=f"%mem={self.mem}MB",
-                  dry_run=dry_run)
+                  dry_run=dry_run,
+                  **self.additional_args)
 
     def _clean(self):
         """ Clean the files generated during the stage. """
