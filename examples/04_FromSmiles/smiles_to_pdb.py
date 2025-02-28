@@ -2,6 +2,8 @@ import logging
 import sys
 
 from pathlib import Path
+
+from ligandparam import LazierLigand
 from ligandparam.stages.stagesmiles import StageSmilesToPDB
 
 # Here is an initial set of molecules 
@@ -23,10 +25,21 @@ stream_handler = logging.StreamHandler(sys.stdout)
 stream_handler.setLevel(logging.INFO)
 logger.addHandler(stream_handler)
 
-# Create the stages for later execution
-my_stages = [
-    StageSmilesToPDB(f"build_{resname}", mol, cwd, out_pdb=cwd / f"{resname}.pdb", resname=resname, logger=logger) for
-    resname, mol in example_set.items()]
-
+recipes = []
 # Generate the PDB from the SMILES
-[s._execute() for s in my_stages]
+for resname, mol in example_set.items():
+    pdb = cwd / f"{resname}.pdb"
+    prestage = StageSmilesToPDB(f"build_{resname}", mol, cwd, out_pdb=pdb, resname=resname, logger=logger)
+    recipe = LazierLigand(
+        in_filename=pdb,
+        cwd=cwd,
+        atom_type="gaff2",
+        logger=logger,
+        molname=resname,
+    )
+    recipe.setup()
+    recipe.insert_stage(prestage, "Initialize")
+    recipes.append(recipe)
+
+for r in recipes:
+    r.execute()
