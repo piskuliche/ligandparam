@@ -18,7 +18,9 @@ class StageInitialize(AbstractStage):
 
         self.net_charge = kwargs.get("net_charge", 0.0)
         self.atom_type = kwargs.get("atom_type", "gaff2")
-        return
+        self.charge_model = kwargs.get("charge_model", "bcc")
+        if self.charge_model not in  ("bcc", "abcg2"):
+            raise ValueError(f"Unknown charge model '{self.charge_model}'. Must be 'bcc' or 'abcg2'")
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """ Appends the stage. """
@@ -40,7 +42,7 @@ class StageInitialize(AbstractStage):
         ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
         ante.call(i=self.in_pdb, fi='pdb',
                   o=self.out_mol2, fo='mol2',
-                  c='bcc', nc=self.net_charge,
+                  c=self.charge_model, nc=self.net_charge,
                   pf='y', at=self.atom_type,
                   gn=f"%nproc={self.nproc}", gm=f"%mem={self.mem}MB",
                   dry_run=dry_run)
