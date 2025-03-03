@@ -44,6 +44,7 @@ class LazierLigand(Recipe):
                          out_frcmod=frcmod, cwd=self.cwd, **self.kwargs),
             StageLeap("Leap", input=nonminimized_mol2,
                       in_frcmod=frcmod, out_lib=lib, cwd=self.cwd, **self.kwargs)
+            # TODO: copy `nonminimized_mol2` to `final_mol2`?
         ]
 
     @override
