@@ -59,9 +59,7 @@ class Driver:
             try:
                 stage.execute(dry_run=dry_run)
             except Exception as e:
-                print(f"Error in stage {stage.stage_name}: {e}")
-                print("Exiting")
-                raise e
+                raise RuntimeError(f"Error in stage {stage.stage_name}: {e}")
         return
     
     def clean(self):
@@ -128,7 +126,7 @@ class Driver:
         print(f"Stage {stage_name} not found in list of stages.")
         return
     
-    def insert_stage(self, newstage, stage_name):
+    def insert_stage(self, newstage, stage_name, print_info=False):
         """ Insert a stage into the list of stages to run before the specified stage.
         
         This function inserts a stage into the list of stages to run before the specified stage. If the specified stage
@@ -144,7 +142,8 @@ class Driver:
             if stage.stage_name == stage_name:
                 idx = self.stages.index(stage)
                 self.stages.insert(idx, newstage)
-                print(f"Stage {newstage.stage_name} inserted before {stage_name}")
-                self.list_stages()
+                if print_info:
+                    print(f"Stage {newstage.stage_name} inserted before {stage_name}")
+                    self.list_stages()
                 return
         raise ValueError(f"Stage {stage_name} not found in list of stages.")

@@ -58,7 +58,7 @@ class SimpleInterface:
                 self.logger.error(f"Command at {self.cwd} failed.")
                 self.logger.error(p.stdout)
                 self.logger.error(p.stderr)
-                raise RuntimeError
+                raise RuntimeError(p.stderr)
 
         return
 
