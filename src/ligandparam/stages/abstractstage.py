@@ -10,20 +10,6 @@ import warnings
 class AbstractStage(metaclass=ABCMeta):
     """This is an abstract class for all the stages."""
 
-    #
-    # default_options = {
-    #     "stage_name": None,
-    #     "pdb_filename": None,
-    #     "nproc": 6,
-    #     "mem": "8GB",
-    #     "net_charge": 0.0,
-    #     "theory": {"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"},
-    #     "atom_type": "gaff2",
-    #     "leaprc": ["leaprc.gaff2"],
-    #     "target_pdb": None,
-    #     "force_gaussian_rerun": False
-    # }
-
     def __init__(self, stage_name: str, input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         # TODO Fix: we assume that all stages deal with an input file, but don't read it yet. Make in_filename a kwarg.
         try:
@@ -33,6 +19,9 @@ class AbstractStage(metaclass=ABCMeta):
         except Exception:
             # TODO: Fix Not a pdb, no problem. This shouldn't be in this class.
             pass
+
+        if  len(kwargs.get("resname", "LIG")) > 3:
+            raise ValueError(f"Bad input resname: {kwargs['resname']}")
 
         self.stage_name = stage_name
         self.cwd = Path(cwd)
