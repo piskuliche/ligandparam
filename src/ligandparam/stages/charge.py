@@ -21,7 +21,7 @@ class StageUpdateCharge(AbstractStage):
         self.charge_source = kwargs["charge_source"]
         self.charge_column = kwargs.get("charge_column", 3)
         self.out_mol2 = Path(kwargs["out_mol2"])
-        self.tmp_mol2 = self.cwd / f"{self.out_mol2.stem}_tmp_update.mol2" # tmpresp
+        self.tmp_mol2 = self.cwd / f"{self.out_mol2.stem}_tmp_update.mol2"  # tmpresp
         self.atom_type = kwargs.get("atom_type", "gaff2")
 
         self.add_required(Path(self.in_mol2))
@@ -117,16 +117,16 @@ class StageNormalizeCharge(AbstractStage):
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 u = mda.Universe(self.in_mol2, format="mol2")
-            total_charge, charge_difference = self.check_charge(u.atoms.charges)
+            rounded_charges, total_charge, charge_difference = self.check_charge(u.atoms.charges)
 
-            if charge_difference != 0.0:
+            if not np.isclose(total_charge, 0, rtol=1e-10):
                 self.logger.info("Normalizing charges")
-                charges = self.normalize(u.atoms.charges, charge_difference)
-                new_total, new_diff = self.check_charge(charges)
-                if new_diff != 0.0:
-                    raise ValueError("Error: Charge normalization failed.")
+                new_charges = self.normalize(rounded_charges, charge_difference)
+                _, new_total, new_diff = self.check_charge(new_charges)
+                if np.isclose(new_total, 0, rtol=1e-10):
+                    u.atoms.charges = new_charges
                 else:
-                    u.atoms.charges = charges
+                    raise ValueError(f"Error: Charge normalization failed, new charge: {new_total}.")
             else:
                 self.logger.info("Charges are already normalized")
                 return
@@ -192,8 +192,9 @@ class StageNormalizeCharge(AbstractStage):
         charge_difference : float
             The charge difference
         """
-        total_charge = np.round(sum(charges), self.decimals)
-        charge_difference = np.round(self.net_charge - total_charge, self.decimals)
+        charges = np.round(charges, self.decimals)
+        total_charge = np.sum(charges)
+        charge_difference = self.net_charge - total_charge
         self.logger.debug(f"-> Total Charge is {total_charge}")
         self.logger.debug(f"-> Charge difference is {charge_difference}")
-        return total_charge, charge_difference
+        return charges, total_charge, charge_difference
