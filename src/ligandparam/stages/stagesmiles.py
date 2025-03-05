@@ -35,9 +35,9 @@ class StageSmilesToPDB(AbstractStage):
         Chem.AllChem.EmbedMolecule(mol, params)
 
         # Set metadata and write away
-        mol.SetProp("_Name", "LIG")
+        mol.SetProp("_Name", self.resname)
         mi = Chem.AtomPDBResidueInfo()
-        mi.SetResidueName("LIG")
+        mi.SetResidueName(self.resname)
         mi.SetResidueNumber(1)
         mi.SetOccupancy(0.0)
         mi.SetTempFactor(0.0)
