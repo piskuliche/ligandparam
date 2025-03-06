@@ -6,7 +6,7 @@ from pathlib import Path
 class Driver:
     @abstractmethod
     def __init__(self, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs):
-        """ Initialize the Driver class object.
+        """Initialize the Driver class object.
 
         This class is the base class for all parametrizations. It is designed to be subclassed, and the subclass should
         implement the stages that are needed to complete the parametrization.
@@ -14,9 +14,9 @@ class Driver:
 
         """
         pass
-    
+
     def add_stage(self, stage):
-        """ Add a stage to the list of stages to run.
+        """Add a stage to the list of stages to run.
 
         Adding a stage is done by appending a stage object to the list of stages to run. Adding a stage
         does not run the stage, it only adds it to the list of stages to run. To run the stages, the execute
@@ -24,13 +24,13 @@ class Driver:
 
         Stages are designed using the AbstractStage class, and should be subclassed to implement the desired
         behavior. The stages should be added in the order that they should be run.
-    
+
 
         Parameters
         ----------
         stage : Stage
             The stage object to add to the list of stages to run.
-        
+
         Returns
         -------
         None
@@ -39,18 +39,18 @@ class Driver:
         self.stages.append(stage.append_stage(stage))
         self.list_stages()
         return
-    
+
     def execute(self, dry_run=False):
-        """ Execute the stages in the list of stages to run. 
-        
+        """Execute the stages in the list of stages to run.
+
         This function executes the stages in the list of stages to run. The stages are executed in the order that they
         were added to the list. If a stage fails, the function will print an error message and exit. The stages are
-         
+
         Parameters
         ----------
         dry_run : bool, optional
             If True, the stages will not be executed, but the function will print the commands that would be executed.
-        
+
         Returns
         -------
         None
@@ -61,10 +61,10 @@ class Driver:
             except Exception as e:
                 raise RuntimeError(f"Error in stage {stage.stage_name}: {e}")
         return
-    
+
     def clean(self):
-        """ Clean up the files created by the stages. 
-        
+        """Clean up the files created by the stages.
+
         This function cleans up the files created by the stages. The stages are executed in the
         reverse order that they were added to the list. If a stage fails, the function will print an error message and
         exit and be skipped.
@@ -86,10 +86,10 @@ class Driver:
                 print("Exiting")
                 raise e
         return
-    
+
     def list_stages(self):
-        """ Print out the list of stages to run. 
-        
+        """Print out the list of stages to run.
+
         This function prints out the list of stages that are in the list of stages to run. The stages are printed in the
         order that they were added to the list.
 
@@ -101,10 +101,10 @@ class Driver:
         for stage in self.stages:
             print(f"-->{stage.stage_name} ({stage})")
         return
-    
+
     def remove_stage(self, stage_name):
-        """ Remove a stage from the list of stages to run. 
-        
+        """Remove a stage from the list of stages to run.
+
         This function removes a stage from the list of stages to run. If the stage is not in the list, the function will
         print an error message and exit.
 
@@ -112,7 +112,7 @@ class Driver:
         ----------
         stage_name : str
             The name of the stage to remove from the list of stages to run.
-        
+
         Returns
         -------
         None
@@ -125,13 +125,13 @@ class Driver:
                 return
         print(f"Stage {stage_name} not found in list of stages.")
         return
-    
+
     def insert_stage(self, newstage, stage_name, print_info=False):
-        """ Insert a stage into the list of stages to run before the specified stage.
-        
+        """Insert a stage into the list of stages to run before the specified stage.
+
         This function inserts a stage into the list of stages to run before the specified stage. If the specified stage
         is not in the list, the function will print an error message and exit.
-        
+
         Parameters
         ----------
         stage_name : str
@@ -146,4 +146,4 @@ class Driver:
                     print(f"Stage {newstage.stage_name} inserted before {stage_name}")
                     self.list_stages()
                 return
-        raise ValueError(f"Stage {stage_name} not found in list of stages.")
+            raise ValueError(f"Stage {stage_name} not found in list of stages.")

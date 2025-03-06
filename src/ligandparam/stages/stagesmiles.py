@@ -4,7 +4,7 @@ from typing_extensions import override
 
 from rdkit import Chem
 
-from ligandparam import AbstractStage
+from ligandparam.stages import AbstractStage
 
 
 class StageSmilesToPDB(AbstractStage):
@@ -24,8 +24,10 @@ class StageSmilesToPDB(AbstractStage):
         try:
             mol = Chem.MolFromSmiles(self.in_smiles)
         except Exception as e:
-            self.logger.error(
-                f"Failed to generate an rdkit molecule from input SMILES {self.in_smiles}. Got exception: {e}")
+            err_msg = f"Failed to generate an rdkit molecule from input SDF {self.in_sdf}. Got exception: {e}"
+            self.logger.error(err_msg)
+            raise RuntimeError(err_msg)
+
         if self.reduce:
             mol = Chem.rdmolops.AddHs(mol)
         # All the atoms have their coordinates set to zero. Come up with some values

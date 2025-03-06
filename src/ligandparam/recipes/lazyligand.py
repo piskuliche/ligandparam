@@ -1,10 +1,18 @@
 from pathlib import Path
-from typing import Union, final
+from typing import Union
 
 from typing_extensions import override
 
 from ligandparam.parametrization import Recipe
-from ligandparam.stages import *
+from ligandparam.stages import (
+    StageInitialize,
+    StageNormalizeCharge,
+    StageGaussian,
+    StageLazyResp,
+    StageUpdate,
+    StageParmChk,
+    StageLeap,
+)
 
 
 class LazyLigand(Recipe):
@@ -60,9 +68,7 @@ class LazyLigand(Recipe):
         lib = self.cwd / f"{self.label}.lib"
 
         self.stages = [
-            StageInitialize(
-                "Initialize", input=self.in_filename, cwd=self.cwd, out_mol2=initial_mol2, **self.kwargs
-            ),
+            StageInitialize("Initialize", input=self.in_filename, cwd=self.cwd, out_mol2=initial_mol2, **self.kwargs),
             StageNormalizeCharge(
                 "Normalize1",
                 cwd=self.cwd,
@@ -87,9 +93,7 @@ class LazyLigand(Recipe):
                 out_gaussian_log=minimization_gaussian_log,
                 **self.kwargs,
             ),
-            StageLazyResp(
-                "LazyResp", cwd=self.cwd, **self.kwargs, input=minimization_gaussian_log, out_mol2=resp_mol2
-            ),
+            StageLazyResp("LazyResp", cwd=self.cwd, **self.kwargs, input=minimization_gaussian_log, out_mol2=resp_mol2),
             StageNormalizeCharge(
                 "Normalize2",
                 cwd=self.cwd,
