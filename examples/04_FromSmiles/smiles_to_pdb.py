@@ -2,8 +2,9 @@ import logging
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
-from ligandparam import LazierLigand, __version__
-from ligandparam.stages.stagesmiles import StageSmilesToPDB
+from ligandparam import __version__
+from ligandparam.recipes import LazierLigand
+from ligandparam.stages import StageSmilesToPDB
 
 """
 In this example, we're going to parametrize 6 ligands in parallel, starting from their SMILES strings.
