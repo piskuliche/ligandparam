@@ -8,5 +8,6 @@ from .gaussian import StageGaussian, StageGaussianRotation, StageGaussiantoMol2
 from .charge import StageUpdateCharge, StageNormalizeCharge
 from .build_system import StageBuild
 from .typematching import StageUpdate
-from .stagesdf import StageSDFToPDB
+from .sdftopdb import SDFToPDB
+from .sdftopdbbatch import SDFToPDBBatch
 from .stagesmiles import StageSmilesToPDB

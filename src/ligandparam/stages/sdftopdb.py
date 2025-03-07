@@ -28,12 +28,7 @@ class SDFToPDB(AbstractStage):
             self.logger.error(err_msg)
             raise RuntimeError(err_msg)
 
-        if len(mols) > 1:
-            err_msg = f"Input SDF,  {self.in_sdf}, has more than 1 molecule"
-            self.logger.error(err_msg)
-            raise ValueError(err_msg)
         mol = mols[self.mol_idx]
-
         # Set metadata and write away
         mol.SetProp("_Name", self.resname)
         mi = Chem.AtomPDBResidueInfo()
