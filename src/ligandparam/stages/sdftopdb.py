@@ -7,7 +7,7 @@ from rdkit import Chem
 from ligandparam.stages import AbstractStage
 
 
-class StageSDFToPDB(AbstractStage):
+class SDFToPDB(AbstractStage):
 
     @override
     def __init__(self, stage_name: str, input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
@@ -17,6 +17,7 @@ class StageSDFToPDB(AbstractStage):
         self.resname = kwargs.get("resname", "LIG")
         self.removeHs = kwargs.get("removeHs", False)
         self.add_conect = kwargs.get("add_conect", True)
+        self.mol_idx = kwargs.get("mol_idx", 0)
 
     def _execute(self, dry_run=False):
         # First, create the molecule
@@ -31,7 +32,7 @@ class StageSDFToPDB(AbstractStage):
             err_msg = f"Input SDF,  {self.in_sdf}, has more than 1 molecule"
             self.logger.error(err_msg)
             raise ValueError(err_msg)
-        mol = mols[0]
+        mol = mols[self.mol_idx]
 
         # Set metadata and write away
         mol.SetProp("_Name", self.resname)

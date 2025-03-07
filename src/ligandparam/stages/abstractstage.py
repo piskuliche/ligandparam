@@ -20,7 +20,8 @@ class AbstractStage(metaclass=ABCMeta):
             # TODO: Fix Not a pdb, no problem. This shouldn't be in this class.
             pass
 
-        if  len(kwargs.get("resname", "LIG")) > 3:
+        resname = kwargs.get("resname", "LIG")
+        if resname and len(resname) > 3:
             raise ValueError(f"Bad input resname: {kwargs['resname']}")
 
         self.stage_name = stage_name
