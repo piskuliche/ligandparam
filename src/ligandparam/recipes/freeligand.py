@@ -4,7 +4,18 @@ from typing import Union
 from typing_extensions import override
 
 from ligandparam.parametrization import Recipe
-# from ligandparam.stages import *
+from ligandparam.stages import (
+    StageInitialize,
+    StageNormalizeCharge,
+    StageGaussian,
+    StageGaussiantoMol2,
+    StageGaussianRotation,
+    StageMultiRespFit,
+    StageUpdateCharge,
+    StageUpdate,
+    StageParmChk,
+    StageLeap,
+)
 
 
 class FreeLigand(Recipe):
@@ -73,9 +84,7 @@ class FreeLigand(Recipe):
         lib = self.cwd / f"{self.label}.lib"
 
         self.stages = [
-            StageInitialize(
-                "Initialize", input=self.in_filename, cwd=self.cwd, out_mol2=initial_mol2, **self.kwargs
-            ),
+            StageInitialize("Initialize", input=self.in_filename, cwd=self.cwd, out_mol2=initial_mol2, **self.kwargs),
             StageNormalizeCharge(
                 "Normalize1",
                 cwd=self.cwd,
