@@ -18,6 +18,7 @@ cwd = Path(".").resolve()
 
 # Send output to stdout
 logger = logging.getLogger("mylog")
+logger.setLevel(logging.INFO)
 stream_handler = logging.StreamHandler(sys.stdout)
 stream_handler.setLevel(logging.INFO)
 logger.addHandler(stream_handler)
@@ -30,7 +31,7 @@ test = LazyLigand(
     nproc=12,
     atom_type="gaff2",
     mem="8192",
-    logger= logger,
+    logger=logger,
     # antechamber will name your residue 'MOL' by default, and we follow that standard by default,
     # so you probably want to set it yourself:
     molname="LIG",
@@ -48,7 +49,11 @@ test.remove_stage("Normalize1")
 
 test.insert_stage(
     StageNormalizeCharge(
-        "mynormalization", cwd=cwd, net_charge=0, input="thiophenol.initial.mol2", out_mol2="thiophenol.initial.mol2"
+        "mynormalization",
+        cwd=cwd,
+        net_charge=0,
+        input="thiophenol.initial.mol2",
+        out_mol2="thiophenol.initial.mol2",
     ),
     "LazyResp",
 )
