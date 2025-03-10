@@ -25,7 +25,7 @@ class SDFToPDBBatch(AbstractStage):
         self.resnames = kwargs.get("resnames", None)
         self.resname = kwargs.get("resname", None)
 
-    def _execute(self, dry_run=False):
+    def execute(self, dry_run=False):
         # First, create the molecule
         try:
             mols = Chem.SDMolSupplier(self.in_sdf, removeHs=False)

@@ -32,7 +32,7 @@ class StageUpdateCharge(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
-    def _execute(self, dry_run=False):
+    def execute(self, dry_run=False):
         # Supress the inevitable mol2 file warnings.
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -96,7 +96,7 @@ class StageNormalizeCharge(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
-    def _execute(self, dry_run=False):
+    def execute(self, dry_run=False):
         """Execute the stage.
 
         Raises

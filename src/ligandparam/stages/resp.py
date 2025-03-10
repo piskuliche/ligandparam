@@ -31,7 +31,7 @@ class StageLazyResp(AbstractStage):
         """Appends the stage."""
         return stage
 
-    def _execute(self, dry_run=False):
+    def execute(self, dry_run=False):
         """Execute antechamber to convert the gaussian output to a mol2 file.
 
         Parameters
@@ -85,7 +85,7 @@ class StageMultiRespFit(AbstractStage):
         """Appends the stage."""
         return stage
 
-    def _execute(self, dry_run=False):
+    def execute(self, dry_run=False):
         """Execute a multi-state respfitting calculation.
 
         if __name__ == "__main__":

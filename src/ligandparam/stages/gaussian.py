@@ -115,7 +115,7 @@ class StageGaussian(AbstractStage):
 
         return gau_complete
 
-    def _execute(self, dry_run=False):
+    def execute(self, dry_run=False):
         """ Execute the Gaussian calculations. 
 
         Parameters
@@ -247,7 +247,7 @@ class StageGaussianRotation(AbstractStage):
 
         return False
 
-    def _execute(self, dry_run=False):
+    def execute(self, dry_run=False):
         """ Execute the Gaussian calculations for the rotated ligands.
         
         Parameters
@@ -413,7 +413,7 @@ class StageGaussiantoMol2(AbstractStage):
 
         self.header = [f"%NPROC={self.nproc}', f'%MEM={self.mem}MB"]
 
-    def _execute(self, dry_run=False):
+    def execute(self, dry_run=False):
         """ Execute the Gaussian to mol2 conversion.
 
         Parameters
