@@ -190,7 +190,7 @@ class ResidueResp(object):
             for state in self.states:
                 nmols += len(state.get_mdouts())
                 
-            print("# ResidueResp.perform_fit writing multifit %s.resp.inp"%(self.base))
+            # print("# ResidueResp.perform_fit writing multifit %s.resp.inp"%(self.base))
             
             inp = open("%s.resp.inp"%(self.base),"w")
             esp = open("%s.resp.esp"%(self.base),"w")
