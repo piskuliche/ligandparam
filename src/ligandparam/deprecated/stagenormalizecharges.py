@@ -28,7 +28,9 @@ class StageNormalizeCharges(AbstractStage):
 
     def execute(self, dry_run=False):
         print(f"Executing {self.name} with netcharge={self.netcharge}")
-        u = mda.Universe(self.mol2file)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            u = mda.Universe(self.mol2file)
         total_charge = sum(u.atoms.charges)
         charge_diff = total_charge - self.netcharge
         print("Total charge: ", total_charge)
