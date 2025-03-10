@@ -7,7 +7,7 @@ from ligandparam.parametrization import Recipe
 from ligandparam.stages import (
     StageInitialize,
     StageNormalizeCharge,
-    StageGaussian,
+    GaussianMinimizeRESP,
     StageLazyResp,
     StageUpdate,
     StageParmChk,
@@ -60,7 +60,10 @@ class LazyLigand(Recipe):
 
     def setup(self):
         initial_mol2 = self.cwd / f"{self.label}.initial.mol2"
-        minimization_gaussian_log = self.cwd / f"{self.label}.minimization.log"
+        lowtheory_minimization_gaussian_log = self.cwd / f"{self.label}.lowtheory.minimization.log"
+        hightheory_minimization_gaussian_log = self.cwd / f"{self.label}.hightheory.minimization.log"
+        resp_mol2_low = self.cwd / f"{self.label}.lowtheory.mol2"
+        resp_mol2_high = self.cwd / f"{self.label}.minimized.mol2"
         resp_mol2 = self.cwd / f"{self.label}.resp.mol2"
         final_mol2 = self.cwd / f"final_{self.label}.mol2"
         nonminimized_mol2 = self.cwd / f"{self.label}.mol2"
@@ -77,8 +80,8 @@ class LazyLigand(Recipe):
                 input=initial_mol2,
                 out_mol2=initial_mol2,
             ),
-            StageGaussian(
-                "Minimize",
+            GaussianMinimizeRESP(
+                "MinimizeLowTheory",
                 cwd=self.cwd,
                 nproc=self.nproc,
                 mem=self.mem,
@@ -87,19 +90,39 @@ class LazyLigand(Recipe):
                 gaussian_binary=self.gaussian_binary,
                 gaussian_scratch=self.gaussian_scratch,
                 net_charge=self.net_charge,
-                theory=self.theory,
+                opt_theory=self.theory["low"],
+                resp_theory=self.theory["low"],
                 force_gaussian_rerun=self.force_gaussian_rerun,
                 input=initial_mol2,
-                out_gaussian_log=minimization_gaussian_log,
+                out_gaussian_log=lowtheory_minimization_gaussian_log,
                 **self.kwargs,
             ),
-            StageLazyResp("LazyResp", cwd=self.cwd, **self.kwargs, input=minimization_gaussian_log, out_mol2=resp_mol2),
+            StageLazyResp("LazyResp", cwd=self.cwd, **self.kwargs, input=lowtheory_minimization_gaussian_log, out_mol2=resp_mol2_low),
+            GaussianMinimizeRESP(
+                "MinimizeHighTheory",
+                cwd=self.cwd,
+                nproc=self.nproc,
+                mem=self.mem,
+                gaussian_root=self.gaussian_root,
+                gauss_exedir=self.gauss_exedir,
+                gaussian_binary=self.gaussian_binary,
+                gaussian_scratch=self.gaussian_scratch,
+                net_charge=self.net_charge,
+                opt_theory=self.theory["high"],
+                resp_theory=self.theory["low"],
+                force_gaussian_rerun=self.force_gaussian_rerun,
+                input=resp_mol2_low,
+                out_gaussian_log=hightheory_minimization_gaussian_log,
+                **self.kwargs,
+            ),
+            StageLazyResp("LazyResp", cwd=self.cwd, **self.kwargs, input=hightheory_minimization_gaussian_log,
+                          out_mol2=resp_mol2_high),
             StageNormalizeCharge(
                 "Normalize2",
                 cwd=self.cwd,
                 net_charge=self.net_charge,
                 **self.kwargs,
-                input=resp_mol2,
+                input=resp_mol2_high,
                 out_mol2=resp_mol2,
             ),
             StageUpdate(
@@ -113,6 +136,7 @@ class LazyLigand(Recipe):
                 update_resname=True,
                 **self.kwargs,
             ),
+            # Create a `nonminimized_mol2` with `initial_mol2` coordinates and  `final_mol2` charges
             StageUpdate(
                 "UpdateCharges",
                 cwd=self.cwd,

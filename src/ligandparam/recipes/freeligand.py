@@ -7,9 +7,10 @@ from ligandparam.parametrization import Recipe
 from ligandparam.stages import (
     StageInitialize,
     StageNormalizeCharge,
-    StageGaussian,
+    GaussianMinimizeRESP,
     StageGaussiantoMol2,
     StageGaussianRotation,
+    StageLazyResp,
     StageMultiRespFit,
     StageUpdateCharge,
     StageUpdate,
@@ -73,13 +74,17 @@ class FreeLigand(Recipe):
 
     def setup(self):
         initial_mol2 = self.cwd / f"{self.label}.initial.mol2"
-        minimization_gaussian_log = self.cwd / f"{self.label}.minimization.log"
+        lowtheory_minimization_gaussian_log = self.cwd / f"{self.label}.lowtheory.minimization.log"
+        hightheory_minimization_gaussian_log = self.cwd / f"{self.label}.hightheory.minimization.log"
+        resp_mol2_low = self.cwd / f"{self.label}.minimized.lowtheory.mol2"
+        resp_mol2_high = self.cwd / f"{self.label}.minimized.mol2"
         minimized_mol2 = self.cwd / f"{self.label}.minimized.mol2"
         rotation_label = f"{self.label}.rotation"
         rotated_mol2 = self.cwd / f"{self.label}.rotated.mol2"
         out_respfit = self.cwd / f"respfit.charges.{self.label}"
         resp_mol2 = self.cwd / f"{self.label}.resp.mol2"
-        final_mol2 = self.cwd / f"{self.label}.mol2"
+        final_mol2 = self.cwd / f"final_{self.label}.mol2"
+        nonminimized_mol2 = self.cwd / f"{self.label}.mol2"
         frcmod = self.cwd / f"{self.label}.frcmod"
         lib = self.cwd / f"{self.label}.lib"
 
@@ -93,8 +98,8 @@ class FreeLigand(Recipe):
                 input=initial_mol2,
                 out_mol2=initial_mol2,
             ),
-            StageGaussian(
-                "Minimize",
+            GaussianMinimizeRESP(
+                "MinimizeLowTheory",
                 cwd=self.cwd,
                 nproc=self.nproc,
                 mem=self.mem,
@@ -103,10 +108,30 @@ class FreeLigand(Recipe):
                 gaussian_binary=self.gaussian_binary,
                 gaussian_scratch=self.gaussian_scratch,
                 net_charge=self.net_charge,
-                theory=self.theory,
+                opt_theory=self.theory["low"],
+                resp_theory=self.theory["low"],
                 force_gaussian_rerun=self.force_gaussian_rerun,
                 input=initial_mol2,
-                out_gaussian_log=minimization_gaussian_log,
+                out_gaussian_log=lowtheory_minimization_gaussian_log,
+                **self.kwargs,
+            ),
+            StageLazyResp("Resp", cwd=self.cwd, **self.kwargs, input=lowtheory_minimization_gaussian_log,
+                          out_mol2=resp_mol2_low),
+            GaussianMinimizeRESP(
+                "MinimizeHighTheory",
+                cwd=self.cwd,
+                nproc=self.nproc,
+                mem=self.mem,
+                gaussian_root=self.gaussian_root,
+                gauss_exedir=self.gauss_exedir,
+                gaussian_binary=self.gaussian_binary,
+                gaussian_scratch=self.gaussian_scratch,
+                net_charge=self.net_charge,
+                opt_theory=self.theory["high"],
+                resp_theory=self.theory["low"],
+                force_gaussian_rerun=self.force_gaussian_rerun,
+                input=resp_mol2_low,
+                out_gaussian_log=hightheory_minimization_gaussian_log,
                 **self.kwargs,
             ),
             StageGaussiantoMol2(
@@ -121,9 +146,9 @@ class FreeLigand(Recipe):
                 net_charge=self.net_charge,
                 theory=self.theory,
                 force_gaussian_rerun=self.force_gaussian_rerun,
-                input=minimization_gaussian_log,
+                input=hightheory_minimization_gaussian_log,
                 template_mol2=initial_mol2,
-                out_mol2=minimized_mol2,
+                out_mol2=resp_mol2_high,
                 **self.kwargs,
             ),
             StageGaussianRotation(
@@ -138,7 +163,7 @@ class FreeLigand(Recipe):
                 net_charge=self.net_charge,
                 theory=self.theory,
                 force_gaussian_rerun=self.force_gaussian_rerun,
-                input=minimized_mol2,
+                input=resp_mol2_high,
                 out_gaussian_label=rotation_label,
                 alpha=[0, 30, 60, 90, 120, 150, 180],
                 beta=[0, 30, 60, 90],
@@ -148,7 +173,7 @@ class FreeLigand(Recipe):
             # We know that the gaussian stages work in a "gaussianCalcs" directory. Quite hacky.
             StageMultiRespFit(
                 "MultiRespFit",
-                input=minimized_mol2,
+                input=resp_mol2_high,
                 in_gaussian_label=rotation_label,
                 out_respfit=out_respfit,
                 cwd=self.cwd / "gaussianCalcs",
@@ -157,7 +182,7 @@ class FreeLigand(Recipe):
             StageUpdateCharge(
                 "UpdateCharge",
                 cwd=self.cwd,
-                input=minimized_mol2,
+                input=resp_mol2_high,
                 out_mol2=resp_mol2,
                 charge_column=3,
                 charge_source=out_respfit,
@@ -190,6 +215,16 @@ class FreeLigand(Recipe):
                 out_mol2=final_mol2,
                 update_names=False,
                 update_types=True,
+                **self.kwargs,
+            ),
+            # Create a `nonminimized_mol2` with `initial_mol2` coordinates and  `final_mol2` charges
+            StageUpdate(
+                "UpdateCharges",
+                cwd=self.cwd,
+                input=initial_mol2,
+                source_mol2=final_mol2,
+                out_mol2=nonminimized_mol2,
+                update_charges=True,
                 **self.kwargs,
             ),
             StageParmChk("ParmChk", input=final_mol2, out_frcmod=frcmod, cwd=self.cwd, **self.kwargs),

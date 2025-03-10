@@ -16,12 +16,137 @@ from ligandparam.log import get_logger
 #
 logger = logging.getLogger("ligandparam.gaussian")
 
+#########
+## May be deprecated
+#########
+# class GaussianMinimize(AbstractStage):
+#     """
+#     This is class to run a basic Gaussian calculations on the ligand.
+#     Does a minimization at a low level of theory.
+#
+#     Parameters
+#     ----------
+#     inputoptions : dict
+#         The input options for the stage
+#
+#     Returns
+#     -------
+#     None
+#     """
+#
+#     def __init__(self, stage_name: str, input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+#         super().__init__(stage_name, input, cwd, *args, **kwargs)
+#         self.in_mol2 = Path(input)
+#         self.out_gaussian_log = Path(kwargs["out_gaussian_log"])
+#
+#         self._validate_input_paths(**kwargs)
+#         self.opt_theory = kwargs.get("opt_theory", "HF/6-31G*")
+#         self.resp_theory = kwargs.get("resp_theory", "HF/6-31G*")
+#         self.net_charge = kwargs.get("net_charge", 0.0)
+#         self.force_gaussian_rerun = kwargs.get("force_gaussian_rerun", False)
+#         self.gaussian_cwd = Path(self.cwd, "gaussianCalcs")
+#
+#         self.label = self.out_gaussian_log.stem
+#
+#         return
+#
+#     def _validate_input_paths(self, **kwargs):
+#         for opt in ("gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
+#             try:
+#                 setattr(self, opt, kwargs.get(opt, ""))
+#             except KeyError:
+#                 raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
+#         if self.gaussian_binary is None:
+#             self.gaussian_binary = "g16"
+#
+#     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
+#         """Appends the stage.
+#
+#         Args:
+#             stage (AbstractStage): _description_
+#
+#         Returns:
+#             AbstractStage: _description_
+#         """
+#         return stage
+#
+#     def setup(self, name_template: str) -> bool:
+#         self.in_com = self.gaussian_cwd / f"{name_template}.com"
+#         self.out_log = self.gaussian_cwd / f"{name_template}.log"
+#         self._add_outputs(self.out_log)
+#
+#         # __init__ tries to set up the coordinates object, but it may not have been available at init time.
+#         if not getattr(self, "coord_object", None):
+#             self.coord_object = Coordinates(self.in_mol2, filetype='pdb')
+#         self.gaussian_cwd.mkdir(exist_ok=True)
+#
+#         stageheader = [f"%NPROC={self.nproc}', f'%MEM={self.mem}MB"]
+#
+#         stageheader.append(f"%chk={self.in_mol2.stem}.antechamber.chk")
+#
+#         # Set up the Gaussian Block - it does not yet write anything,
+#         # so this part can be set up before the Gaussian calculations are run.
+#         gau = GaussianWriter(self.in_com)
+#         gau.add_block(GaussianInput(command=f"#P {self.opt_theory['low']} OPT(CalcFC)",
+#                                     initial_coordinates=self.coord_object.get_coordinates(),
+#                                     elements=self.coord_object.get_elements(),
+#                                     charge=self.net_charge,
+#                                     header=stageheader))
+#
+#         gau_complete = False
+#         # Check if the Gaussian calculation has already been run
+#         if os.path.exists(self.out_gaussian_log):
+#             reader = GaussianReader(self.out_gaussian_log)
+#             if reader.check_complete():
+#                 self.logger.info("Gaussian calculation already complete")
+#                 gau_complete = True
+#
+#         # Check if the Gaussian calculation should be rerun
+#         if self.force_gaussian_rerun:
+#             gau_complete = False
+#
+#         if not gau_complete:
+#             gau.write(dry_run=False)
+#
+#         return gau_complete
+#
+#     def execute(self, dry_run=False):
+#         """ Execute the Gaussian calculations.
+#
+#         Parameters
+#         ----------
+#         dry_run : bool, optional
+#             If True, the stage will not be executed, but the function will print the commands that would
+#
+#         Returns
+#         -------
+#         None
+#
+#         """
+#         gau_complete = self.setup(self.label)
+#         # Run the Gaussian calculations in the gaussianCalcs directory
+#         if not gau_complete:
+#             gau_run = Gaussian(cwd=self.gaussian_cwd, logger=self.logger, gaussian_root=self.gaussian_root,
+#                                gauss_exedir=self.gauss_exedir,
+#                                gaussian_binary=self.gaussian_binary, gaussian_scratch=self.gaussian_scratch)
+#             gau_run.call(inp_pipe=self.in_com.name,
+#                          out_pipe=self.out_log.name,
+#                          dry_run=dry_run)
+#
+#             # Move the Gaussian log file to the output location
+#             sh.copy(self.out_log, self.out_gaussian_log)
+#
+#         return
+#
+#     def _clean(self):
+#         """ Clean the files generated during the stage. """
+#         raise NotImplementedError("clean method not implemented")
 
-class StageGaussian(AbstractStage):
+
+class GaussianMinimizeRESP(AbstractStage):
     """
-    This is class to run a basic Gaussian calculations on the ligand.
-    This does three gaussian steps, one at a low level of theory, one at a higher level of theory,
-    and one for the resp calculation.
+    This is class to run a basic Gaussian calculation on the ligand.
+    This does 2 gaussian steps, a minimization and an ESP calculation for RESP charges.
 
     Parameters
     ----------
@@ -39,7 +164,8 @@ class StageGaussian(AbstractStage):
         self.out_gaussian_log = Path(kwargs["out_gaussian_log"])
 
         self._validate_input_paths(**kwargs)
-        self.theory = kwargs.get("theory", {"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"})
+        self.opt_theory = kwargs.get("opt_theory", "PBE1PBE/6-31G*")
+        self.resp_theory = kwargs.get("resp_theory", "HF/6-31G*")
         self.net_charge = kwargs.get("net_charge", 0.0)
         self.force_gaussian_rerun = kwargs.get("force_gaussian_rerun", False)
         self.gaussian_cwd = Path(self.cwd, "gaussianCalcs")
@@ -85,16 +211,16 @@ class StageGaussian(AbstractStage):
         # Set up the Gaussian Block - it does not yet write anything,
         # so this part can be set up before the Gaussian calculations are run.
         gau = GaussianWriter(self.in_com)
-        gau.add_block(GaussianInput(command=f"#P {self.theory['low']} OPT(CalcFC)",
+        # gau.add_block(GaussianInput(command=f"#P {self.opt_theory} OPT(CalcFC) GEOM(ALLCheck) Guess(Read)",
+        #                             charge=self.net_charge,
+        #                             header=stageheader))
+        gau.add_block(GaussianInput(command=f"#P {self.opt_theory} OPT(CalcFC)",
                                     initial_coordinates=self.coord_object.get_coordinates(),
                                     elements=self.coord_object.get_elements(),
                                     charge=self.net_charge,
                                     header=stageheader))
-        gau.add_block(GaussianInput(command=f"#P {self.theory['high']} OPT(CalcFC) GEOM(ALLCheck) Guess(Read)",
-                                    charge=self.net_charge,
-                                    header=stageheader))
         gau.add_block(GaussianInput(
-            command=f"#P {self.theory['low']} GEOM(AllCheck) Guess(Read) NoSymm Pop=mk IOp(6/33=2) GFInput GFPrint",
+            command=f"#P {self.resp_theory} GEOM(AllCheck) Guess(Read) NoSymm Pop=mk IOp(6/33=2) GFInput GFPrint",
             charge=self.net_charge,
             header=stageheader))
 
@@ -116,13 +242,13 @@ class StageGaussian(AbstractStage):
         return gau_complete
 
     def execute(self, dry_run=False):
-        """ Execute the Gaussian calculations. 
+        """ Execute the Gaussian calculations.
 
         Parameters
         ----------
         dry_run : bool, optional
             If True, the stage will not be executed, but the function will print the commands that would
-        
+
         Returns
         -------
         None
@@ -173,7 +299,8 @@ class StageGaussianRotation(AbstractStage):
         self.out_gaussian_label = kwargs["out_gaussian_label"]
 
         self._validate_input_paths(**kwargs)
-        self.theory = kwargs.get("theory", {"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"})
+        self.opt_theory = kwargs.get("opt_theory", "HF/6-31G*")
+        self.resp_theory = kwargs.get("resp_theory", "HF/6-31G*")
         self.net_charge = kwargs.get("net_charge", 0.0)
         self.force_gaussian_rerun = kwargs.get("force_gaussian_rerun", False)
         self.gaussian_cwd = Path(self.cwd, "gaussianCalcs")
@@ -231,7 +358,7 @@ class StageGaussianRotation(AbstractStage):
                     self.in_coms.append(in_com)
                     newgau = GaussianWriter(in_com)
                     newgau.add_block(GaussianInput(
-                        command=f"#P {self.theory['low']} SCF(Conver=6) NoSymm Test Pop=mk IOp(6/33=2) GFInput GFPrint",
+                        command=f"#P {self.resp_theory} SCF(Conver=6) NoSymm Test Pop=mk IOp(6/33=2) GFInput GFPrint",
                         initial_coordinates=test_rotation,
                         elements=self.coord_object.get_elements(),
                         header=self.header))
@@ -270,55 +397,6 @@ class StageGaussianRotation(AbstractStage):
                          out_pipe=out_log.name,
                          dry_run=dry_run)
             self._print_status(i, self.alpha, self.beta, self.gamma)
-
-        # # Check if the path exists, and make if needed
-        # orig_dir = Path.cwd()
-        # calc_dir = Path('gaussianCalcs')
-        # if not calc_dir.exists():
-        #     calc_dir.mkdir()
-        #
-        # run_apply = print
-        #
-        # store_coords = []
-        # for a in self.alpha:
-        #     for b in self.beta:
-        #         for g in self.gamma:
-        #             test_rotation = self.coord_object.rotate(alpha=a, beta=b, gamma=g)
-        #             store_coords.append(test_rotation)
-        #             # Write a guassian input file
-        #             newgau = GaussianWriter(
-        #                 f'gaussianCalcs/{self.out_gaussian_log.stem}_rot_{a:0.2f}_{b:0.2f}_{g:0.2f}.com')
-        #             newgau.add_block(GaussianInput(
-        #                 command=f"#P {self.theory['low']} SCF(Conver=6) NoSymm Test Pop=mk IOp(6/33=2) GFInput GFPrint",
-        #                 initial_coordinates=test_rotation,
-        #                 elements=self.coord_object.get_elements(),
-        #                 header=self.header))
-        #             newgau.write(dry_run=dry_run)
-        #
-        # # Write the coordinates to a "trajectory" file
-        # self.write_rotation(store_coords)
-        #
-        # # Run the Gaussian calculations in the gaussianCalcs directory
-        # os.chdir(calc_dir)
-        # try:
-        #     rot_count = 0
-        #     for a in self.alpha:
-        #         for b in self.beta:
-        #             for g in self.gamma:
-        #                 self._print_rotation(a, b, g)
-        #                 if dry_run:
-        #                     self.logger.info("Dry run: Gaussian calculations not run")
-        #                     self.logger.info("Would run the following file:")
-        #                     self.logger.info(f'-->{self.out_gaussian_log.stem}_rot_{a:.2f}_{b:.2f}_{g:.2f}.com')
-        #                 else:
-        #                     gau_run = Gaussian(cwd=self.cwd, logger=self.logger)
-        #                     gau_run.call(inp_pipe=f'{self.out_gaussian_log.stem}_rot_{a:.2f}_{b:.2f}_{g:.2f}.com',
-        #                                  out_pipe=f'{self.out_gaussian_log.stem}_rot_{a:.2f}_{b:.2f}_{g:.2f}.log',
-        #                                  dry_run=dry_run)
-        #                 rot_count += 1
-        #                 self._print_status(rot_count, self.alpha, self.beta, self.gamma)
-        # finally:
-        #     os.chdir(orig_dir)
 
         return
 
@@ -388,7 +466,6 @@ class StageGaussiantoMol2(AbstractStage):
         self.atom_type = kwargs.get("atom_type", "gaff2")
 
         self._validate_input_paths(**kwargs)
-        self.theory = kwargs.get("theory", {"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"})
         self.net_charge = kwargs.get("net_charge", 0.0)
         self.force_gaussian_rerun = kwargs.get("force_gaussian_rerun", False)
         self.gaussian_cwd = Path(self.cwd, "gaussianCalcs")

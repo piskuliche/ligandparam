@@ -25,7 +25,7 @@ class AbstractStage(metaclass=ABCMeta):
             raise ValueError(f"Bad input resname: {kwargs['resname']}")
 
         self.cwd = Path(cwd)
-        if not self.cwd.is_dir():
+        if not self.cwd.parent.is_dir():
             raise ValueError(f"Bad input `cwd` working dir: {self.cwd}")
 
         self.stage_name = stage_name
