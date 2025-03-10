@@ -10,6 +10,7 @@ bad_sdf = cwd / "bad_ligands.sdf"
 
 # Send output to stdout, though SDFToPDBBatch won't print unless there's an error
 logger = logging.getLogger("mylog")
+logger.setLevel(logging.INFO)
 stream_handler = logging.StreamHandler(sys.stdout)
 stream_handler.setLevel(logging.INFO)
 logger.addHandler(stream_handler)
