@@ -1,3 +1,4 @@
+from copy import deepcopy
 from pathlib import Path
 from typing import Union
 from typing_extensions import override
@@ -11,7 +12,6 @@ from ligandparam.stages import AbstractStage
 
 
 class LigHFix(AbstractStage):
-
     @override
     def __init__(self, stage_name: str, input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, input, cwd, *args, **kwargs)
@@ -25,10 +25,10 @@ class LigHFix(AbstractStage):
 
     def execute(self, dry_run=False):
         ligand_info = self.get_rcsb_small_molecule_info(ligand_id=self.lig_id)
-        descriptors = ligand_info.get('rcsb_chem_comp_descriptor', {})
+        descriptors = ligand_info.get("rcsb_chem_comp_descriptor", {})
         smiles_list = []
-        if 'smiles' in descriptors:
-            smiles_data = descriptors['smiles']
+        if "smiles" in descriptors:
+            smiles_data = descriptors["smiles"]
             if isinstance(smiles_data, str):
                 smiles_list.append(smiles_data)
             elif isinstance(smiles_data, list):
@@ -51,22 +51,41 @@ class LigHFix(AbstractStage):
         target_mol = molecules[0]
         template_mol = Chem.MolFromPDBFile(str(self.in_pdb), removeHs=True)
 
-        self.target_mol = target_mol
-        self.template_mol = template_mol
-
-        new_mol = self.assign_coordinates(template_mol, target_mol)
+        new_mol = self.assign_coordinates_and_names(template_mol, target_mol)
         self.write_mol(new_mol, self.resname)
 
-    def write_mol(self, mol: Mol, resname: str) -> None:
-        # Set metadata and write away
-        mol.SetProp("_Name", resname)
-        mi = Chem.AtomPDBResidueInfo()
-        mi.SetResidueName(resname)
-        mi.SetResidueNumber(1)
-        mi.SetOccupancy(0.0)
-        mi.SetTempFactor(0.0)
-        [a.SetMonomerInfo(mi) for a in mol.GetAtoms()]
+    def set_metadata(self, new_mol: Mol, template_mol: Mol, match: list[str]) -> Mol:
+        """
+        Sets atom names, resnames, etc. for the new molecule based on the template molecule.
+        Hydrogens atom names are not copied from the template molecule.
 
+        Args:
+            new_mol: The RDKit molecule object to which metadata will be assigned.
+            template_mol: The RDKit molecule object from which metadata will be derived.
+            match: A list of atom indices that map the template molecule to the new molecule.
+
+        Returns:
+            A new RDKit molecule object with the assigned metadata.
+        """
+        new_mol.SetProp("_Name", self.resname)
+        mi = Chem.AtomPDBResidueInfo()
+        mi.SetResidueName(self.resname)
+        mi.SetResidueNumber(1)
+        mi.SetOccupancy(1.0)
+        mi.SetTempFactor(0.0)
+        mi.SetIsHeteroAtom(True)
+
+        names = [atom.GetPDBResidueInfo().GetName() for atom in template_mol.GetAtoms()]
+        for i, atm in enumerate(new_mol.GetAtoms()):
+            if i < len(match):
+                mi.SetName(names[match[i]])
+                atm.SetMonomerInfo(mi)
+            else:
+                mi.SetName("")
+                atm.SetMonomerInfo(mi)
+        return new_mol
+
+    def write_mol(self, mol: Mol, resname: str) -> None:
         flavor = 0 if self.add_conect else 2
         self.logger.info(f"Writing {self.in_pdb} to {self.out_pdb}")
 
@@ -75,7 +94,7 @@ class LigHFix(AbstractStage):
         except Exception as e:
             self.logger.error(f"Failed to write to  {self.out_pdb}. Got exception: {e}")
 
-    def assign_coordinates(self, template_mol, target_mol) -> Mol:
+    def assign_coordinates_and_names(self, template_mol, target_mol) -> Mol:
         """
         Assigns coordinates from a template molecule to a target molecule using RDKit.
 
@@ -114,14 +133,16 @@ class LigHFix(AbstractStage):
         for i in range(template_mol.GetNumAtoms()):
             pos = template_mol.GetConformer().GetAtomPosition(match[i])
             new_conf.SetAtomPosition(i, pos)
-
         new_mol.AddConformer(new_conf)
+
         hmol = Chem.AddHs(new_mol, addCoords=True)
+        hmol = self.set_metadata(hmol, template_mol, match)
 
         return hmol
 
-    def get_rcsb_small_molecule_info(self, ligand_id: str,
-                                     base_url: str = "https://data.rcsb.org/rest/v1/core/chemcomp/"):
+    def get_rcsb_small_molecule_info(
+            self, ligand_id: str, base_url: str = "https://data.rcsb.org/rest/v1/core/chemcomp/"
+    ):
         """
         Queries the RCSB REST API for detailed information about a small molecule (ligand).
 
