@@ -30,7 +30,7 @@ def get_opts() -> dict:
     return opts
 
 
-def main():
+def ligfix():
     opts = get_opts()
 
     # Send output to stdout, though SDFToPDBBatch won't print unless there's an error
@@ -53,4 +53,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    ligfix()
