@@ -68,6 +68,7 @@ class LigHFix(AbstractStage):
             A new RDKit molecule object with the assigned metadata.
         """
         new_mol.SetProp("_Name", self.resname)
+
         mi = Chem.AtomPDBResidueInfo()
         mi.SetResidueName(self.resname)
         mi.SetResidueNumber(1)
@@ -77,12 +78,17 @@ class LigHFix(AbstractStage):
 
         names = [atom.GetPDBResidueInfo().GetName() for atom in template_mol.GetAtoms()]
         for i, atm in enumerate(new_mol.GetAtoms()):
+            # mi.SetSerialNumber(i)
             if i < len(match):
                 mi.SetName(names[match[i]])
                 atm.SetMonomerInfo(mi)
             else:
                 mi.SetName("")
+
                 atm.SetMonomerInfo(mi)
+
+
+
         return new_mol
 
     def write_mol(self, mol: Mol, resname: str) -> None:
@@ -127,6 +133,7 @@ class LigHFix(AbstractStage):
 
         # Create a copy of the target molecule *with* the new coordinates.
         new_mol = Chem.Mol(target_mol)
+
         new_mol.RemoveAllConformers()  # Important: Remove existing conformers.
         new_conf = Chem.Conformer(target_mol.GetNumAtoms())
 
