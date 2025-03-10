@@ -10,4 +10,5 @@ from .build_system import StageBuild
 from .typematching import StageUpdate
 from .sdftopdb import SDFToPDB
 from .sdftopdbbatch import SDFToPDBBatch
-from .stagesmiles import StageSmilesToPDB
+from .smilestopdb import StageSmilesToPDB
+from .lighfix import LigHFix
