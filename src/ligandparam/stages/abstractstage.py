@@ -24,8 +24,11 @@ class AbstractStage(metaclass=ABCMeta):
         if resname and len(resname) > 3:
             raise ValueError(f"Bad input resname: {kwargs['resname']}")
 
-        self.stage_name = stage_name
         self.cwd = Path(cwd)
+        if not self.cwd.is_dir():
+            raise ValueError(f"Bad input `cwd` working dir: {self.cwd}")
+
+        self.stage_name = stage_name
         self.required = []
         self.logger = kwargs.get("logger", get_logger())
         self.nproc = kwargs.get("nproc", 1)
