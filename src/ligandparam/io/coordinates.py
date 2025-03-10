@@ -25,7 +25,9 @@ class Coordinates:
             The filetype of the structure to read in
         """
         self.filename = Path(filename)
-        self.u = mda.Universe(filename)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            self.u = mda.Universe(filename)
         self.original_coords = self.get_coordinates()
 
         # If the mol2 comes from antechaamber, then the atom names are weird and both rdkit and mda will have trouble
