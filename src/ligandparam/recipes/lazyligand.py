@@ -136,6 +136,8 @@ class LazyLigand(Recipe):
                 update_resname=True,
                 **self.kwargs,
             ),
+            StageParmChk("ParmChk", input=final_mol2, out_frcmod=frcmod, cwd=self.cwd, **self.kwargs),
+            StageLeap("Leap", input=final_mol2, in_frcmod=frcmod, out_lib=lib, cwd=self.cwd, **self.kwargs),
             # Create a `nonminimized_mol2` with `initial_mol2` coordinates and  `final_mol2` charges
             StageUpdate(
                 "UpdateCharges",
@@ -146,8 +148,6 @@ class LazyLigand(Recipe):
                 update_charges=True,
                 **self.kwargs,
             ),
-            StageParmChk("ParmChk", input=final_mol2, out_frcmod=frcmod, cwd=self.cwd, **self.kwargs),
-            StageLeap("Leap", input=final_mol2, in_frcmod=frcmod, out_lib=lib, cwd=self.cwd, **self.kwargs),
         ]
 
     @override
