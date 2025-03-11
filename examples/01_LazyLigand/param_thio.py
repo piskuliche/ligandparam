@@ -5,6 +5,7 @@ import logging
 # Import the module
 from ligandparam.recipes import LazyLigand
 
+
 # Helper function to set up a file logger
 def set_file_logger(logfilename: Path, logname: str = None, filemode: str = 'a') -> logging.Logger:
     if logname is None:
@@ -40,9 +41,7 @@ parametrize_ligand = LazyLigand(
     cwd=cwd,
     logger=logger,
     net_charge=0,
-    nproc=12,
     atom_type="gaff2",
-    mem="8192",
     # antechamber will name your residue 'MOL' by default, and we follow that standard by default,
     # so you probably want to set it yourself:
     molname="LIG",
@@ -56,5 +55,4 @@ parametrize_ligand.setup()
 parametrize_ligand.list_stages()
 
 # Run the parametrization
-parametrize_ligand.execute(dry_run=False)
-
+parametrize_ligand.execute(dry_run=False, nproc=12, mem="8192")

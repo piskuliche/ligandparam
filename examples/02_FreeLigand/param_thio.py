@@ -41,9 +41,8 @@ parametrize_ligand = FreeLigand(
     cwd=cwd,
     logger=logger,
     net_charge=0,
-    nproc=24,
     atom_type="gaff2",
-    mem="20480",
+    molname="LIG",
     **gaussian_paths,
 )
 
@@ -54,4 +53,4 @@ parametrize_ligand.setup()
 parametrize_ligand.list_stages()
 
 # Execute the stages in order.
-parametrize_ligand.execute(dry_run=False)
+parametrize_ligand.execute(dry_run=False, nproc=24, mem="20480")

@@ -28,9 +28,7 @@ test = LazyLigand(
     in_filename=cwd / "thiophenol.pdb",
     cwd=cwd,
     net_charge=0,
-    nproc=12,
     atom_type="gaff2",
-    mem="8192",
     logger=logger,
     # antechamber will name your residue 'MOL' by default, and we follow that standard by default,
     # so you probably want to set it yourself:
@@ -42,7 +40,6 @@ test = LazyLigand(
 test.setup()
 
 # List the stages out to the user
-
 test.list_stages()
 
 test.remove_stage("Normalize1")
@@ -60,4 +57,4 @@ test.insert_stage(
 
 test.list_stages()
 
-test.execute()
+test.execute(nproc=12, mem="8192")
