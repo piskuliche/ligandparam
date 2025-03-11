@@ -15,9 +15,9 @@ from typing_extensions import override
 
 class LigHFix(AbstractStage):
     @override
-    def __init__(self, stage_name: str, input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
-        super().__init__(stage_name, input, cwd, *args, **kwargs)
-        self.lig_id = input
+    def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        super().__init__(stage_name, main_input, cwd, *args, **kwargs)
+        self.lig_id = main_input
         self.in_pdb = Path(kwargs["in_pdb"])
         self.out_pdb = Path(kwargs["out_pdb"])
         self.resname = kwargs.get("resname", "LIG")

@@ -13,9 +13,9 @@ from ligandparam.stages import AbstractStage
 class SDFToPDBBatch(AbstractStage):
 
     @override
-    def __init__(self, stage_name: str, input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
-        super().__init__(stage_name, input, cwd, *args, **kwargs)
-        self.in_sdf = Path(input)
+    def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        super().__init__(stage_name, main_input, cwd, *args, **kwargs)
+        self.in_sdf = Path(main_input)
 
         self.removeHs = kwargs.get("removeHs", False)
         self.add_conect = kwargs.get("add_conect", True)

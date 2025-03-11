@@ -13,9 +13,9 @@ class StageLazyResp(AbstractStage):
     """This class runs a 'lazy' resp calculation based on only
     a single gaussian output file."""
 
-    def __init__(self, stage_name: str, input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
-        super().__init__(stage_name, input, cwd, *args, **kwargs)
-        self.in_gaussian_log = Path(input)
+    def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        super().__init__(stage_name, main_input, cwd, *args, **kwargs)
+        self.in_gaussian_log = Path(main_input)
         self.add_required(self.in_gaussian_log)
         self.out_mol2 = Path(kwargs["out_mol2"])
 
@@ -70,10 +70,10 @@ class StageMultiRespFit(AbstractStage):
     TODO: Add a check that a multistate resp fit is possible.
     """
 
-    def __init__(self, stage_name: str, input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
-        super().__init__(stage_name, input, cwd, *args, **kwargs)
+    def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        super().__init__(stage_name, main_input, cwd, *args, **kwargs)
         self.in_gaussian_label = kwargs["in_gaussian_label"]
-        self.in_mol2 = Path(input)
+        self.in_mol2 = Path(main_input)
         self.in_gaussian_dir = Path(cwd)
         self.glob_str = str(self.in_gaussian_dir / f"*{self.in_gaussian_label}_*.log")
         # self.add_required(self.in_gaussian_log)

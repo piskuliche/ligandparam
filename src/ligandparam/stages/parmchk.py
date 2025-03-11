@@ -11,9 +11,9 @@ class StageParmChk(AbstractStage):
     """This is class to run parmchk on the ligand."""
 
     @override
-    def __init__(self, stage_name: str, input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
-        super().__init__(stage_name, input, cwd, *args, **kwargs)
-        self.in_mol2 = Path(input)
+    def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        super().__init__(stage_name, main_input, cwd, *args, **kwargs)
+        self.in_mol2 = Path(main_input)
         self.add_required(self.in_mol2)
         self.out_frcmod = Path(kwargs["out_frcmod"])
         self.net_charge = getattr(kwargs, "net_charge", 0.0)

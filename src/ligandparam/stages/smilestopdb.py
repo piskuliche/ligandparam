@@ -10,9 +10,9 @@ from ligandparam.stages import AbstractStage
 class StageSmilesToPDB(AbstractStage):
 
     @override
-    def __init__(self, stage_name: str, input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
-        super().__init__(stage_name, input, cwd, *args, **kwargs)
-        self.in_smiles = input
+    def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        super().__init__(stage_name, main_input, cwd, *args, **kwargs)
+        self.in_smiles = main_input
         self.out_pdb = Path(kwargs["out_pdb"])
         self.resname = kwargs.get("resname", "LIG")
         self.reduce = kwargs.get("reduce", True)
