@@ -18,14 +18,21 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
+  "numpy<2",
+  "pandas",
+  "requests",
+  "MDAnalysis",
+  "pathlib"
 ]
 urls = { "Homepage" = "https://github.com/piskulichz/ligandparam" }
 
-[tool.setuptools]
-packages = [
-      "ligandparam",
-      "ligandparam.io", 
-      "ligandparam.multiresp",
-      "ligandparam.recipes", 
-      "ligandparam.stages"
-  ]
+[project.scripts]
+ligfix = "ligandparam.cli.cli_lighfix:ligfix"
+
+[tool.ruff]
+line-length = 120
+indent-width = 4
+
+[tool.ruff.format]
+skip-magic-trailing-comma = true
+

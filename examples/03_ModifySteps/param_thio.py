@@ -1,38 +1,55 @@
-#!/usr/bin/env python
+import logging
+import sys
+from pathlib import Path
 
 # Import the module
-from ligandparam.recipes import FreeLigand
+from ligandparam.recipes import LazyLigand
+from ligandparam.stages import StageNormalizeCharge
 
-inputoptions = {
-    'base_name': 'thiophenol',
-    'net_charge': 0,
-    'mem': '60GB',
-    'nproc': 12
+# Environment variables for Gaussian. If your environment is already set up, you can ignore this.
+gaussian_paths = {
+    "gaussian_root": "/home/pb777/GAUSSIAN",
+    "gauss_exedir": "/home/pb777/GAUSSIAN/g16/bsd:/home/pb777/GAUSSIAN/g16",
+    "gaussian_binary": "/home/pb777/GAUSSIAN/g16/g16",
+    "gaussian_scratch": "/home/pb777/GAUSSIAN/g16/scratch",
 }
 
+cwd = Path(".").resolve()
+
+# Send output to stdout
+logger = logging.getLogger("mylog")
+logger.setLevel(logging.INFO)
+stream_handler = logging.StreamHandler(sys.stdout)
+stream_handler.setLevel(logging.INFO)
+logger.addHandler(stream_handler)
+
 # Load the pdb as a instance of the FreeLigand class
-test = FreeLigand(inputoptions=inputoptions)
+test = LazyLigand(
+    in_filename=cwd / "thiophenol.pdb",
+    cwd=cwd,
+    net_charge=0,
+    atom_type="gaff2",
+    logger=logger,
+    # antechamber will name your residue 'MOL' by default, and we follow that standard by default,
+    # so you probably want to set it yourself:
+    molname="LIG",
+    **gaussian_paths,
+)
 
 # Select the pre-initialized stages for Lazy Ligand
 test.setup()
 
 # List the stages out to the user
+test.list_stages()
+
+test.remove_stage("Normalize1")
+
+test.insert_stage(
+    StageNormalizeCharge("mynormalization", main_input="thiophenol.initial.mol2", cwd=cwd, net_charge=0,
+                         out_mol2="thiophenol.initial.mol2"),
+    "MinimizeLowTheory",
+)
 
 test.list_stages()
 
-
-test.remove_stage("Normalize")
-
-from ligandparam.stages import StageNormalizeCharge
-
-test.add_stage(StageNormalizeCharge("Normalize2", inputoptions=inputoptions, 
-                                    orig_mol2=test.base_name+".resp.mol2",
-						            new_mol2=test.base_name+".resp.mol2"))
-
-test.insert_stage(StageNormalizeCharge("Normalize3", inputoptions=inputoptions,
-                                        orig_mol2=test.base_name+".resp.mol2",
-                                        new_mol2=test.base_name+".resp.mol2"),
-                                        "Normalize2")
-
-test.execute()
-
+test.execute(nproc=12, mem="8192")
