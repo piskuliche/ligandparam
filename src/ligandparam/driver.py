@@ -146,4 +146,4 @@ class Driver:
                     print(f"Stage {newstage.stage_name} inserted before {stage_name}")
                     self.list_stages()
                 return
-            raise ValueError(f"Stage {stage_name} not found in list of stages.")
+        raise ValueError(f"Stage {stage_name} not found in list of stages.")
