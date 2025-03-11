@@ -36,3 +36,35 @@ def find_word_and_get_line(filepath: Union[Path, str], word: str):
 
     return lines_found
 
+def modify_gaussian_com(filepath: Path, nproc:int, mem:int):
+    config_line_regex = re.compile(b"%NPROC=\d+, %MEM=\d+MB")
+    nproc_bytes = str(nproc).encode()
+    mem_bytes = str(mem).encode()
+    new_line_prefix = b"%NPROC="
+    new_line_sep = b", %MEM="
+    new_line_suffix = b"MB"
+    new_line = new_line_prefix + nproc_bytes + new_line_sep + mem_bytes + new_line_suffix
+
+    with open(filepath, 'r+b') as f:
+        mm = mmap.mmap(f.fileno(), 0)
+        try:
+            output_parts = []
+            last_match_end = 0
+            for match in config_line_regex.finditer(mm):
+                start_index = match.start()
+                end_index = match.end()
+                output_parts.append(mm[last_match_end:start_index])
+                output_parts.append(new_line)
+                last_match_end = end_index
+            output_parts.append(mm[last_match_end:])
+            new_content = b"".join(output_parts)
+
+            mm.close()
+            f.seek(0)
+            f.truncate(0)
+            f.write(new_content)
+            return True
+        finally:
+            if 'mm' in locals() and not mm.closed:
+                mm.close()
+    return False
