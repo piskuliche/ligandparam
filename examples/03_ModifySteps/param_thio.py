@@ -45,14 +45,9 @@ test.list_stages()
 test.remove_stage("Normalize1")
 
 test.insert_stage(
-    StageNormalizeCharge(
-        "mynormalization",
-        cwd=cwd,
-        net_charge=0,
-        input="thiophenol.initial.mol2",
-        out_mol2="thiophenol.initial.mol2",
-    ),
-    "LazyResp",
+    StageNormalizeCharge("mynormalization", main_input="thiophenol.initial.mol2", cwd=cwd, net_charge=0,
+                         out_mol2="thiophenol.initial.mol2"),
+    "MinimizeLowTheory",
 )
 
 test.list_stages()
