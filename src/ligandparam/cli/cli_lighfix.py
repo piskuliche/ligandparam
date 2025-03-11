@@ -40,14 +40,8 @@ def ligfix():
     stream_handler.setLevel(logging.INFO)
     logger.addHandler(stream_handler)
 
-    s = LigHFix(
-        "liga",
-        input=opts["ligand_id"],
-        in_pdb=opts["in_pdb"],
-        out_pdb=opts["out_pdb"],
-        cwd=opts["out_pdb"].parent,
-        logger=logger,
-    )
+    s = LigHFix("liga", main_input=opts["ligand_id"], cwd=opts["out_pdb"].parent, in_pdb=opts["in_pdb"],
+                out_pdb=opts["out_pdb"], logger=logger)
 
     s.execute()
 
