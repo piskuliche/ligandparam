@@ -110,7 +110,7 @@ logger = logging.getLogger("ligandparam.gaussian")
 #
 #         return gau_complete
 #
-#     def execute(self, dry_run=False):
+#     def execute(self, dry_run=False, nproc=1, mem=512):
 #         """ Execute the Gaussian calculations.
 #
 #         Parameters
@@ -204,7 +204,7 @@ class GaussianMinimizeRESP(AbstractStage):
             self.coord_object = Coordinates(self.in_mol2, filetype='pdb')
         self.gaussian_cwd.mkdir(exist_ok=True)
 
-        stageheader = [f"%NPROC={self.nproc}', f'%MEM={self.mem}MB"]
+        stageheader = [f"%NPROC={self.nproc}, %MEM={self.mem}MB"]
 
         stageheader.append(f"%chk={self.in_mol2.stem}.antechamber.chk")
 
@@ -241,7 +241,7 @@ class GaussianMinimizeRESP(AbstractStage):
 
         return gau_complete
 
-    def execute(self, dry_run=False):
+    def execute(self, dry_run=False, nproc=1, mem=512):
         """ Execute the Gaussian calculations.
 
         Parameters
@@ -254,7 +254,10 @@ class GaussianMinimizeRESP(AbstractStage):
         None
 
         """
+        self.nproc = nproc
+        self.mem = mem
         gau_complete = self.setup(self.label)
+
         # Run the Gaussian calculations in the gaussianCalcs directory
         if not gau_complete:
             gau_run = Gaussian(cwd=self.gaussian_cwd, logger=self.logger, gaussian_root=self.gaussian_root,
@@ -338,7 +341,7 @@ class StageGaussianRotation(AbstractStage):
         return stage
 
     def setup(self, name_template: str) -> bool:
-        self.header = [f"%NPROC={self.nproc}', f'%MEM={self.mem}MB"]
+        self.header = [f"%NPROC={self.nproc}, %MEM={self.mem}MB"]
 
         # __init__ tries to set up the coordinates object, but it may not have been available at init time.
         if not getattr(self, "coord_object", None):
@@ -374,7 +377,7 @@ class StageGaussianRotation(AbstractStage):
 
         return False
 
-    def execute(self, dry_run=False):
+    def execute(self, dry_run=False, nproc=1, mem=512):
         """ Execute the Gaussian calculations for the rotated ligands.
         
         Parameters
@@ -385,11 +388,11 @@ class StageGaussianRotation(AbstractStage):
         Returns
         -------
         """
+        self.nproc = nproc
+        self.mem = mem
         self.setup(self.out_gaussian_label)
 
         for i, (in_com, out_log) in enumerate(zip(self.in_coms, self.out_logs)):
-            # gau_run = Gaussian(cwd=self.cwd, logger=self.logger)
-            # gau_run.call(inp_pipe=in_com.name, out_pipe=out_log.name, dry_run=dry_run)
             gau_run = Gaussian(cwd=self.gaussian_cwd, logger=self.logger, gaussian_root=self.gaussian_root,
                                gauss_exedir=self.gauss_exedir,
                                gaussian_binary=self.gaussian_binary, gaussian_scratch=self.gaussian_scratch)
@@ -488,9 +491,9 @@ class StageGaussiantoMol2(AbstractStage):
     def setup(self, name_template: str) -> bool:
         self.add_required(self.in_log)
 
-        self.header = [f"%NPROC={self.nproc}', f'%MEM={self.mem}MB"]
+        self.header = [f"%NPROC={self.nproc}, %MEM={self.mem}MB"]
 
-    def execute(self, dry_run=False):
+    def execute(self, dry_run=False, nproc=1, mem=512):
         """ Execute the Gaussian to mol2 conversion.
 
         Parameters

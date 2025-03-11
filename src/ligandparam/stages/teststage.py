@@ -12,7 +12,7 @@ class TestStage(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
-    def execute(self, dry_run=False):
+    def execute(self, dry_run=False, nproc=1, mem=512):
         self.logger.info("This worked!")
         return
 

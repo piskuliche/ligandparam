@@ -22,7 +22,7 @@ class StageParmChk(AbstractStage):
         """Appends the stage."""
         return stage
 
-    def execute(self, dry_run=False):
+    def execute(self, dry_run=False, nproc=1, mem=512):
         """Execute the parmchk calcualtion to obtain the frcmod.
 
         Parameters

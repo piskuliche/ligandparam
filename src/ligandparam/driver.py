@@ -40,7 +40,7 @@ class Driver:
         self.list_stages()
         return
 
-    def execute(self, dry_run=False):
+    def execute(self, dry_run=False, nproc=1, mem=512):
         """Execute the stages in the list of stages to run.
 
         This function executes the stages in the list of stages to run. The stages are executed in the order that they
@@ -57,7 +57,7 @@ class Driver:
         """
         for stage in self.stages:
             try:
-                stage.execute(dry_run=dry_run)
+                stage.execute(dry_run=dry_run, nproc=nproc, mem=mem)
             except Exception as e:
                 raise RuntimeError(f"Error in stage {stage.stage_name}: {e}")
         return

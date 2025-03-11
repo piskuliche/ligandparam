@@ -23,7 +23,7 @@ class StageInitialize(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
-    def execute(self, dry_run=False):
+    def execute(self, dry_run=False, nproc=1, mem=512):
         ante = Antechamber()
         ante.call(i=self.base_cls.name+'.pdb', fi='pdb',
                   o=self.base_cls.name+'.antechamber.mol2', fo='mol2',

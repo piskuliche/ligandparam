@@ -24,7 +24,7 @@ class StageLeap(AbstractStage):
         """Appends the stage."""
         return stage
 
-    def execute(self, dry_run=False):
+    def execute(self, dry_run=False, nproc=1, mem=512):
         """Setup and execute the leap lib file generation"""
         # Generate the leap input file
         leapgen = LeapWriter("param")

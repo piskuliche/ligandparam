@@ -64,7 +64,7 @@ class StageBuild(AbstractStage):
         """ Appends the stage. """
         return stage
 
-    def execute(self, dry_run=False):
+    def execute(self, dry_run=False, nproc=1, mem=512):
         """ Execute the Gaussian calculations.
         
         Parameters

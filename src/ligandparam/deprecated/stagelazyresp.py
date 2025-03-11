@@ -18,7 +18,7 @@ class StageLazyResp(AbstractStage):
         return stage
 
 
-    def execute(self, dry_run=False):
+    def execute(self, dry_run=False, nproc=1, mem=512):
         self.logger.info(f"Executing {self.name} with netcharge={self.base_cls.net_charge}")
         ante = Antechamber()
         ante.call(i=f"gaussianCalcs/{self.base_cls.name}.log", fi='gout',

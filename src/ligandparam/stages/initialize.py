@@ -30,7 +30,7 @@ class StageInitialize(AbstractStage):
         """ Appends the stage. """
         return stage
 
-    def execute(self, dry_run=False):
+    def execute(self, dry_run=False, nproc=1, mem=512):
         """ Execute the Gaussian calculations.
         
         Parameters
@@ -67,7 +67,7 @@ class StageSmilestoPDB(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         pass
     
-    def _execute(self, dry_run=False):
+    def _execute(self, dry_run=False, nproc=1, mem=512):
         pass
     
     def _clean(self):

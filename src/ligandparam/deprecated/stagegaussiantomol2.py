@@ -14,7 +14,7 @@ class StageGaussiantoMol2(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
-    def execute(self, dry_run=False):
+    def execute(self, dry_run=False, nproc=1, mem=512):
 
         if self.dry_run is not None:
             dry_run = self

@@ -23,7 +23,7 @@ class LigHFix(AbstractStage):
         self.add_conect = kwargs.get("add_conect", True)
         self.random_seed = kwargs.get("random_seed", None)
 
-    def execute(self, dry_run=False):
+    def execute(self, dry_run=False, nproc=1, mem=512):
         ligand_info = self.get_rcsb_small_molecule_info(ligand_id=self.lig_id)
         descriptors = ligand_info.get("rcsb_chem_comp_descriptor", {})
         smiles_list = []

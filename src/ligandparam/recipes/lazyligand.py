@@ -34,7 +34,7 @@ class LazyLigand(Recipe):
         super().__init__(in_filename, cwd, *args, **kwargs)
 
         # required options
-        for opt in ("net_charge", "nproc", "mem"):
+        for opt in ("net_charge",):
             try:
                 setattr(self, opt, kwargs[opt])
                 del kwargs[opt]
@@ -43,8 +43,8 @@ class LazyLigand(Recipe):
         # required options with defaults
         # TODO: defaults should be a global singleton dict
         for opt, default_val in zip(
-            ("theory", "leaprc", "force_gaussian_rerun"),
-            ({"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"}, ["leaprc.gaff2"], False),
+            ("theory", "leaprc", "force_gaussian_rerun", "nproc", "mem"),
+            ({"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"}, ["leaprc.gaff2"], False, 1, 512),
         ):
             try:
                 setattr(self, opt, kwargs[opt])
@@ -151,7 +151,7 @@ class LazyLigand(Recipe):
         ]
 
     @override
-    def execute(self, dry_run=False):
+    def execute(self, dry_run=False, nproc=1, mem=512):
         self.logger.info(f"Starting the LazyLigand recipe at {self.cwd}")
-        super().execute(dry_run=dry_run)
+        super().execute(dry_run=dry_run, nproc=nproc, mem=mem)
         self.logger.info("Done with the LazyLigand recipe")

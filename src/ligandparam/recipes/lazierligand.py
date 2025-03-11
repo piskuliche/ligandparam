@@ -48,7 +48,7 @@ class LazierLigand(Recipe):
         ]
 
     @override
-    def execute(self, dry_run=False):
+    def execute(self, dry_run=False, nproc=1, mem=512):
         self.logger.info(f"Starting the LazierLigand recipe at {self.cwd}")
-        super().execute(dry_run=dry_run)
+        super().execute(dry_run=False, nproc=1, mem=512)
         self.logger.info("Done with the LazierLigand recipe")

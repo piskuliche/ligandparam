@@ -978,10 +978,10 @@ class FragmentedSys(object):
         functions.WriteMaskedFrcmod(self.parmobj,aidxs,"%s.notsele.frcmod"%(base),"%s.sele.frcmod"%(base))
 
         print("Writing %s.pdb"%(base))
-        parmed.tools.writeCoordinates(self.parmobj, "%s.pdb"%(base)).execute()
+        parmed.tools.writeCoordinates(self.parmobj, "%s.pdb" % (base)).execute()
     
         print("Writing %s.lib"%(base))
-        parmed.tools.writeOFF(self.parmobj, "%s.lib"%(base)).execute()
+        parmed.tools.writeOFF(self.parmobj, "%s.lib" % (base)).execute()
 
         print("Writing %s.sh"%(base))
         functions.WriteLeapSh \
