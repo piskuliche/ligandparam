@@ -25,7 +25,12 @@ class LigHFix(AbstractStage):
 
     def execute(self, dry_run=False, nproc=1, mem=512):
         ligand_info = self.get_rcsb_small_molecule_info(ligand_id=self.lig_id)
-        descriptors = ligand_info.get("rcsb_chem_comp_descriptor", {})
+        try:
+            descriptors = ligand_info["rcsb_chem_comp_descriptor"]
+        except KeyError:
+            err_msg = f"Failed to get 'rcsb_chem_comp_descriptor' for ligand {self.lig_id}"
+            self.logger.error(err_msg)
+            raise ValueError(err_msg)
         smiles_list = []
         if "smiles" in descriptors:
             smiles_data = descriptors["smiles"]
