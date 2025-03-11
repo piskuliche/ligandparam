@@ -7,6 +7,7 @@ import json
 
 from rdkit import Chem
 from rdkit.Chem import Mol
+from rdkit.Chem.MolStandardize import rdMolStandardize
 
 from ligandparam.stages import AbstractStage
 
@@ -31,31 +32,22 @@ class LigHFix(AbstractStage):
             err_msg = f"Failed to get 'rcsb_chem_comp_descriptor' for ligand {self.lig_id}"
             self.logger.error(err_msg)
             raise ValueError(err_msg)
-        smiles_list = []
-        if "smiles" in descriptors:
-            smiles_data = descriptors["smiles"]
-            if isinstance(smiles_data, str):
-                smiles_list.append(smiles_data)
-            elif isinstance(smiles_data, list):
-                smiles_list.extend(smiles_data)
-            else:
-                err_msg = f"Unexpected type for 'smiles' field: {type(smiles_data)}"
-                self.logger.error(err_msg)
-                raise ValueError(err_msg)
+        try:
+            inchi = descriptors["in_ch_i"]
+        except KeyError:
+            err_msg = f"Failed to get 'inchi' from ligand {self.lig_id} descriptors: {descriptors}"
+            self.logger.error(err_msg)
+            raise ValueError(err_msg)
+        assert isinstance(inchi, str), f"Bad InChI: {inchi}"
 
-        molecules = []
-        for smiles in smiles_list:
-            mol = Chem.MolFromSmiles(smiles)
-            if mol:
-                molecules.append(mol)
-            else:
-                err_msg = f"RDKit could not create a molecule from SMILES: {smiles}"
-                self.logger.error(err_msg)
-                raise ValueError(err_msg)
+        try:
+            target_mol = Chem.MolFromInchi(inchi)
+        except Exception as e:
+            err_msg = f"RDKit could not create a molecule from InChi: {inchi}. Got exception: {e}"
+            self.logger.error(err_msg)
+            raise ValueError(err_msg)
 
-        target_mol = molecules[0]
         template_mol = Chem.MolFromPDBFile(str(self.in_pdb), removeHs=True)
-
         new_mol = self.assign_coordinates_and_names(template_mol, target_mol)
         self.write_mol(new_mol, self.resname)
 
@@ -91,8 +83,6 @@ class LigHFix(AbstractStage):
                 mi.SetName("")
 
                 atm.SetMonomerInfo(mi)
-
-
 
         return new_mol
 
@@ -132,9 +122,16 @@ class LigHFix(AbstractStage):
         # Use GetSubstructureMatch to get the atom mapping.  Crucial for correct alignment.
         match = template_mol.GetSubstructMatch(target_mol)
         if not match:
-            err_msg = "Error: could not find a substructure match between target and template molecules."
-            self.logger.error(err_msg)
-            raise ValueError(err_msg)
+            # So I don't get bitten by tautomers
+            enumerator = rdMolStandardize.TautomerEnumerator()
+            target_mol = enumerator.Canonicalize(target_mol)
+            template_mol = enumerator.Canonicalize(template_mol)
+
+            match = template_mol.GetSubstructMatch(target_mol)
+            if not match:
+                err_msg = "Error: could not find a substructure match between target and template molecules."
+                self.logger.error(err_msg)
+                raise ValueError(err_msg)
 
         # Create a copy of the target molecule *with* the new coordinates.
         new_mol = Chem.Mol(target_mol)
@@ -189,3 +186,15 @@ class LigHFix(AbstractStage):
 
     def _clean(self):
         raise NotImplementedError
+
+    def draw(self, mol, filepath: Path):
+        # Helper method for debugging purposes
+        from rdkit.Chem import Draw
+        assert filepath.suffix == ".png"
+        dm = Draw.PrepareMolForDrawing(mol)
+        d2d = Draw.MolDraw2DCairo(450, 400)
+        d2d.DrawMolecule(dm)
+        d2d.FinishDrawing()
+        png = d2d.GetDrawingText()
+        with open(filepath, 'wb') as outf:
+            outf.write(png)
