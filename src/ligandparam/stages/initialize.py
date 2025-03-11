@@ -18,7 +18,7 @@ class StageInitialize(AbstractStage):
         self.net_charge = kwargs.get("net_charge", 0.0)
         self.atom_type = kwargs.get("atom_type", "gaff2")
         self.charge_model = kwargs.get("charge_model", "bcc")
-        if self.charge_model not in  ("bcc", "abcg2"):
+        if self.charge_model not in ("bcc", "abcg2"):
             raise ValueError(f"Unknown charge model '{self.charge_model}'. Must be 'bcc' or 'abcg2'")
         if "molname" in kwargs:
             self.additional_args = {"rn": kwargs["molname"]}
@@ -26,33 +26,38 @@ class StageInitialize(AbstractStage):
             self.additional_args = {}
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
-        """ Appends the stage. """
+        """Appends the stage."""
         return stage
 
     def execute(self, dry_run=False, nproc=1, mem=512):
-        """ Execute the Gaussian calculations.
-        
+        """Execute the Gaussian calculations.
+
         Parameters
         ----------
         dry_run : bool, optional
             If True, the stage will not be executed, but the function will print the commands that would
-        
+
         Returns
         -------
         None
         """
         Remove_PDB_CONECT(self.in_pdb)
         ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
-        ante.call(i=self.in_pdb, fi='pdb',
-                  o=self.out_mol2, fo='mol2',
-                  c=self.charge_model, nc=self.net_charge,
-                  pf='y', at=self.atom_type,
-                  gn=f"%nproc={self.nproc}", gm=f"%mem={self.mem}MB",
-                  dry_run=dry_run,
-                  **self.additional_args)
+        ante.call(
+            i=self.in_pdb,
+            fi="pdb",
+            o=self.out_mol2,
+            fo="mol2",
+            c=self.charge_model,
+            nc=self.net_charge,
+            pf="y",
+            at=self.atom_type,
+            dry_run=dry_run,
+            **self.additional_args,
+        )
 
     def _clean(self):
-        """ Clean the files generated during the stage. """
+        """Clean the files generated during the stage."""
         raise NotImplementedError("clean method not implemented")
 
 

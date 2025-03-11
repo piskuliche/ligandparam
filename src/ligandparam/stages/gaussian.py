@@ -80,7 +80,7 @@ logger = logging.getLogger("ligandparam.gaussian")
 #             self.coord_object = Coordinates(self.in_mol2, filetype='pdb')
 #         self.gaussian_cwd.mkdir(exist_ok=True)
 #
-#         stageheader = [f"%NPROC={self.nproc}', f'%MEM={self.mem}MB"]
+#         stageheader = [f"%NPROC={self.nproc}', f'%MEM={self.mem}GB"]
 #
 #         stageheader.append(f"%chk={self.in_mol2.stem}.antechamber.chk")
 #
@@ -201,10 +201,10 @@ class GaussianMinimizeRESP(AbstractStage):
 
         # __init__ tries to set up the coordinates object, but it may not have been available at init time.
         if not getattr(self, "coord_object", None):
-            self.coord_object = Coordinates(self.in_mol2, filetype='pdb')
+            self.coord_object = Coordinates(self.in_mol2, filetype="pdb")
         self.gaussian_cwd.mkdir(exist_ok=True)
 
-        stageheader = [f"%NPROC={self.nproc}, %MEM={self.mem}MB"]
+        stageheader = [f"%NPROC={self.nproc}, %MEM={self.mem}GB"]
 
         stageheader.append(f"%chk={self.in_mol2.stem}.antechamber.chk")
 
@@ -214,15 +214,22 @@ class GaussianMinimizeRESP(AbstractStage):
         # gau.add_block(GaussianInput(command=f"#P {self.opt_theory} OPT(CalcFC) GEOM(ALLCheck) Guess(Read)",
         #                             charge=self.net_charge,
         #                             header=stageheader))
-        gau.add_block(GaussianInput(command=f"#P {self.opt_theory} OPT(CalcFC)",
-                                    initial_coordinates=self.coord_object.get_coordinates(),
-                                    elements=self.coord_object.get_elements(),
-                                    charge=self.net_charge,
-                                    header=stageheader))
-        gau.add_block(GaussianInput(
-            command=f"#P {self.resp_theory} GEOM(AllCheck) Guess(Read) NoSymm Pop=mk IOp(6/33=2) GFInput GFPrint",
-            charge=self.net_charge,
-            header=stageheader))
+        gau.add_block(
+            GaussianInput(
+                command=f"#P {self.opt_theory} OPT(CalcFC)",
+                initial_coordinates=self.coord_object.get_coordinates(),
+                elements=self.coord_object.get_elements(),
+                charge=self.net_charge,
+                header=stageheader,
+            )
+        )
+        gau.add_block(
+            GaussianInput(
+                command=f"#P {self.resp_theory} GEOM(AllCheck) Guess(Read) NoSymm Pop=mk IOp(6/33=2) GFInput GFPrint",
+                charge=self.net_charge,
+                header=stageheader,
+            )
+        )
 
         gau_complete = False
         # Check if the Gaussian calculation has already been run
@@ -242,7 +249,7 @@ class GaussianMinimizeRESP(AbstractStage):
         return gau_complete
 
     def execute(self, dry_run=False, nproc=1, mem=512):
-        """ Execute the Gaussian calculations.
+        """Execute the Gaussian calculations.
 
         Parameters
         ----------
@@ -260,12 +267,15 @@ class GaussianMinimizeRESP(AbstractStage):
 
         # Run the Gaussian calculations in the gaussianCalcs directory
         if not gau_complete:
-            gau_run = Gaussian(cwd=self.gaussian_cwd, logger=self.logger, gaussian_root=self.gaussian_root,
-                               gauss_exedir=self.gauss_exedir,
-                               gaussian_binary=self.gaussian_binary, gaussian_scratch=self.gaussian_scratch)
-            gau_run.call(inp_pipe=self.in_com.name,
-                         out_pipe=self.out_log.name,
-                         dry_run=dry_run)
+            gau_run = Gaussian(
+                cwd=self.gaussian_cwd,
+                logger=self.logger,
+                gaussian_root=self.gaussian_root,
+                gauss_exedir=self.gauss_exedir,
+                gaussian_binary=self.gaussian_binary,
+                gaussian_scratch=self.gaussian_scratch,
+            )
+            gau_run.call(inp_pipe=self.in_com.name, out_pipe=self.out_log.name, dry_run=dry_run)
 
             # Move the Gaussian log file to the output location
             sh.move(self.out_log, self.out_gaussian_log)
@@ -273,16 +283,15 @@ class GaussianMinimizeRESP(AbstractStage):
         return
 
     def _clean(self):
-        """ Clean the files generated during the stage. """
+        """Clean the files generated during the stage."""
         raise NotImplementedError("clean method not implemented")
 
 
 class StageGaussianRotation(AbstractStage):
-
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
-        """ This is class to rotate the ligand and run Gaussian calculations of the resp charges
-        for each rotated ligand. 
-        
+        """This is class to rotate the ligand and run Gaussian calculations of the resp charges
+        for each rotated ligand.
+
         Parameters
         ----------
         name : str
@@ -330,22 +339,22 @@ class StageGaussianRotation(AbstractStage):
             self.gaussian_binary = "g16"
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
-        """ Append the stage to the current stage. 
-        
+        """Append the stage to the current stage.
+
         Parameters
         ----------
         stage : AbstractStage
             The stage to append to the current stage
-            
+
         """
         return stage
 
     def setup(self, name_template: str) -> bool:
-        self.header = [f"%NPROC={self.nproc}, %MEM={self.mem}MB"]
+        self.header = [f"%NPROC={self.nproc}, %MEM={self.mem}GB"]
 
         # __init__ tries to set up the coordinates object, but it may not have been available at init time.
         if not getattr(self, "coord_object", None):
-            self.coord_object = Coordinates(self.in_mol2, filetype='pdb')
+            self.coord_object = Coordinates(self.in_mol2, filetype="pdb")
         self.gaussian_cwd.mkdir(exist_ok=True)
 
         store_coords = []
@@ -360,11 +369,14 @@ class StageGaussianRotation(AbstractStage):
                     in_com = self.gaussian_cwd / f"{name_template}_rot_{a:0.2f}_{b:0.2f}_{g:0.2f}.com"
                     self.in_coms.append(in_com)
                     newgau = GaussianWriter(in_com)
-                    newgau.add_block(GaussianInput(
-                        command=f"#P {self.resp_theory} SCF(Conver=6) NoSymm Test Pop=mk IOp(6/33=2) GFInput GFPrint",
-                        initial_coordinates=test_rotation,
-                        elements=self.coord_object.get_elements(),
-                        header=self.header))
+                    newgau.add_block(
+                        GaussianInput(
+                            command=f"#P {self.resp_theory} SCF(Conver=6) NoSymm Test Pop=mk IOp(6/33=2) GFInput GFPrint",
+                            initial_coordinates=test_rotation,
+                            elements=self.coord_object.get_elements(),
+                            header=self.header,
+                        )
+                    )
                     # Always write the Gaussian input file
                     newgau.write(dry_run=False)
 
@@ -378,13 +390,13 @@ class StageGaussianRotation(AbstractStage):
         return False
 
     def execute(self, dry_run=False, nproc=1, mem=512):
-        """ Execute the Gaussian calculations for the rotated ligands.
-        
+        """Execute the Gaussian calculations for the rotated ligands.
+
         Parameters
         ----------
         dry_run : bool, optional
             If True, the stage will not be executed, but the function will print the commands that would
-        
+
         Returns
         -------
         """
@@ -393,24 +405,27 @@ class StageGaussianRotation(AbstractStage):
         self.setup(self.out_gaussian_label)
 
         for i, (in_com, out_log) in enumerate(zip(self.in_coms, self.out_logs)):
-            gau_run = Gaussian(cwd=self.gaussian_cwd, logger=self.logger, gaussian_root=self.gaussian_root,
-                               gauss_exedir=self.gauss_exedir,
-                               gaussian_binary=self.gaussian_binary, gaussian_scratch=self.gaussian_scratch)
-            gau_run.call(inp_pipe=in_com.name,
-                         out_pipe=out_log.name,
-                         dry_run=dry_run)
+            gau_run = Gaussian(
+                cwd=self.gaussian_cwd,
+                logger=self.logger,
+                gaussian_root=self.gaussian_root,
+                gauss_exedir=self.gauss_exedir,
+                gaussian_binary=self.gaussian_binary,
+                gaussian_scratch=self.gaussian_scratch,
+            )
+            gau_run.call(inp_pipe=in_com.name, out_pipe=out_log.name, dry_run=dry_run)
             self._print_status(i, self.alpha, self.beta, self.gamma)
 
         return
 
     def _print_rotation(self, alpha, beta, gamma):
-        """ Print the rotation to the user. """
+        """Print the rotation to the user."""
         self.logger.info(f"---> Rotation: alpha={alpha}, beta={beta}, gamma={gamma}")
         return
 
     def _print_status(self, count, alphas, betas, gammas):
-        """ Print the status of the stage. 
-        
+        """Print the status of the stage.
+
         Parameters
         ----------
         count : int
@@ -428,9 +443,9 @@ class StageGaussianRotation(AbstractStage):
         return
 
     def write_rotation(self, coords, name_template: str):
-        """ Write the rotation to a file. """
+        """Write the rotation to a file."""
         self.logger.info(f"--> Writing rotations to file: gaussianCalcs/{name_template}_rotations.xyz")
-        with open(self.xyz, 'w') as file_obj:
+        with open(self.xyz, "w") as file_obj:
             for frame in coords:
                 SimpleXYZ(file_obj, frame)
         return
@@ -440,7 +455,7 @@ class StageGaussianRotation(AbstractStage):
 
 
 class StageGaussiantoMol2(AbstractStage):
-    """ Convert Gaussian output to mol2 format.
+    """Convert Gaussian output to mol2 format.
 
     This class converts the Gaussian output to mol2 format, and assigns the charges to the mol2 file.
 
@@ -485,16 +500,16 @@ class StageGaussiantoMol2(AbstractStage):
             self.gaussian_binary = "g16"
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
-        """ Append the stage to the current stage. """
+        """Append the stage to the current stage."""
         return stage
 
     def setup(self, name_template: str) -> bool:
         self.add_required(self.in_log)
 
-        self.header = [f"%NPROC={self.nproc}, %MEM={self.mem}MB"]
+        self.header = [f"%NPROC={self.nproc}, %MEM={self.mem}GB"]
 
     def execute(self, dry_run=False, nproc=1, mem=512):
-        """ Execute the Gaussian to mol2 conversion.
+        """Execute the Gaussian to mol2 conversion.
 
         Parameters
         ----------
@@ -507,16 +522,13 @@ class StageGaussiantoMol2(AbstractStage):
 
         """
         import warnings
+
         warnings.filterwarnings("ignore")
         self.setup(self.in_log.stem)
 
         # Convert from gaussian to mol2
         ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
-        ante.call(i=self.in_log, fi='gout',
-                  o=self.temp1_mol2, fo='mol2',
-                  pf='y', at=self.atom_type,
-                  gn=f"%nproc={self.nproc}", gm=f"%mem={self.mem}MB",
-                  dry_run=dry_run)
+        ante.call(i=self.in_log, fi="gout", o=self.temp1_mol2, fo="mol2", pf="y", at=self.atom_type, dry_run=dry_run)
 
         # Assign the charges
         if not dry_run:
@@ -536,11 +548,7 @@ class StageGaussiantoMol2(AbstractStage):
 
         # Use antechamber to clean up the mol2 format
         ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
-        ante.call(i=self.temp2_mol2, fi='mol2',
-                  o=self.out_mol2, fo='mol2',
-                  pf='y', at=self.atom_type,
-                  gn=f"%nproc={self.nproc}", gm=f"%mem={self.mem}MB",
-                  dry_run=dry_run)
+        ante.call(i=self.temp2_mol2, fi="mol2", o=self.out_mol2, fo="mol2", pf="y", at=self.atom_type, dry_run=dry_run)
 
         return
 
@@ -548,7 +556,7 @@ class StageGaussiantoMol2(AbstractStage):
         return
 
     def remove_blank_lines(self, file_path):
-        """ Remove blank lines from a file.
+        """Remove blank lines from a file.
 
         Parameters
         ----------
@@ -562,10 +570,10 @@ class StageGaussiantoMol2(AbstractStage):
         """
         if Path(file_path).exists():
             # Read the file and filter out blank lines
-            with open(file_path, 'r') as file:
+            with open(file_path, "r") as file:
                 lines = file.readlines()
                 non_blank_lines = [line for line in lines if line.strip()]
 
             # Write the non-blank lines back to the file
-            with open(file_path, 'w') as file:
+            with open(file_path, "w") as file:
                 file.writelines(non_blank_lines)

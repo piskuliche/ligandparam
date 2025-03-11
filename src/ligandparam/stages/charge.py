@@ -53,15 +53,7 @@ class StageUpdateCharge(AbstractStage):
 
             ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
             ante.call(
-                i=self.tmp_mol2,
-                fi="mol2",
-                o=self.out_mol2,
-                fo="mol2",
-                pf="y",
-                at=self.atom_type,
-                gn=f"%nproc={self.nproc}",
-                gm=f"%mem={self.mem}MB",
-                dry_run=dry_run,
+                i=self.tmp_mol2, fi="mol2", o=self.out_mol2, fo="mol2", pf="y", at=self.atom_type, dry_run=dry_run
             )
 
         return
@@ -135,15 +127,7 @@ class StageNormalizeCharge(AbstractStage):
 
                 ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
                 ante.call(
-                    i=self.tmp_mol2,
-                    fi="mol2",
-                    o=self.out_mol2,
-                    fo="mol2",
-                    pf="y",
-                    at=self.atom_type,
-                    gn=f"%nproc={self.nproc}",
-                    gm=f"%mem={self.mem}MB",
-                    dry_run=dry_run,
+                    i=self.tmp_mol2, fi="mol2", o=self.out_mol2, fo="mol2", pf="y", at=self.atom_type, dry_run=dry_run
                 )
 
     def _clean(self):

@@ -49,10 +49,9 @@ class StageLazyResp(AbstractStage):
             c="resp",
             nc=self.net_charge,
             at=self.atom_type,
-            gn=f"%nproc={self.nproc}",
-            gm=f"%mem={self.mem}MB",
             dry_run=dry_run,
-            **self.additional_args, )
+            **self.additional_args,
+        )
         return
 
     def _clean(self):
