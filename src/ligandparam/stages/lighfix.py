@@ -1,15 +1,16 @@
-from copy import deepcopy
+import io
+import json
 from pathlib import Path
 from typing import Union
-from typing_extensions import override
-import requests
-import json
 
+import requests
+from ligandparam.stages import AbstractStage
+from ligandparam.utils import stderr_redirector
 from rdkit import Chem
 from rdkit.Chem import Mol
 from rdkit.Chem.MolStandardize import rdMolStandardize
-
-from ligandparam.stages import AbstractStage
+from rdkit.Chem.AllChem import AssignBondOrdersFromTemplate
+from typing_extensions import override
 
 
 class LigHFix(AbstractStage):
@@ -49,7 +50,7 @@ class LigHFix(AbstractStage):
 
         template_mol = Chem.MolFromPDBFile(str(self.in_pdb), removeHs=True)
         new_mol = self.assign_coordinates_and_names(template_mol, target_mol)
-        self.write_mol(new_mol, self.resname)
+        self.write_mol(new_mol)
 
     def set_metadata(self, new_mol: Mol, template_mol: Mol, match: list[str]) -> Mol:
         """
@@ -86,7 +87,7 @@ class LigHFix(AbstractStage):
 
         return new_mol
 
-    def write_mol(self, mol: Mol, resname: str) -> None:
+    def write_mol(self, mol: Mol) -> None:
         flavor = 0 if self.add_conect else 2
         self.logger.info(f"Writing {self.in_pdb} to {self.out_pdb}")
 
@@ -125,6 +126,13 @@ class LigHFix(AbstractStage):
             # So I don't get bitten by tautomers
             enumerator = rdMolStandardize.TautomerEnumerator()
             target_mol = enumerator.Canonicalize(target_mol)
+            # If input PDB doesn't come with CONECT records, this might help. User may get a warning saying:
+            # WARNING: More than one matching pattern found - picking one
+            # So we capture it and ignore it.
+            f = io.BytesIO()
+            with stderr_redirector(f):
+                template_mol = AssignBondOrdersFromTemplate(refmol=target_mol, mol=template_mol)
+
             template_mol = enumerator.Canonicalize(template_mol)
 
             match = template_mol.GetSubstructMatch(target_mol)
@@ -157,6 +165,7 @@ class LigHFix(AbstractStage):
 
         Args:
             ligand_id: The 3-letter RCSB ligand ID (e.g., "NOV").
+            base_url: The base URL for the RCSB REST API (default: "https://data.rcsb.org/rest/v1/core/chemcomp/").
 
         Returns:
             A dictionary containing the ligand information, or None if the query fails.
@@ -167,7 +176,6 @@ class LigHFix(AbstractStage):
 
         ligand_id = ligand_id.upper()  # Ensure uppercase for consistency
         url = f"{base_url}{ligand_id}"
-        err_msg = "BAD ERROR MSG"
         try:
             response = requests.get(url)
             response.raise_for_status()  # Raise an exception for bad status codes (4xx or 5xx)
@@ -187,7 +195,8 @@ class LigHFix(AbstractStage):
     def _clean(self):
         raise NotImplementedError
 
-    def draw(self, mol, filepath: Path):
+    @staticmethod
+    def draw(mol, filepath: Path):
         # Helper method for debugging purposes
         from rdkit.Chem import Draw
         assert filepath.suffix == ".png"
