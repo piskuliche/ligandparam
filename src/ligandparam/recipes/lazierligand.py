@@ -38,12 +38,10 @@ class LazierLigand(Recipe):
         final_mol2 = self.cwd / f"final_{self.label}.mol2"
 
         self.stages = [
-            StageInitialize("Initialize", input=self.in_filename, cwd=self.cwd,
-                            out_mol2=nonminimized_mol2, **self.kwargs),
-            StageParmChk("ParmChk", input=nonminimized_mol2,
-                         out_frcmod=frcmod, cwd=self.cwd, **self.kwargs),
-            StageLeap("Leap", input=nonminimized_mol2,
-                      in_frcmod=frcmod, out_lib=lib, cwd=self.cwd, **self.kwargs)
+            StageInitialize("Initialize", main_input=self.in_filename, cwd=self.cwd, out_mol2=nonminimized_mol2,
+                            **self.kwargs),
+            StageParmChk("ParmChk", main_input=nonminimized_mol2, cwd=self.cwd, out_frcmod=frcmod, **self.kwargs),
+            StageLeap("Leap", main_input=nonminimized_mol2, cwd=self.cwd, in_frcmod=frcmod, out_lib=lib, **self.kwargs)
             # TODO: copy `nonminimized_mol2` to `final_mol2`?
         ]
 
