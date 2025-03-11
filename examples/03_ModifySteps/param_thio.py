@@ -52,4 +52,4 @@ test.insert_stage(
 
 test.list_stages()
 
-test.execute(nproc=12, mem="8192")
+test.execute(nproc=12, mem="8")

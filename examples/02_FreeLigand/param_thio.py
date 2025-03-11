@@ -53,4 +53,4 @@ parametrize_ligand.setup()
 parametrize_ligand.list_stages()
 
 # Execute the stages in order.
-parametrize_ligand.execute(dry_run=False, nproc=24, mem="20480")
+parametrize_ligand.execute(dry_run=False, nproc=24, mem="20")
