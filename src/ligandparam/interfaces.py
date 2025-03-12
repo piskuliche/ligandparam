@@ -184,18 +184,10 @@ class Gaussian(SimpleInterface):
 
     def set_environment(self) -> dict:
         env = os.environ
-        print(env.get("g16root", "NADA DE g16root"))
-        print(env.get("GAUSS_EXEDIR", "NADA DE GAUSS_EXEDIR"))
-        print(env.get("GAUSS_SCRDIR", "NADA DE GAUSS_SCRDIR"))
         if not env.get("g16root") and self.gaussian_root:
             env["g16root"] = str(self.gaussian_root)
         if not env.get("GAUSS_EXEDIR") and self.gauss_exedir:
             env["GAUSS_EXEDIR"] = str(self.gauss_exedir)
         if not env.get("GAUSS_SCRDIR") and self.gaussian_scratch:
             env["GAUSS_SCRDIR"] = str(self.gaussian_scratch)
-
-        print(env.get("g16root", "NADA DE g16root"))
-        print(env.get("GAUSS_EXEDIR", "NADA DE GAUSS_EXEDIR"))
-        print(env.get("GAUSS_SCRDIR", "NADA DE GAUSS_SCRDIR"))
-
         return env
