@@ -21,7 +21,7 @@ dependencies = [
   "numpy<2",
   "pandas",
   "requests",
-  "MDAnalysis",
+  "MDAnalysis>2.7.0",
   "pathlib"
 ]
 urls = { "Homepage" = "https://github.com/piskulichz/ligandparam" }
