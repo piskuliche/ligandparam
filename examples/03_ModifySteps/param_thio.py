@@ -8,10 +8,10 @@ from ligandparam.stages import StageNormalizeCharge
 
 # Environment variables for Gaussian. If your environment is already set up, you can ignore this.
 gaussian_paths = {
-    "gaussian_root": "/home/pb777/GAUSSIAN",
-    "gauss_exedir": "/home/pb777/GAUSSIAN/g16/bsd:/home/pb777/GAUSSIAN/g16",
-    "gaussian_binary": "/home/pb777/GAUSSIAN/g16/g16",
-    "gaussian_scratch": "/home/pb777/GAUSSIAN/g16/scratch",
+    "gaussian_root": "/home/.../GAUSSIAN",
+    "gauss_exedir": "/home/.../GAUSSIAN/g16/bsd:/home/.../GAUSSIAN/g16",
+    "gaussian_binary": "/home/.../GAUSSIAN/g16/g16",
+    "gaussian_scratch": "/home/.../GAUSSIAN/g16/scratch",
 }
 
 cwd = Path(".").resolve()
@@ -33,7 +33,7 @@ test = LazyLigand(
     # antechamber will name your residue 'MOL' by default, and we follow that standard by default,
     # so you probably want to set it yourself:
     molname="LIG",
-    **gaussian_paths,
+    # **gaussian_paths,
 )
 
 # Select the pre-initialized stages for Lazy Ligand

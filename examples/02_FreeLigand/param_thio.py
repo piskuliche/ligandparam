@@ -28,10 +28,10 @@ def set_file_logger(logfilename: Path, logname: str = None, filemode: str = 'a')
 cwd = Path(".").resolve()
 # Environment variables for Gaussian. If your environment is already set up, you can ignore this.
 gaussian_paths = {
-    "gaussian_root": "/home/pb777/GAUSSIAN",
-    "gauss_exedir": "/home/pb777/GAUSSIAN/g16/bsd:/home/pb777/GAUSSIAN/g16",
-    "gaussian_binary": "/home/pb777/GAUSSIAN/g16/g16",
-    "gaussian_scratch": "/home/pb777/GAUSSIAN/g16/scratch",
+    "gaussian_root": "/home/.../GAUSSIAN",
+    "gauss_exedir": "/home/.../GAUSSIAN/g16/bsd:/home/.../GAUSSIAN/g16",
+    "gaussian_binary": "/home/.../GAUSSIAN/g16/g16",
+    "gaussian_scratch": "/home/.../GAUSSIAN/g16/scratch",
 }
 
 # Load the pdb as a instance of the FreeLigand class
@@ -43,7 +43,7 @@ parametrize_ligand = FreeLigand(
     net_charge=0,
     atom_type="gaff2",
     molname="LIG",
-    **gaussian_paths,
+    # **gaussian_paths,
 )
 
 # Select the pre-initialized stages for Lazy Ligand
