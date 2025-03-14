@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Any
 
 from pathlib import Path
 
@@ -24,7 +24,7 @@ class StageLeap(AbstractStage):
         """Appends the stage."""
         return stage
 
-    def execute(self, dry_run=False, nproc=1, mem=512):
+    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
         """Setup and execute the leap lib file generation"""
         # Generate the leap input file
         leapgen = LeapWriter("param")

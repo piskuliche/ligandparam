@@ -1,5 +1,5 @@
 import os
-from typing import Union
+from typing import Union, Any
 import logging
 
 import MDAnalysis as mda
@@ -122,7 +122,7 @@ class GaussianMinimizeRESP(AbstractStage):
 
         return gau_complete
 
-    def execute(self, dry_run=False, nproc=1, mem=512):
+    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
         """Execute the Gaussian calculations.
 
         Parameters
@@ -263,7 +263,7 @@ class StageGaussianRotation(AbstractStage):
 
         return False
 
-    def execute(self, dry_run=False, nproc=1, mem=512):
+    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
         """Execute the Gaussian calculations for the rotated ligands.
 
         Parameters
@@ -382,7 +382,7 @@ class StageGaussiantoMol2(AbstractStage):
 
         self.header = [f"%NPROC={self.nproc}, %MEM={self.mem}GB"]
 
-    def execute(self, dry_run=False, nproc=1, mem=512):
+    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
         """Execute the Gaussian to mol2 conversion.
 
         Parameters

@@ -1,5 +1,5 @@
 import glob
-from typing import Union
+from typing import Union, Any
 from pathlib import Path
 
 from ligandparam.stages.abstractstage import AbstractStage
@@ -31,7 +31,7 @@ class StageLazyResp(AbstractStage):
         """Appends the stage."""
         return stage
 
-    def execute(self, dry_run=False, nproc=1, mem=512):
+    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
         """Execute antechamber to convert the gaussian output to a mol2 file.
 
         Parameters
@@ -84,7 +84,7 @@ class StageMultiRespFit(AbstractStage):
         """Appends the stage."""
         return stage
 
-    def execute(self, dry_run=False, nproc=1, mem=512):
+    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
         """Execute a multi-state respfitting calculation.
 
         if __name__ == "__main__":

@@ -40,7 +40,7 @@ class Driver:
         self.list_stages()
         return
 
-    def execute(self, dry_run=False, nproc=1, mem=512):
+    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
         """Execute the stages in the list of stages to run.
 
         This function executes the stages in the list of stages to run. The stages are executed in the order that they

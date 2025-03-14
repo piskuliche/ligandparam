@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Any
 from typing_extensions import override
 from pathlib import Path
 import warnings
@@ -32,7 +32,7 @@ class StageUpdateCharge(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
-    def execute(self, dry_run=False, nproc=1, mem=512):
+    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
         # Supress the inevitable mol2 file warnings.
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -88,7 +88,7 @@ class StageNormalizeCharge(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
-    def execute(self, dry_run=False, nproc=1, mem=512):
+    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
         """Execute the stage.
 
         Raises

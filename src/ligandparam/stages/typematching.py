@@ -1,5 +1,5 @@
 import warnings
-from typing import Union
+from typing import Union, Any
 
 import numpy as np
 import MDAnalysis as mda
@@ -42,7 +42,7 @@ class StageUpdate(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
-    def execute(self, dry_run=False, nproc=1, mem=512) -> None:
+    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
 

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Union
+from typing import Union, Any
 from typing_extensions import override
 
 from rdkit import Chem
@@ -19,7 +19,7 @@ class SDFToPDB(AbstractStage):
         self.add_conect = kwargs.get("add_conect", True)
         self.mol_idx = kwargs.get("mol_idx", 0)
 
-    def execute(self, dry_run=False, nproc=1, mem=512):
+    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
         # First, create the molecule
         try:
             mols = Chem.SDMolSupplier(self.in_sdf, removeHs=False)

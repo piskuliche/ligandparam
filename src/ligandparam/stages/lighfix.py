@@ -1,7 +1,7 @@
 import io
 import json
 from pathlib import Path
-from typing import Union
+from typing import Union, Any
 
 import requests
 from ligandparam.stages import AbstractStage
@@ -25,7 +25,7 @@ class LigHFix(AbstractStage):
         self.add_conect = kwargs.get("add_conect", True)
         self.random_seed = kwargs.get("random_seed", None)
 
-    def execute(self, dry_run=False, nproc=1, mem=512):
+    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
         ligand_info = self.get_rcsb_small_molecule_info(ligand_id=self.lig_id)
         try:
             descriptors = ligand_info["rcsb_chem_comp_descriptor"]

@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from pathlib import Path
-from typing import Union
+from typing import Union, Any
 
 from ligandparam.io.coordinates import Coordinates
 from ligandparam.log import get_logger
@@ -40,17 +40,13 @@ class AbstractStage(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def execute(self, dry_run=False, nproc=1, mem=512):
-        pass
-
-    @abstractmethod
     def _clean(self):
         pass
 
     def append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return self._append_stage(stage)
 
-    def execute(self, dry_run=False, nproc=1, mem=512) -> None:
+    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
         self.logger.info(f"Executing {self.stage_name}")
         starting_files = self.list_files_in_directory(self.cwd)
         self._check_required()

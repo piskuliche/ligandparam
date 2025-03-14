@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Any
 
 from pathlib import Path
 
@@ -29,7 +29,7 @@ class StageInitialize(AbstractStage):
         """Appends the stage."""
         return stage
 
-    def execute(self, dry_run=False, nproc=1, mem=512):
+    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
         """Execute the Gaussian calculations.
 
         Parameters

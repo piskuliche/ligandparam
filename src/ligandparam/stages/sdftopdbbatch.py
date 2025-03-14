@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Union, Iterable
+from typing import Union, Iterable, Any
 
 import numpy as np
 from typing_extensions import override
@@ -25,7 +25,7 @@ class SDFToPDBBatch(AbstractStage):
         self.resnames = kwargs.get("resnames", None)
         self.resname = kwargs.get("resname", None)
 
-    def execute(self, dry_run=False, nproc=1, mem=512):
+    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
         # First, create the molecule
         try:
             mols = Chem.SDMolSupplier(self.in_sdf, removeHs=False)

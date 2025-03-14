@@ -103,7 +103,7 @@ class LazyLigand(Recipe):
         ]
 
     @override
-    def execute(self, dry_run=False, nproc=1, mem=512):
+    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
         self.logger.info(f"Starting the LazyLigand recipe at {self.cwd}")
         super().execute(dry_run=dry_run, nproc=nproc, mem=mem)
         self.logger.info("Done with the LazyLigand recipe")

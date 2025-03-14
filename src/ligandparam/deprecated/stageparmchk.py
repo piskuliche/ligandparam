@@ -18,7 +18,7 @@ class StageParmChk(AbstractStage):
         return stage
 
 
-    def execute(self, dry_run=False, nproc=1, mem=512):
+    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
         print(f"Executing {self.name} with netcharge={self.base_cls.net_charge}")
         parm = ParmChk()
         parm.call(i=self.base_cls.name+'.resp.mol2', f="mol2",

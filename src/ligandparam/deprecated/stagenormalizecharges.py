@@ -26,7 +26,7 @@ class StageNormalizeCharges(AbstractStage):
         return stage
 
 
-    def execute(self, dry_run=False, nproc=1, mem=512):
+    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
         print(f"Executing {self.name} with netcharge={self.netcharge}")
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
