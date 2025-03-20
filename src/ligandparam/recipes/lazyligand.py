@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Union
+from typing import Union, Any
 
 from typing_extensions import override
 
