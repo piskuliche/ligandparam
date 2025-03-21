@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Union, Any
+from typing import Optional,  Union, Any
 from pathlib import Path
 
 
@@ -40,7 +40,7 @@ class Driver:
         self.list_stages()
         return
 
-    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
+    def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
         """Execute the stages in the list of stages to run.
 
         This function executes the stages in the list of stages to run. The stages are executed in the order that they

@@ -1,4 +1,4 @@
-from typing import Union, Any
+from typing import Optional,  Union, Any
 from typing_extensions import override
 from pathlib import Path
 import warnings
@@ -32,7 +32,8 @@ class StageUpdateCharge(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
-    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
+    def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
+        super()._setup_execution(dry_run=dry_run, nproc=nproc, mem=mem)
         # Supress the inevitable mol2 file warnings.
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -88,7 +89,7 @@ class StageNormalizeCharge(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
-    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
+    def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
         """Execute the stage.
 
         Raises
@@ -100,6 +101,7 @@ class StageNormalizeCharge(AbstractStage):
         TODO: Check what happens when charge difference is larger than the number of atoms
 
         """
+        super()._setup_execution(dry_run=dry_run, nproc=nproc, mem=mem)
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             self.logger.debug("Checking charges")
@@ -111,11 +113,11 @@ class StageNormalizeCharge(AbstractStage):
                 u = mda.Universe(self.in_mol2, format="mol2")
             rounded_charges, total_charge, charge_difference = self.check_charge(u.atoms.charges)
 
-            if not np.isclose(total_charge, 0, rtol=1e-10):
+            if not np.isclose(total_charge, self.net_charge, rtol=1e-10):
                 self.logger.info("Normalizing charges")
                 new_charges = self.normalize(rounded_charges, charge_difference)
                 _, new_total, new_diff = self.check_charge(new_charges)
-                if np.isclose(new_total, 0, rtol=1e-10):
+                if np.isclose(new_total, self.net_charge, rtol=1e-10):
                     u.atoms.charges = new_charges
                 else:
                     raise ValueError(f"Error: Charge normalization failed, new charge: {new_total}.")

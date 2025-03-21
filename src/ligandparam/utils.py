@@ -11,7 +11,7 @@ libc = ctypes.CDLL(None)
 c_stderr = ctypes.c_void_p.in_dll(libc, 'stderr')
 
 from pathlib import Path
-from typing import Union
+from typing import Optional,  Union
 
 
 def find_word_and_get_line(filepath: Union[Path, str], word: str):

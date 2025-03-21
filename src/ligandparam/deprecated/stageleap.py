@@ -23,7 +23,7 @@ class StageLeap(AbstractStage):
             return stage
         
     
-        def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
+        def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
             print(f"Executing {self.stage_name} with netcharge={self.base_cls.net_charge}")
             leapgen = LeapWriter("param")
             for rc in self.leaprc:

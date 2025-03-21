@@ -1,4 +1,4 @@
-from typing import Union, Any
+from typing import Optional,  Union, Any
 from typing_extensions import override
 from pathlib import Path
 
@@ -22,7 +22,7 @@ class StageParmChk(AbstractStage):
         """Appends the stage."""
         return stage
 
-    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
+    def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
         """Execute the parmchk calcualtion to obtain the frcmod.
 
         Parameters

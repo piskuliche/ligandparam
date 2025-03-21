@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Optional,  Any
 
 from ligandparam.stages.abstractstage import AbstractStage
 from ligandparam.log import get_logger
@@ -14,7 +14,7 @@ class TestStage(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
-    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
+    def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
         self.logger.info("This worked!")
         return
 

@@ -1,6 +1,7 @@
 import os
-from typing import Union, Any
+from typing import Optional,  Union, Any
 import logging
+import warnings
 
 import MDAnalysis as mda
 
@@ -122,7 +123,7 @@ class GaussianMinimizeRESP(AbstractStage):
 
         return gau_complete
 
-    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
+    def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
         """Execute the Gaussian calculations.
 
         Parameters
@@ -135,8 +136,7 @@ class GaussianMinimizeRESP(AbstractStage):
         None
 
         """
-        self.nproc = nproc
-        self.mem = mem
+        super()._setup_execution(dry_run=dry_run, nproc=nproc, mem=mem)
         gau_complete = self.setup(self.label)
 
         # Run the Gaussian calculations in the gaussianCalcs directory
@@ -263,7 +263,7 @@ class StageGaussianRotation(AbstractStage):
 
         return False
 
-    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
+    def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
         """Execute the Gaussian calculations for the rotated ligands.
 
         Parameters
@@ -274,8 +274,7 @@ class StageGaussianRotation(AbstractStage):
         Returns
         -------
         """
-        self.nproc = nproc
-        self.mem = mem
+        super()._setup_execution(dry_run=dry_run, nproc=nproc, mem=mem)
         self.setup(self.out_gaussian_label)
 
         for i, (in_com, out_log) in enumerate(zip(self.in_coms, self.out_logs)):
@@ -382,7 +381,7 @@ class StageGaussiantoMol2(AbstractStage):
 
         self.header = [f"%NPROC={self.nproc}, %MEM={self.mem}GB"]
 
-    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
+    def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
         """Execute the Gaussian to mol2 conversion.
 
         Parameters
@@ -395,7 +394,7 @@ class StageGaussiantoMol2(AbstractStage):
         None
 
         """
-        import warnings
+        super()._setup_execution(dry_run=dry_run, nproc=nproc, mem=mem)
 
         warnings.filterwarnings("ignore")
         self.setup(self.in_log.stem)

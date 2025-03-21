@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from pathlib import Path
-from typing import Union, Any
+from typing import Optional, Union, Any
 
 from ligandparam.io.coordinates import Coordinates
 from ligandparam.log import get_logger
@@ -32,7 +32,7 @@ class AbstractStage(metaclass=ABCMeta):
         self.required = []
         self.logger = kwargs.get("logger", get_logger())
         self.nproc = kwargs.get("nproc", 1)
-        self.mem = kwargs.get("mem", 512)
+        self.mem = kwargs.get("mem", 1)
         self.dry_run = kwargs.get("dry_run", False)
 
     @abstractmethod
@@ -46,11 +46,17 @@ class AbstractStage(metaclass=ABCMeta):
     def append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return self._append_stage(stage)
 
-    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
+    def _setup_execution(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> None:
+        self.nproc = self.nproc if nproc is None else nproc
+        self.mem = self.mem if mem is None else mem
+
+    def execute(self, dry_run=False, nproc: Optional[int] = None, mem: Optional[int] = None) -> Any:
         self.logger.info(f"Executing {self.stage_name}")
         starting_files = self.list_files_in_directory(self.cwd)
         self._check_required()
-        self.execute(self, dry_run=False, nproc=1, mem=512)
+
+        self._setup_execution(dry_run=dry_run, nproc=nproc, mem=mem)
+        self.execute(self, nproc=self.nproc, mem=self.mem)
         ending_files = self.list_files_in_directory(self.cwd)
         self.new_files = [f for f in ending_files if f not in starting_files]
         # TODO: Write code to ctually assert that the files are there and raise an error if they are not.

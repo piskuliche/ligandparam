@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Union, Any
+from typing import Optional,  Union, Any
 from typing_extensions import override
 
 from rdkit import Chem
@@ -19,7 +19,7 @@ class StageSmilesToPDB(AbstractStage):
         self.add_conect = kwargs.get("add_conect", True)
         self.random_seed = kwargs.get("random_seed", None)
 
-    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
+    def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
         # First, create the molecule
         try:
             mol = Chem.MolFromSmiles(self.in_smiles)

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Union, Any
+from typing import Optional,  Union, Any
 
 from typing_extensions import override
 
@@ -47,18 +47,11 @@ class FreeLigand(Recipe):
     def __init__(self, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs):
         super().__init__(in_filename, cwd, *args, **kwargs)
 
-        # required options
-        for opt in ("net_charge",):
-            try:
-                setattr(self, opt, kwargs[opt])
-                del kwargs[opt]
-            except KeyError:
-                raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
         # required options with defaults
         # TODO: defaults should be a global singleton dict
         for opt, default_val in zip(
-            ("theory", "leaprc", "force_gaussian_rerun", "nproc", "mem"),
-            ({"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"}, ["leaprc.gaff2"], False, 1, 512),
+            ("theory", "leaprc", "force_gaussian_rerun", "nproc", "mem", "net_charge"),
+            ({"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"}, ["leaprc.gaff2"], False, 1, 1, 0),
         ):
             try:
                 setattr(self, opt, kwargs[opt])
@@ -89,7 +82,7 @@ class FreeLigand(Recipe):
         lib = self.cwd / f"{self.label}.lib"
 
         self.stages = [
-            StageInitialize("Initialize", main_input=self.in_filename, cwd=self.cwd, out_mol2=initial_mol2,
+            StageInitialize("Initialize", main_input=self.in_filename, cwd=self.cwd, out_mol2=initial_mol2, net_charge=self.net_charge,
                             **self.kwargs),
             StageNormalizeCharge("Normalize1", main_input=initial_mol2, cwd=self.cwd, net_charge=self.net_charge,
                                  out_mol2=initial_mol2, **self.kwargs),
@@ -138,7 +131,7 @@ class FreeLigand(Recipe):
         ]
 
     @override
-    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
+    def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
         self.logger.info(f"Starting the FreeLigand recipe at {self.cwd}")
         super().execute(dry_run=dry_run, nproc=nproc, mem=mem)
         self.logger.info("Done with the FreeLigand recipe")

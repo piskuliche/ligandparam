@@ -17,7 +17,7 @@ class StageGaussian(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
-    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
+    def execute(self, dry_run=False, nproc=1, mem=1) -> Any:
         stageheader = self.base_cls.header
         stageheader.append(f"%chk={self.base_cls.name}.antechamber.chk")
         gau = GaussianWriter(f'gaussianCalcs/{self.base_cls.name}.com')

@@ -1,4 +1,4 @@
-from typing import Union, Any
+from typing import Optional,  Union, Any
 
 from pathlib import Path
 
@@ -29,7 +29,7 @@ class StageInitialize(AbstractStage):
         """Appends the stage."""
         return stage
 
-    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
+    def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
         """Execute the Gaussian calculations.
 
         Parameters
@@ -41,6 +41,7 @@ class StageInitialize(AbstractStage):
         -------
         None
         """
+        super()._setup_execution(dry_run=dry_run, nproc=nproc, mem=mem)
         Remove_PDB_CONECT(self.in_pdb)
         ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
         ante.call(
@@ -71,7 +72,7 @@ class StageSmilestoPDB(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         pass
     
-    def _execute(self, dry_run=False, nproc=1, mem=512):
+    def _execute(self, dry_run=False, nproc=1, mem=1):
         pass
     
     def _clean(self):

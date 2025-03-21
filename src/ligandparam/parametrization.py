@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Union
+from typing import Optional,  Union
 from typing_extensions import override
 
 from ligandparam.driver import Driver

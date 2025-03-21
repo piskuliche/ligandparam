@@ -1,5 +1,5 @@
 import warnings
-from typing import Union, Any
+from typing import Optional,  Union, Any
 
 import numpy as np
 import MDAnalysis as mda
@@ -42,7 +42,8 @@ class StageUpdate(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
-    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
+    def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
+        super()._setup_execution(dry_run=dry_run, nproc=nproc, mem=mem)
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
 
@@ -94,6 +95,7 @@ class StageUpdate(AbstractStage):
                 dry_run=dry_run,
                 **self.additional_args,
             )
+
 
     def _clean(self):
         raise NotImplementedError("clean method not implemented")

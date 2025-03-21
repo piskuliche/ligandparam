@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from typing import Optional,  Any
 from ligandparam.abstractstage import AbstractStage
 from ligandparam.interfaces import Antechamber
 
@@ -24,7 +24,7 @@ class StageInitialize(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
-    def execute(self, dry_run=False, nproc=1, mem=512) -> Any:
+    def execute(self, dry_run=False, nproc=1, mem=1) -> Any:
         ante = Antechamber()
         ante.call(
             i=self.base_cls.name + ".pdb",
