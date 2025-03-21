@@ -15,13 +15,14 @@ class StageUpdateCharge(AbstractStage):
     """This class creates a new mol2 file with updated charges."""
 
     @override
-    def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+    def     __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, main_input, cwd, *args, **kwargs)
         self.in_mol2 = Path(main_input)
         self.charge_source = kwargs["charge_source"]
         self.charge_column = kwargs.get("charge_column", 3)
         self.out_mol2 = Path(kwargs["out_mol2"])
         self.tmp_mol2 = self.cwd / f"{self.out_mol2.stem}_tmp_update.mol2"  # tmpresp
+        self.net_charge = kwargs.get("net_charge", 0.0)
         self.atom_type = kwargs.get("atom_type", "gaff2")
 
         self.add_required(Path(self.in_mol2))
@@ -54,7 +55,7 @@ class StageUpdateCharge(AbstractStage):
 
             ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
             ante.call(
-                i=self.tmp_mol2, fi="mol2", o=self.out_mol2, fo="mol2", pf="y", at=self.atom_type, dry_run=dry_run
+                i=self.tmp_mol2, fi="mol2", o=self.out_mol2, fo="mol2", pf="y", at=self.atom_type, nc=self.net_charge, dry_run=dry_run
             )
 
         return
@@ -129,7 +130,7 @@ class StageNormalizeCharge(AbstractStage):
 
                 ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
                 ante.call(
-                    i=self.tmp_mol2, fi="mol2", o=self.out_mol2, fo="mol2", pf="y", at=self.atom_type, dry_run=dry_run
+                    i=self.tmp_mol2, fi="mol2", o=self.out_mol2, fo="mol2", pf="y", at=self.atom_type, nc=self.net_charge, dry_run=dry_run
                 )
 
     def _clean(self):

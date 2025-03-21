@@ -28,6 +28,7 @@ class StageGaussiantoMol2(AbstractStage):
             fo="mol2",
             pf="y",
             at=self.base_cls.atom_type,
+            nc=self.net_charge,
             run=(not dry_run),
         )
 
@@ -53,6 +54,7 @@ class StageGaussiantoMol2(AbstractStage):
             fo="mol2",
             pf="y",
             at=self.base_cls.atom_type,
+            nc=self.net_charge,
             run=(not dry_run),
         )
 

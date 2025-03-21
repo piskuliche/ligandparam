@@ -16,7 +16,7 @@ class StageParmChk(AbstractStage):
         self.in_mol2 = Path(main_input)
         self.add_required(self.in_mol2)
         self.out_frcmod = Path(kwargs["out_frcmod"])
-        self.net_charge = getattr(kwargs, "net_charge", 0.0)
+        self.net_charge = kwargs.get("net_charge", 0.0)
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """Appends the stage."""

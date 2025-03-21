@@ -26,6 +26,7 @@ class LazierLigand(Recipe):
         for opt in ("net_charge",):
             try:
                 setattr(self, opt, kwargs[opt])
+                del kwargs[opt]
             except KeyError:
                 raise KeyError(f"Missing {opt}")
         # required options with defaults

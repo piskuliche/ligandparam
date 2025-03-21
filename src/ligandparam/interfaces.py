@@ -77,8 +77,10 @@ class Antechamber(SimpleInterface):
             self.cwd = Path(kwargs["cwd"])
         except KeyError:
             raise ValueError(f"ERROR: missing `cwd` arg with a path to the workdir.")
+
         self.logger = kwargs.get("logger", get_logger())
         self.nproc = kwargs.get("nproc", 1)
+
         self.set_method("antechamber")
         return
 

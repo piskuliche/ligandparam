@@ -37,6 +37,7 @@ class LazyLigand(Recipe):
         for opt in ("net_charge",):
             try:
                 setattr(self, opt, kwargs[opt])
+                del kwargs[opt]
             except KeyError:
                 raise KeyError(f"Missing {opt}")
         # required options with defaults
@@ -166,6 +167,7 @@ class LazyLigand(Recipe):
                 source_mol2=final_mol2,
                 out_mol2=nonminimized_mol2,
                 update_charges=True,
+                net_charge=self.net_charge,
                 **self.kwargs,
             ),
         ]

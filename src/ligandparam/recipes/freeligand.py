@@ -51,6 +51,7 @@ class FreeLigand(Recipe):
         for opt in ("net_charge",):
             try:
                 setattr(self, opt, kwargs[opt])
+                del kwargs[opt]
             except KeyError:
                 raise KeyError(f"Missing {opt}")
         # required options with defaults
@@ -199,6 +200,7 @@ class FreeLigand(Recipe):
                 out_mol2=resp_mol2,
                 charge_column=3,
                 charge_source=out_respfit,
+                net_charge=self.net_charge,
                 **self.kwargs,
             ),
             StageNormalizeCharge(
@@ -218,6 +220,7 @@ class FreeLigand(Recipe):
                 update_names=True,
                 update_types=False,
                 update_resname=True,
+                net_charge=self.net_charge,
                 **self.kwargs,
             ),
             StageUpdate(
@@ -228,6 +231,7 @@ class FreeLigand(Recipe):
                 out_mol2=final_mol2,
                 update_names=False,
                 update_types=True,
+                net_charge=self.net_charge,
                 **self.kwargs,
             ),
             # Create a `nonminimized_mol2` with `initial_mol2` coordinates and  `final_mol2` charges
@@ -238,6 +242,7 @@ class FreeLigand(Recipe):
                 source_mol2=final_mol2,
                 out_mol2=nonminimized_mol2,
                 update_charges=True,
+                net_charge=self.net_charge,
                 **self.kwargs,
             ),
             StageParmChk("ParmChk", main_input=final_mol2, cwd=self.cwd, out_frcmod=frcmod, **self.kwargs),

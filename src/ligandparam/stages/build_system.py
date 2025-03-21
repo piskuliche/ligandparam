@@ -34,11 +34,11 @@ class StageBuild(AbstractStage):
         """
         super().__init__(stage_name, name, cwd, *args, **kwargs)
         
-        self.target_pdb = getattr(kwargs, 'target_pdb')
-        self.build_type = self._validate_build_type(getattr(kwargs, 'build_type', 'aq'))
-        self.concentration = getattr(kwargs, 'concentration', 0.14)
-        self.rbuffer = getattr(kwargs, 'rbuffer', 9.0)
-        self.leaprc = getattr(kwargs, 'leaprc', None)
+        self.target_pdb = kwargs['target_pdb']
+        self.build_type = self._validate_build_type(kwargs.get('build_type', 'aq'))
+        self.concentration = kwargs.get('concentration', 0.14)
+        self.rbuffer = kwargs.get('rbuffer', 9.0)
+        self.leaprc = kwargs.get('leaprc', None)
         if not self.leaprc:
             self.leaprc = ["leaprc.water.OPC"]
 

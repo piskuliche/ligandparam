@@ -26,6 +26,7 @@ class StageUpdate(AbstractStage):
         self.out_mol2 = Path(kwargs["out_mol2"])
 
         self.source_mol2 = Path(kwargs["source_mol2"])
+        self.net_charge = kwargs.get("net_charge", 0.0)
         self.update_names = kwargs.get("update_names", False)
         self.update_types = kwargs.get("update_types", False)
         self.update_resname = kwargs.get("update_resname", False)
@@ -92,6 +93,7 @@ class StageUpdate(AbstractStage):
                 fo="mol2",
                 pf="y",
                 at=self.atom_type,
+                nc=self.net_charge,
                 dry_run=dry_run,
                 **self.additional_args,
             )

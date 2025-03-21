@@ -86,9 +86,6 @@ class GaussianMinimizeRESP(AbstractStage):
         # Set up the Gaussian Block - it does not yet write anything,
         # so this part can be set up before the Gaussian calculations are run.
         gau = GaussianWriter(self.in_com)
-        # gau.add_block(GaussianInput(command=f"#P {self.opt_theory} OPT(CalcFC) GEOM(ALLCheck) Guess(Read)",
-        #                             charge=self.net_charge,
-        #                             header=stageheader))
         gau.add_block(
             GaussianInput(
                 command=f"#P {self.opt_theory} OPT(CalcFC)",
@@ -248,6 +245,7 @@ class StageGaussianRotation(AbstractStage):
                             command=f"#P {self.resp_theory} SCF(Conver=6) NoSymm Test Pop=mk IOp(6/33=2) GFInput GFPrint",
                             initial_coordinates=test_rotation,
                             elements=self.coord_object.get_elements(),
+                            charge=self.net_charge,
                             header=self.header,
                         )
                     )
@@ -401,7 +399,7 @@ class StageGaussiantoMol2(AbstractStage):
 
         # Convert from gaussian to mol2
         ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
-        ante.call(i=self.in_log, fi="gout", o=self.temp1_mol2, fo="mol2", pf="y", at=self.atom_type, dry_run=dry_run)
+        ante.call(i=self.in_log, fi="gout", o=self.temp1_mol2, fo="mol2", pf="y", at=self.atom_type, nc=self.net_charge, dry_run=dry_run)
 
         # Assign the charges
         if not dry_run:
@@ -421,7 +419,7 @@ class StageGaussiantoMol2(AbstractStage):
 
         # Use antechamber to clean up the mol2 format
         ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
-        ante.call(i=self.temp2_mol2, fi="mol2", o=self.out_mol2, fo="mol2", pf="y", at=self.atom_type, dry_run=dry_run)
+        ante.call(i=self.temp2_mol2, fi="mol2", o=self.out_mol2, fo="mol2", pf="y", at=self.atom_type, nc=self.net_charge, dry_run=dry_run)
 
         return
 

@@ -19,8 +19,8 @@ class StageLazyResp(AbstractStage):
         self.add_required(self.in_gaussian_log)
         self.out_mol2 = Path(kwargs["out_mol2"])
 
-        self.net_charge = getattr(kwargs, "net_charge", 0.0)
-        self.atom_type = getattr(kwargs, "atom_type", "gaff2")
+        self.net_charge = kwargs.get("net_charge", 0.0)
+        self.atom_type = kwargs.get("atom_type", "gaff2")
 
         if "molname" in kwargs:
             self.additional_args = {"rn": kwargs["molname"]}
@@ -78,7 +78,7 @@ class StageMultiRespFit(AbstractStage):
         # self.add_required(self.in_gaussian_log)
         self.out_respfit = Path(kwargs["out_respfit"])
 
-        self.net_charge = getattr(kwargs, "net_charge", 0.0)
+        self.net_charge = kwargs.get("net_charge", 0.0)
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """Appends the stage."""
