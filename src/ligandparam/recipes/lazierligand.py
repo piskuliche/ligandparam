@@ -22,7 +22,14 @@ class LazierLigand(Recipe):
     def __init__(self, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs):
         super().__init__(in_filename, cwd, *args, **kwargs)
 
-        for opt, default_val in zip(("net_charge", "nproc"), (0, 1)):
+        # required options
+        for opt in ("net_charge",):
+            try:
+                setattr(self, opt, kwargs[opt])
+            except KeyError:
+                raise KeyError(f"Missing {opt}")
+        # required options with defaults
+        for opt, default_val in zip(("nproc", ), (1,)):
             try:
                 setattr(self, opt, kwargs[opt])
                 del kwargs[opt]

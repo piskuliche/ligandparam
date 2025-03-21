@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional,  Union, Any
+from typing import Optional, Union, Any
 
 from typing_extensions import override
 
@@ -33,11 +33,17 @@ class LazyLigand(Recipe):
     def __init__(self, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs):
         super().__init__(in_filename, cwd, *args, **kwargs)
 
+        # required options
+        for opt in ("net_charge",):
+            try:
+                setattr(self, opt, kwargs[opt])
+            except KeyError:
+                raise KeyError(f"Missing {opt}")
         # required options with defaults
         # TODO: defaults should be a global singleton dict
         for opt, default_val in zip(
-            ("theory", "leaprc", "force_gaussian_rerun", "nproc", "mem", "net_charge"),
-            ({"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"}, ["leaprc.gaff2"], False, 1, 1, 0),
+            ("theory", "leaprc", "force_gaussian_rerun", "nproc", "mem"),
+            ({"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"}, ["leaprc.gaff2"], False, 1, 1),
         ):
             try:
                 setattr(self, opt, kwargs[opt])
@@ -64,39 +70,108 @@ class LazyLigand(Recipe):
         lib = self.cwd / f"{self.label}.lib"
 
         self.stages = [
-            StageInitialize("Initialize", main_input=self.in_filename, cwd=self.cwd, out_mol2=initial_mol2, net_charge=self.net_charge,
-                            **self.kwargs),
-            StageNormalizeCharge("Normalize1", main_input=initial_mol2, cwd=self.cwd, net_charge=self.net_charge,
-                                 out_mol2=initial_mol2, **self.kwargs),
-            GaussianMinimizeRESP("MinimizeLowTheory", main_input=initial_mol2, cwd=self.cwd, nproc=self.nproc,
-                                 mem=self.mem, gaussian_root=self.gaussian_root, gauss_exedir=self.gauss_exedir,
-                                 gaussian_binary=self.gaussian_binary, gaussian_scratch=self.gaussian_scratch,
-                                 net_charge=self.net_charge, opt_theory=self.theory["low"],
-                                 resp_theory=self.theory["low"], force_gaussian_rerun=self.force_gaussian_rerun,
-                                 out_gaussian_log=lowtheory_minimization_gaussian_log, **self.kwargs),
-            StageLazyResp("LazyRespLow", main_input=lowtheory_minimization_gaussian_log, cwd=self.cwd,
-                          out_mol2=resp_mol2_low, **self.kwargs),
-            GaussianMinimizeRESP("MinimizeHighTheory", main_input=resp_mol2_low, cwd=self.cwd, nproc=self.nproc,
-                                 mem=self.mem, gaussian_root=self.gaussian_root, gauss_exedir=self.gauss_exedir,
-                                 gaussian_binary=self.gaussian_binary, gaussian_scratch=self.gaussian_scratch,
-                                 net_charge=self.net_charge, opt_theory=self.theory["high"],
-                                 resp_theory=self.theory["low"], force_gaussian_rerun=self.force_gaussian_rerun,
-                                 out_gaussian_log=hightheory_minimization_gaussian_log, **self.kwargs),
-            StageLazyResp("LazyRespHigh", main_input=hightheory_minimization_gaussian_log, cwd=self.cwd,
-                          out_mol2=resp_mol2_high, **self.kwargs),
-            StageNormalizeCharge("Normalize2", main_input=resp_mol2_high, cwd=self.cwd, net_charge=self.net_charge,
-                                 out_mol2=resp_mol2, **self.kwargs),
-            StageUpdate("UpdateNames", main_input=resp_mol2, cwd=self.cwd, source_mol2=initial_mol2,
-                        out_mol2=final_mol2, update_names=True, update_types=False, update_resname=True, **self.kwargs),
+            StageInitialize(
+                "Initialize",
+                main_input=self.in_filename,
+                cwd=self.cwd,
+                out_mol2=initial_mol2,
+                net_charge=self.net_charge,
+                **self.kwargs,
+            ),
+            StageNormalizeCharge(
+                "Normalize1",
+                main_input=initial_mol2,
+                cwd=self.cwd,
+                net_charge=self.net_charge,
+                out_mol2=initial_mol2,
+                **self.kwargs,
+            ),
+            GaussianMinimizeRESP(
+                "MinimizeLowTheory",
+                main_input=initial_mol2,
+                cwd=self.cwd,
+                nproc=self.nproc,
+                mem=self.mem,
+                gaussian_root=self.gaussian_root,
+                gauss_exedir=self.gauss_exedir,
+                gaussian_binary=self.gaussian_binary,
+                gaussian_scratch=self.gaussian_scratch,
+                net_charge=self.net_charge,
+                opt_theory=self.theory["low"],
+                resp_theory=self.theory["low"],
+                force_gaussian_rerun=self.force_gaussian_rerun,
+                out_gaussian_log=lowtheory_minimization_gaussian_log,
+                **self.kwargs,
+            ),
+            StageLazyResp(
+                "LazyRespLow",
+                main_input=lowtheory_minimization_gaussian_log,
+                cwd=self.cwd,
+                net_charge=self.net_charge,
+                out_mol2=resp_mol2_low,
+                **self.kwargs,
+            ),
+            GaussianMinimizeRESP(
+                "MinimizeHighTheory",
+                main_input=resp_mol2_low,
+                cwd=self.cwd,
+                nproc=self.nproc,
+                mem=self.mem,
+                gaussian_root=self.gaussian_root,
+                gauss_exedir=self.gauss_exedir,
+                gaussian_binary=self.gaussian_binary,
+                gaussian_scratch=self.gaussian_scratch,
+                net_charge=self.net_charge,
+                opt_theory=self.theory["high"],
+                resp_theory=self.theory["low"],
+                force_gaussian_rerun=self.force_gaussian_rerun,
+                out_gaussian_log=hightheory_minimization_gaussian_log,
+                **self.kwargs,
+            ),
+            StageLazyResp(
+                "LazyRespHigh",
+                main_input=hightheory_minimization_gaussian_log,
+                cwd=self.cwd,
+                out_mol2=resp_mol2_high,
+                net_charge=self.net_charge,
+                **self.kwargs,
+            ),
+            StageNormalizeCharge(
+                "Normalize2",
+                main_input=resp_mol2_high,
+                cwd=self.cwd,
+                net_charge=self.net_charge,
+                out_mol2=resp_mol2,
+                **self.kwargs,
+            ),
+            StageUpdate(
+                "UpdateNames",
+                main_input=resp_mol2,
+                cwd=self.cwd,
+                source_mol2=initial_mol2,
+                out_mol2=final_mol2,
+                net_charge=self.net_charge,
+                update_names=True,
+                update_types=False,
+                update_resname=True,
+                **self.kwargs,
+            ),
             StageParmChk("ParmChk", main_input=final_mol2, cwd=self.cwd, out_frcmod=frcmod, **self.kwargs),
             StageLeap("Leap", main_input=final_mol2, cwd=self.cwd, in_frcmod=frcmod, out_lib=lib, **self.kwargs),
             # Create a `nonminimized_mol2` with `initial_mol2` coordinates and  `final_mol2` charges
-            StageUpdate("UpdateCharges", main_input=initial_mol2, cwd=self.cwd, source_mol2=final_mol2,
-                        out_mol2=nonminimized_mol2, update_charges=True, **self.kwargs),
+            StageUpdate(
+                "UpdateCharges",
+                main_input=initial_mol2,
+                cwd=self.cwd,
+                source_mol2=final_mol2,
+                out_mol2=nonminimized_mol2,
+                update_charges=True,
+                **self.kwargs,
+            ),
         ]
 
     @override
-    def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
+    def execute(self, dry_run=False, nproc: Optional[int] = None, mem: Optional[int] = None) -> Any:
         self.logger.info(f"Starting the LazyLigand recipe at {self.cwd}")
         super().execute(dry_run=dry_run, nproc=nproc, mem=mem)
         self.logger.info("Done with the LazyLigand recipe")
