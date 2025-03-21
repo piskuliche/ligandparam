@@ -55,4 +55,4 @@ parametrize_ligand.setup()
 parametrize_ligand.list_stages()
 
 # Run the parametrization
-parametrize_ligand.execute(dry_run=False, nproc=12, mem="8")
+parametrize_ligand.execute(dry_run=False, nproc=12, mem=8)

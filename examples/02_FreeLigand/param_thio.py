@@ -40,7 +40,7 @@ parametrize_ligand = FreeLigand(
     in_filename=cwd / "thiophenol.pdb",
     cwd=cwd,
     logger=logger,
-    net_charge=0,
+    net_charge=-1,
     atom_type="gaff2",
     molname="LIG",
     # **gaussian_paths,
@@ -53,4 +53,4 @@ parametrize_ligand.setup()
 parametrize_ligand.list_stages()
 
 # Execute the stages in order.
-parametrize_ligand.execute(dry_run=False, nproc=24, mem="20")
+parametrize_ligand.execute(dry_run=False, nproc=24, mem=48)
