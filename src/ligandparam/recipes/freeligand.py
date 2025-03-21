@@ -78,7 +78,6 @@ class FreeLigand(Recipe):
         hightheory_minimization_gaussian_log = self.cwd / f"{self.label}.hightheory.minimization.log"
         resp_mol2_low = self.cwd / f"{self.label}.minimized.lowtheory.mol2"
         resp_mol2_high = self.cwd / f"{self.label}.minimized.mol2"
-        minimized_mol2 = self.cwd / f"{self.label}.minimized.mol2"
         rotation_label = f"{self.label}.rotation"
         rotated_mol2 = self.cwd / f"{self.label}.rotated.mol2"
         out_respfit = self.cwd / f"respfit.charges.{self.label}"
