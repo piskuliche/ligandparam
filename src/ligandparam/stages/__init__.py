@@ -10,3 +10,4 @@ from .sdftopdb import SDFToPDB
 from .sdftopdbbatch import SDFToPDBBatch
 from .smilestopdb import StageSmilesToPDB
 from .lighfix import LigHFix
+from .displacemol import StageDisplaceMol
