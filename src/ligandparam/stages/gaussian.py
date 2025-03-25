@@ -399,7 +399,7 @@ class StageGaussiantoMol2(AbstractStage):
 
         # Convert from gaussian to mol2
         ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
-        ante.call(i=self.in_log, fi="gout", o=self.temp1_mol2, fo="mol2", pf="y", at=self.atom_type, nc=self.net_charge, dry_run=dry_run)
+        ante.call(i=self.in_log, fi="gout", o=self.temp1_mol2, fo="mol2", pf="y", at=self.atom_type, an="no", nc=self.net_charge, dry_run=dry_run)
 
         # Assign the charges
         if not dry_run:
@@ -419,7 +419,7 @@ class StageGaussiantoMol2(AbstractStage):
 
         # Use antechamber to clean up the mol2 format
         ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
-        ante.call(i=self.temp2_mol2, fi="mol2", o=self.out_mol2, fo="mol2", pf="y", at=self.atom_type, nc=self.net_charge, dry_run=dry_run)
+        ante.call(i=self.temp2_mol2, fi="mol2", o=self.out_mol2, fo="mol2", pf="y", at=self.atom_type, an="no", nc=self.net_charge, dry_run=dry_run)
 
         return
 

@@ -27,6 +27,7 @@ class StageLazyResp(AbstractStage):
             c="resp",
             nc=self.base_cls.net_charge,
             at="gaff2",
+            an="no",
             dry_run=dry_run,
         )
         return

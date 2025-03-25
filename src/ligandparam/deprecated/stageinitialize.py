@@ -35,6 +35,7 @@ class StageInitialize(AbstractStage):
             nc=self.base_cls.net_charge,
             pf="y",
             at=self.base_cls.atom_type,
+            an="no",
             dry_run=dry_run,
         )
 

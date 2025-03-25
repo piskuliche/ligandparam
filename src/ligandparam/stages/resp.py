@@ -49,6 +49,7 @@ class StageLazyResp(AbstractStage):
             c="resp",
             nc=self.net_charge,
             at=self.atom_type,
+            an="no",
             dry_run=dry_run,
             **self.additional_args,
         )

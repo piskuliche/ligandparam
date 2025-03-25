@@ -93,6 +93,7 @@ class StageUpdate(AbstractStage):
                 fo="mol2",
                 pf="y",
                 at=self.atom_type,
+                an="no",
                 nc=self.net_charge,
                 dry_run=dry_run,
                 **self.additional_args,

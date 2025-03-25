@@ -1,4 +1,4 @@
-from typing import Optional,  Union, Any
+from typing import Optional, Union, Any
 from typing_extensions import override
 from pathlib import Path
 import warnings
@@ -15,7 +15,7 @@ class StageUpdateCharge(AbstractStage):
     """This class creates a new mol2 file with updated charges."""
 
     @override
-    def     __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+    def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, main_input, cwd, *args, **kwargs)
         self.in_mol2 = Path(main_input)
         self.charge_source = kwargs["charge_source"]
@@ -33,7 +33,7 @@ class StageUpdateCharge(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
-    def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
+    def execute(self, dry_run=False, nproc: Optional[int] = None, mem: Optional[int] = None) -> Any:
         super()._setup_execution(dry_run=dry_run, nproc=nproc, mem=mem)
         # Supress the inevitable mol2 file warnings.
         with warnings.catch_warnings():
@@ -55,7 +55,8 @@ class StageUpdateCharge(AbstractStage):
 
             ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
             ante.call(
-                i=self.tmp_mol2, fi="mol2", o=self.out_mol2, fo="mol2", pf="y", at=self.atom_type, nc=self.net_charge, dry_run=dry_run
+                i=self.tmp_mol2, fi="mol2", o=self.out_mol2, fo="mol2", pf="y", at=self.atom_type, an="no",
+                nc=self.net_charge, dry_run=dry_run
             )
 
         return
@@ -90,7 +91,7 @@ class StageNormalizeCharge(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
-    def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
+    def execute(self, dry_run=False, nproc: Optional[int] = None, mem: Optional[int] = None) -> Any:
         """Execute the stage.
 
         Raises
@@ -124,13 +125,13 @@ class StageNormalizeCharge(AbstractStage):
                     raise ValueError(f"Error: Charge normalization failed, new charge: {new_total}.")
             else:
                 self.logger.info("Charges are already normalized")
-                return
             if not dry_run:
                 Mol2Writer(u, self.tmp_mol2, selection="all").write()
 
                 ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
                 ante.call(
-                    i=self.tmp_mol2, fi="mol2", o=self.out_mol2, fo="mol2", pf="y", at=self.atom_type, nc=self.net_charge, dry_run=dry_run
+                    i=self.tmp_mol2, fi="mol2", o=self.out_mol2, fo="mol2", pf="y", at=self.atom_type, an="no",
+                    nc=self.net_charge, dry_run=dry_run
                 )
 
     def _clean(self):
