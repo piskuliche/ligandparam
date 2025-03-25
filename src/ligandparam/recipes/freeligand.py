@@ -7,6 +7,7 @@ from ligandparam.parametrization import Recipe
 from ligandparam.stages import (
     StageInitialize,
     StageNormalizeCharge,
+    StageDisplaceMol,
     GaussianMinimizeRESP,
     StageGaussiantoMol2,
     StageGaussianRotation,
@@ -74,6 +75,7 @@ class FreeLigand(Recipe):
 
     def setup(self):
         initial_mol2 = self.cwd / f"{self.label}.initial.mol2"
+        centered_mol2 = self.cwd / f"{self.label}.centered.mol2"
         lowtheory_minimization_gaussian_log = self.cwd / f"{self.label}.lowtheory.minimization.log"
         hightheory_minimization_gaussian_log = self.cwd / f"{self.label}.hightheory.minimization.log"
         resp_mol2_low = self.cwd / f"{self.label}.minimized.lowtheory.mol2"
@@ -104,9 +106,15 @@ class FreeLigand(Recipe):
                 out_mol2=initial_mol2,
                 **self.kwargs,
             ),
+            StageDisplaceMol(
+                "Centering",
+                main_input=initial_mol2,
+                cwd=self.cwd,
+                out_mol=centered_mol2,
+            ),
             GaussianMinimizeRESP(
                 "MinimizeLowTheory",
-                main_input=initial_mol2,
+                main_input=centered_mol2,
                 cwd=self.cwd,
                 nproc=self.nproc,
                 mem=self.mem,
