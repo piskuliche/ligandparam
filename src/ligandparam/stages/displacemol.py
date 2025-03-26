@@ -1,5 +1,5 @@
 import warnings
-from typing import Optional,  Union, Any
+from typing import Optional,  Union
 
 import numpy as np
 import MDAnalysis as mda
@@ -7,10 +7,6 @@ import MDAnalysis as mda
 from pathlib import Path
 
 from ligandparam.stages.abstractstage import AbstractStage
-from ligandparam.interfaces import Antechamber
-from ligandparam.io.coordinates import Mol2Writer
-from ligandparam.log import get_logger
-
 
 class StageDisplaceMol(AbstractStage):
     """Displaces a molecule based on a vector or centers it at the origin.
