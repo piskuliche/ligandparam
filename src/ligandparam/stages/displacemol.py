@@ -47,7 +47,7 @@ class StageDisplaceMol(AbstractStage):
             warnings.simplefilter("ignore")
             u = mda.Universe(self.in_molecule)
             if self.center:
-                self.displacement_vtor = u.atoms.center_of_mass()
+                self.displacement_vtor = -u.atoms.center_of_mass()
             u.atoms.translate(self.displacement_vtor)
             u.atoms.write(self.out_molecule)
         return self.displacement_vtor
