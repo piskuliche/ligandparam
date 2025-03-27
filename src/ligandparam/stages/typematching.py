@@ -1,15 +1,15 @@
+import re
+import shutil
 import warnings
-from typing import Optional,  Union, Any
-
-import numpy as np
-import MDAnalysis as mda
-
+from typing import Optional, Union, Any
 from pathlib import Path
+import shutil as cp
+
+import MDAnalysis as mda
 
 from ligandparam.stages.abstractstage import AbstractStage
 from ligandparam.interfaces import Antechamber
 from ligandparam.io.coordinates import Mol2Writer
-from ligandparam.log import get_logger
 
 
 class StageUpdate(AbstractStage):
@@ -43,7 +43,7 @@ class StageUpdate(AbstractStage):
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         return stage
 
-    def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
+    def execute(self, dry_run=False, nproc: Optional[int] = None, mem: Optional[int] = None) -> Any:
         super()._setup_execution(dry_run=dry_run, nproc=nproc, mem=mem)
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -61,7 +61,7 @@ class StageUpdate(AbstractStage):
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 dest_u = mda.Universe(self.in_mol2, format="mol2")
-                source_u = mda.Universe(self.source_mol2, format="mol2")
+                source_u = mda.Universe(self.source_mol2)
             if self.update_resname:
                 dest_u.residues.resnames = source_u.residues.resnames
             for orig_atom, new_atom in zip(source_u.atoms, dest_u.atoms):
@@ -99,6 +99,61 @@ class StageUpdate(AbstractStage):
                 **self.additional_args,
             )
 
+    def _clean(self):
+        raise NotImplementedError
+
+
+class StageMatchAtomNames(AbstractStage):
+    """This class updates the atom names in a mol2 file to match those of another source structure file.
+    It does this through text editing.
+
+    Parameters
+    ----------
+
+    """
+
+    def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        super().__init__(stage_name, main_input, cwd, *args, **kwargs)
+        self.in_mol2 = Path(main_input)
+        self.out_mol2 = Path(kwargs["out_mol2"])
+        self.source_mol = Path(kwargs["source_mol"])
+        self.add_required(Path(self.in_mol2))
+        self.add_required(Path(self.source_mol))
+
+    def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
+        return stage
+
+    def execute(self, dry_run=False, nproc: Optional[int] = None, mem: Optional[int] = None) -> Any:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            source_u = mda.Universe(self.source_mol)
+
+        source_names = [atom.name for atom in source_u.atoms]
+
+        with open(self.in_mol2, "r") as f:
+            lines = f.readlines()
+
+
+        with open(self.out_mol2, "w") as f:
+            ite = iter(lines)
+            while True:
+                for line in ite:
+                    f.write(line)
+                    if line.startswith("@<TRIPOS>ATOM"):
+                        break
+                for line in ite:
+                    match = re.search(r"^\s*\S+\s+(\S+)", line)
+                    if match:
+                        try:
+                            name_idx = match.start(1)
+                            new_name = source_names.pop(0)
+                            line = line[:name_idx] + new_name + line[name_idx + len(new_name):]
+                        except IndexError:
+                            self.logger.warning(
+                                f"Source structure ({self.source_mol}) has fewer atoms than input mol2 file ({self.in_mol2})")
+                    f.write(line)
+                break
+
 
     def _clean(self):
-        raise NotImplementedError("clean method not implemented")
+        raise NotImplementedError
