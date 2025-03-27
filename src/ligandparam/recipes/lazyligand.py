@@ -44,8 +44,8 @@ class LazyLigand(Recipe):
         # required options with defaults
         # TODO: defaults should be a global singleton dict
         for opt, default_val in zip(
-            ("theory", "leaprc", "force_gaussian_rerun", "nproc", "mem"),
-            ({"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"}, ["leaprc.gaff2"], False, 1, 1),
+                ("theory", "leaprc", "force_gaussian_rerun", "nproc", "mem"),
+                ({"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"}, ["leaprc.gaff2"], False, 1, 1),
         ):
             try:
                 setattr(self, opt, kwargs[opt])
@@ -165,8 +165,6 @@ class LazyLigand(Recipe):
                 update_resname=True,
                 **self.kwargs,
             ),
-            StageParmChk("ParmChk", main_input=final_mol2, cwd=self.cwd, out_frcmod=frcmod, **self.kwargs),
-            StageLeap("Leap", main_input=final_mol2, cwd=self.cwd, in_frcmod=frcmod, out_lib=lib, **self.kwargs),
             # Create a `nonminimized_mol2` with `initial_mol2` coordinates and  `final_mol2` charges
             StageUpdate(
                 "UpdateCharges",
@@ -178,6 +176,8 @@ class LazyLigand(Recipe):
                 net_charge=self.net_charge,
                 **self.kwargs,
             ),
+            StageParmChk("ParmChk", main_input=nonminimized_mol2, cwd=self.cwd, out_frcmod=frcmod, **self.kwargs),
+            StageLeap("Leap", main_input=nonminimized_mol2, cwd=self.cwd, in_frcmod=frcmod, out_lib=lib, **self.kwargs),
         ]
 
     @override

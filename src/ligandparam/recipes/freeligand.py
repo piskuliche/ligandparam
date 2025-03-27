@@ -252,8 +252,8 @@ class FreeLigand(Recipe):
                 net_charge=self.net_charge,
                 **self.kwargs,
             ),
-            StageParmChk("ParmChk", main_input=final_mol2, cwd=self.cwd, out_frcmod=frcmod, **self.kwargs),
-            StageLeap("Leap", main_input=final_mol2, cwd=self.cwd, in_frcmod=frcmod, out_lib=lib, **self.kwargs),
+            StageParmChk("ParmChk", main_input=nonminimized_mol2, cwd=self.cwd, out_frcmod=frcmod, **self.kwargs),
+            StageLeap("Leap", main_input=nonminimized_mol2, cwd=self.cwd, in_frcmod=frcmod, out_lib=lib, **self.kwargs),
         ]
 
     @override

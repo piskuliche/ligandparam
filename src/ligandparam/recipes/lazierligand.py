@@ -1,10 +1,10 @@
 from pathlib import Path
-from typing import Optional,  Union, Any
+from typing import Optional, Union, Any
 
 from typing_extensions import override
 
 from ligandparam.parametrization import Recipe
-from ligandparam.stages import *
+from ligandparam.stages import StageInitialize, StageParmChk, StageLeap
 
 
 class LazierLigand(Recipe):
@@ -30,7 +30,7 @@ class LazierLigand(Recipe):
             except KeyError:
                 raise KeyError(f"Missing {opt}")
         # required options with defaults
-        for opt, default_val in zip(("nproc", ), (1,)):
+        for opt, default_val in zip(("nproc",), (1,)):
             try:
                 setattr(self, opt, kwargs[opt])
                 del kwargs[opt]
@@ -46,15 +46,16 @@ class LazierLigand(Recipe):
         final_mol2 = self.cwd / f"final_{self.label}.mol2"
 
         self.stages = [
-            StageInitialize("Initialize", main_input=self.in_filename, cwd=self.cwd, out_mol2=nonminimized_mol2, net_charge=self.net_charge,
+            StageInitialize("Initialize", main_input=self.in_filename, cwd=self.cwd, out_mol2=nonminimized_mol2,
+                            net_charge=self.net_charge,
                             **self.kwargs),
             StageParmChk("ParmChk", main_input=nonminimized_mol2, cwd=self.cwd, out_frcmod=frcmod, **self.kwargs),
-            StageLeap("Leap", main_input=nonminimized_mol2, cwd=self.cwd, in_frcmod=frcmod, out_lib=lib, **self.kwargs)
+            StageLeap("Leap", main_input=nonminimized_mol2, cwd=self.cwd, in_frcmod=frcmod, out_lib=lib, **self.kwargs),
             # TODO: copy `nonminimized_mol2` to `final_mol2`?
         ]
 
     @override
-    def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
+    def execute(self, dry_run=False, nproc: Optional[int] = None, mem: Optional[int] = None) -> Any:
         self.logger.info(f"Starting the LazierLigand recipe at {self.cwd}")
         super().execute(dry_run=False, nproc=1, mem=1)
         self.logger.info("Done with the LazierLigand recipe")
