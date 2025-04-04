@@ -18,7 +18,7 @@ import os
 from typing import Dict
 import sys
 
-sys.path.insert(0, os.path.abspath("../../src"))
+sys.path.insert(0, os.path.abspath("../../"))
 
 import ligandparam
 
