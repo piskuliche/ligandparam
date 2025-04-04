@@ -5,3 +5,4 @@ numpy<2
 parmed
 typing
 typing_extensions
+rdkit
