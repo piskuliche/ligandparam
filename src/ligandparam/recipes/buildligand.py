@@ -14,6 +14,7 @@ class BuildLigand(Recipe):
         self.target_pdb = kwargs.get("target_pdb")
         self.force_gaussian_rerun = kwargs.get("force_gaussian_rerun", False)
 
+"""
     def setup(self):
         self.stages = [
             StageInitialize("Initialize",,,
@@ -32,3 +33,4 @@ class BuildLigand(Recipe):
             StageBuild("BuildAq",  build_type='aq', concentration=0.14, inputoptions=self.inputoptions),
             StageBuild("BuildTarget",  build_type='target', inputoptions=self.inputoptions)
         ]
+"""
