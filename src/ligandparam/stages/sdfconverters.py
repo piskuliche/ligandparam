@@ -1,16 +1,76 @@
+from collections import Counter
 from pathlib import Path
-from typing import Optional,  Union, Iterable, Any
+from typing import Optional, Union, Any
 
 import numpy as np
 from typing_extensions import override
-from collections import Counter
 
 from rdkit import Chem
 
 from ligandparam.stages import AbstractStage
 
 
-class SDFToPDBBatch(AbstractStage):
+class SDFToPDBMol2(AbstractStage):
+
+    @override
+    def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        super().__init__(stage_name, main_input, cwd, *args, **kwargs)
+        self.in_sdf = Path(main_input)
+        self.out_pdb = Path(kwargs["out_pdb"])
+        self.out_mol2 = Path(kwargs["out_mol2"])
+        self.resname = kwargs.get("resname", "LIG")
+        self.removeHs = kwargs.get("removeHs", False)
+        self.add_conect = kwargs.get("add_conect", True)
+        self.mol_idx = kwargs.get("mol_idx", 0)
+
+    def execute(self, dry_run=False, nproc: Optional[int] = None, mem: Optional[int] = None) -> Any:
+        # First, create the molecule
+        try:
+            mols = Chem.SDMolSupplier(str(self.in_sdf), removeHs=False)
+        except Exception as e:
+            err_msg = f"Failed to generate an rdkit molecule from input SDF {self.in_sdf}. Got exception: {e}"
+            self.logger.error(err_msg)
+            raise RuntimeError(err_msg)
+
+        mol = mols[self.mol_idx]
+        # Set metadata and write away
+        mol.SetProp("_Name", self.resname)
+        mi = Chem.AtomPDBResidueInfo()
+        mi.SetResidueName(self.resname)
+        mi.SetResidueNumber(1)
+        mi.SetOccupancy(0.0)
+        mi.SetTempFactor(0.0)
+        [a.SetMonomerInfo(mi) for a in mol.GetAtoms()]
+        flavor = 0 if self.add_conect else 2
+        if self.out_pdb is not None:
+            self.write_pdb(mol, flavor=flavor)
+        if self.out_mol2 is not None:
+            self.write_mol2(mol, flavor=flavor)
+
+    def write_pdb(self, mol: Chem.Mol, flavor: int = 0):
+        self.logger.info(f"Writing {self.in_sdf} to {self.out_pdb}")
+        try:
+            Chem.MolToPDBFile(mol, str(self.out_pdb), flavor=flavor)
+        except Exception as e:
+            self.logger.error(
+                f"Failed to write to  {self.out_pdb}. Got exception: {e}")
+
+    def write_mol2(self, mol: Chem.Mol, flavor: int = 0):
+        self.logger.info(f"Writing {self.in_sdf} to {self.out_pdb}")
+        try:
+            Chem.MolToMolFile(mol, str(self.out_pdb), flavor=flavor)
+        except Exception as e:
+            self.logger.error(
+                f"Failed to write to  {self.out_pdb}. Got exception: {e}")
+
+    def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
+        raise NotImplementedError
+
+    def _clean(self):
+        raise NotImplementedError
+
+
+class SDFToPDBMol2Batch(AbstractStage):
 
     @override
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
@@ -21,14 +81,17 @@ class SDFToPDBBatch(AbstractStage):
         self.add_conect = kwargs.get("add_conect", True)
 
         self.out_pdb_template = kwargs.get("out_pdb_template", None)
+        self.out_mol2_template = kwargs.get("out_pdb_template", None)
         self.out_pdbs = kwargs.get("out_pdbs", None)
+        self.out_mol2s = kwargs.get("out_mol2s", None)
+
         self.resnames = kwargs.get("resnames", None)
         self.resname = kwargs.get("resname", None)
 
-    def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
+    def execute(self, dry_run=False, nproc: Optional[int] = None, mem: Optional[int] = None) -> Any:
         # First, create the molecule
         try:
-            mols = Chem.SDMolSupplier(self.in_sdf, removeHs=False)
+            mols = Chem.SDMolSupplier(str(self.in_sdf), removeHs=False)
         except Exception as e:
             err_msg = f"Failed to generate an rdkit molecule from input SDF {self.in_sdf} Got exception: {e}"
             self.logger.error(err_msg)

@@ -22,6 +22,7 @@ dependencies = [
   "pandas",
   "requests",
   "MDAnalysis>2.7.0",
+  "openbabel",
   "pathlib",
   "parmed"
 ]
