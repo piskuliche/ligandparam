@@ -6,8 +6,7 @@ from .initialize import StageInitialize
 from .gaussian import GaussianMinimizeRESP, StageGaussianRotation, StageGaussiantoMol2
 from .charge import StageUpdateCharge, StageNormalizeCharge
 from .typematching import StageUpdate, StageMatchAtomNames
-from .sdftopdb import SDFToPDB
-from .sdftopdbbatch import SDFToPDBBatch
+from .sdfconverters import SDFToPDB, SDFToPDBBatch, SDFToMol2
 from .smilestopdb import StageSmilesToPDB
 from .lighfix import LigHFix
 from .displacemol import StageDisplaceMol
