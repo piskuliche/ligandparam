@@ -27,6 +27,12 @@ sphinx:
 # Optional but recommended, declare the Python requirements required
 # to build your documentation
 # See https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html
+
+build:
+  commands:
+    - apt-get update && apt-get install -y swig libopenbabel-dev openbabel || echo "OpenBabel installation failed, skipping."
+    - conda install -c conda-forge openbabel swig -y || echo "Conda OpenBabel installation failed, skipping."
+
 python:
   install:
     - requirements: docs/requirements.txt
