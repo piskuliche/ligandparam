@@ -1,9 +1,10 @@
+import logging
 from pathlib import Path
 from typing import Optional,  Union
 from typing_extensions import override
 
 from ligandparam.driver import Driver
-from ligandparam.log import get_logger
+from ligandparam.log import get_logger, set_stream_logger, set_file_logger
 
 
 class Parametrization(Driver):
@@ -24,11 +25,26 @@ class Parametrization(Driver):
             ValueError: If neither 'name' nor 'pdb_filename' is provided in inputoptions.
         """
         self.in_filename = Path(in_filename)
+
         self.label = kwargs.get("label", self.in_filename.stem)
         self.cwd = Path(cwd)
-        self.logger = kwargs.get("logger", get_logger())
         self.stages = []
         self.leaprc = kwargs.get("leaprc", ["leaprc.gaff2"])
+        try:
+            logger = kwargs.pop("logger")
+            if isinstance(logger, str):
+                if logger == "file":
+                    self.logger = set_file_logger(self.cwd / f"{self.label}.log")
+                elif logger == "stream":
+                    self.logger = set_stream_logger()
+                else:
+                    raise ValueError("Invalid input string for logger. Must be either 'file' or 'stream'.")
+            elif isinstance(logger, logging.Logger):
+                self.logger = logger
+            else:
+                raise ValueError("logger must be a string or a logging.Logger instance.")
+        except KeyError:
+            self.logger = get_logger()
 
     def add_leaprc(self, leaprc) -> None:
         self.leaprc.append(leaprc)

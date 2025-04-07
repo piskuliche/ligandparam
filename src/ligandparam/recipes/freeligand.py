@@ -47,6 +47,8 @@ class FreeLigand(Recipe):
     @override
     def __init__(self, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs):
         super().__init__(in_filename, cwd, *args, **kwargs)
+        # logger will be passed manually to each stage
+        kwargs.pop("logger", None)
 
         # required options
         for opt in ("net_charge",):
@@ -58,8 +60,8 @@ class FreeLigand(Recipe):
         # required options with defaults
         # TODO: defaults should be a global singleton dict
         for opt, default_val in zip(
-            ("theory", "leaprc", "force_gaussian_rerun", "nproc", "mem"),
-            ({"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"}, ["leaprc.gaff2"], False, 1, 1),
+                ("theory", "leaprc", "force_gaussian_rerun", "nproc", "mem"),
+                ({"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"}, ["leaprc.gaff2"], False, 1, 1),
         ):
             try:
                 setattr(self, opt, kwargs[opt])
@@ -96,6 +98,7 @@ class FreeLigand(Recipe):
                 cwd=self.cwd,
                 out_mol2=initial_mol2,
                 net_charge=self.net_charge,
+                logger=self.logger,
                 **self.kwargs,
             ),
             StageNormalizeCharge(
@@ -104,6 +107,7 @@ class FreeLigand(Recipe):
                 cwd=self.cwd,
                 net_charge=self.net_charge,
                 out_mol2=initial_mol2,
+                logger=self.logger,
                 **self.kwargs,
             ),
             StageDisplaceMol(
@@ -111,6 +115,7 @@ class FreeLigand(Recipe):
                 main_input=initial_mol2,
                 cwd=self.cwd,
                 out_mol=centered_mol2,
+                logger=self.logger,
             ),
             GaussianMinimizeRESP(
                 "MinimizeLowTheory",
@@ -127,6 +132,7 @@ class FreeLigand(Recipe):
                 resp_theory=self.theory["low"],
                 force_gaussian_rerun=self.force_gaussian_rerun,
                 out_gaussian_log=lowtheory_minimization_gaussian_log,
+                logger=self.logger,
                 **self.kwargs,
             ),
             StageLazyResp(
@@ -135,6 +141,7 @@ class FreeLigand(Recipe):
                 cwd=self.cwd,
                 out_mol2=resp_mol2_low,
                 net_charge=self.net_charge,
+                logger=self.logger,
                 **self.kwargs,
             ),
             GaussianMinimizeRESP(
@@ -152,6 +159,7 @@ class FreeLigand(Recipe):
                 resp_theory=self.theory["low"],
                 force_gaussian_rerun=self.force_gaussian_rerun,
                 out_gaussian_log=hightheory_minimization_gaussian_log,
+                logger=self.logger,
                 **self.kwargs,
             ),
             StageGaussiantoMol2(
@@ -169,6 +177,7 @@ class FreeLigand(Recipe):
                 force_gaussian_rerun=self.force_gaussian_rerun,
                 template_mol2=initial_mol2,
                 out_mol2=resp_mol2_high,
+                logger=self.logger,
                 **self.kwargs,
             ),
             StageGaussianRotation(
@@ -188,6 +197,7 @@ class FreeLigand(Recipe):
                 alpha=[0, 30, 60, 90, 120, 150, 180],
                 beta=[0, 30, 60, 90],
                 gamma=[0],
+                logger=self.logger,
                 **self.kwargs,
             ),
             # We know that the gaussian stages work in a "gaussianCalcs" directory. Quite hacky.
@@ -198,6 +208,7 @@ class FreeLigand(Recipe):
                 in_gaussian_label=rotation_label,
                 out_respfit=out_respfit,
                 net_charge=self.net_charge,
+                logger=self.logger,
                 **self.kwargs,
             ),
             StageUpdateCharge(
@@ -208,6 +219,7 @@ class FreeLigand(Recipe):
                 charge_column=3,
                 charge_source=out_respfit,
                 net_charge=self.net_charge,
+                logger=self.logger,
                 **self.kwargs,
             ),
             StageNormalizeCharge(
@@ -216,6 +228,7 @@ class FreeLigand(Recipe):
                 cwd=self.cwd,
                 net_charge=self.net_charge,
                 out_mol2=resp_mol2,
+                logger=self.logger,
                 **self.kwargs,
             ),
             StageUpdate(
@@ -228,6 +241,7 @@ class FreeLigand(Recipe):
                 update_types=False,
                 update_resname=True,
                 net_charge=self.net_charge,
+                logger=self.logger,
                 **self.kwargs,
             ),
             StageUpdate(
@@ -239,6 +253,7 @@ class FreeLigand(Recipe):
                 update_names=False,
                 update_types=True,
                 net_charge=self.net_charge,
+                logger=self.logger,
                 **self.kwargs,
             ),
             # Create a `nonminimized_mol2` with `initial_mol2` coordinates and  `final_mol2` charges
@@ -250,10 +265,13 @@ class FreeLigand(Recipe):
                 out_mol2=nonminimized_mol2,
                 update_charges=True,
                 net_charge=self.net_charge,
+                logger=self.logger,
                 **self.kwargs,
             ),
-            StageParmChk("ParmChk", main_input=nonminimized_mol2, cwd=self.cwd, out_frcmod=frcmod, **self.kwargs),
-            StageLeap("Leap", main_input=nonminimized_mol2, cwd=self.cwd, in_frcmod=frcmod, out_lib=lib, **self.kwargs),
+            StageParmChk("ParmChk", main_input=nonminimized_mol2, cwd=self.cwd, out_frcmod=frcmod,
+                         logger=self.logger, **self.kwargs),
+            StageLeap("Leap", main_input=nonminimized_mol2, cwd=self.cwd, in_frcmod=frcmod, out_lib=lib,
+                      logger=self.logger, **self.kwargs),
         ]
 
     @override

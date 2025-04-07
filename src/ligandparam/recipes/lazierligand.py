@@ -21,6 +21,8 @@ class LazierLigand(Recipe):
     @override
     def __init__(self, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs):
         super().__init__(in_filename, cwd, *args, **kwargs)
+        # logger will be passed manually to each stage
+        kwargs.pop("logger", None)
 
         # required options
         for opt in ("net_charge",):
@@ -47,10 +49,12 @@ class LazierLigand(Recipe):
 
         self.stages = [
             StageInitialize("Initialize", main_input=self.in_filename, cwd=self.cwd, out_mol2=nonminimized_mol2,
-                            net_charge=self.net_charge,
+                            net_charge=self.net_charge, logger=self.logger,
                             **self.kwargs),
-            StageParmChk("ParmChk", main_input=nonminimized_mol2, cwd=self.cwd, out_frcmod=frcmod, **self.kwargs),
-            StageLeap("Leap", main_input=nonminimized_mol2, cwd=self.cwd, in_frcmod=frcmod, out_lib=lib, **self.kwargs),
+            StageParmChk("ParmChk", main_input=nonminimized_mol2, cwd=self.cwd, out_frcmod=frcmod,
+                         logger=self.logger, **self.kwargs),
+            StageLeap("Leap", main_input=nonminimized_mol2, cwd=self.cwd, in_frcmod=frcmod, out_lib=lib,
+                      logger=self.logger, **self.kwargs),
             # TODO: copy `nonminimized_mol2` to `final_mol2`?
         ]
 
