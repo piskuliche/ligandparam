@@ -32,3 +32,8 @@ python:
     - requirements: docs/requirements.txt
     - method: pip
       path: .
+
+build:
+  commands:
+    - apt-get update && apt-get install -y swig libopenbabel-dev openbabel
+    - conda install -c conda-forge openbabel swig -y
