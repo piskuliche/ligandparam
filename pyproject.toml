@@ -22,10 +22,13 @@ dependencies = [
   "pandas",
   "requests",
   "MDAnalysis>2.7.0",
-  "openbabel",
   "pathlib",
   "parmed"
 ]
+extra-dependencies = [
+  "openbabel"
+]
+
 urls = { "Homepage" = "https://github.com/piskulichz/ligandparam" }
 
 [project.scripts]
