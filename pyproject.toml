@@ -36,6 +36,10 @@ ligfix = "ligandparam.cli.cli_lighfix:ligfix"
 other = [
   "openbabel",
 ]
+docs = [
+  "sphinx",
+  "sphinx_rtd_theme",
+]
 
 [tool.ruff]
 line-length = 120
