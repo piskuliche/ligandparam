@@ -7,4 +7,4 @@ typing
 typing_extensions
 rdkit
 openbabel
-swig
+
