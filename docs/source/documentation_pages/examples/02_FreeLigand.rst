@@ -4,8 +4,7 @@ Example 02: FreeLigand
 This example demonstrates how to use the FreeLigand class to perform a multi-state RESP calculation.
 
 The key difference between this and :doc:`01_LazyLigand` is that this
-example uses the :class:`ligandparam.stages.resp.StageMultiRespFit` stage to perform a multi-state RESP calculation
-after performing gaussian rotations using :class:`ligandparam.stages.gaussian.StageGaussianRotation`. These types of rotations
+example uses the gaussian rotation calculations to calculate many resp calcualtions over a wide-range of rotations. These types of rotations
 ared useful for ensuring that the choice of grid points in the RESP calculation is not biased by the initial orientation of the molecule.
 
 Learning Outcomes:
@@ -23,80 +22,45 @@ Tutorial
 --------
 
 To start with any of the premade recipes, you need to import the recipe from the module. Using the wild-card character will import
-all the recipes available in the module, whereas, importing a specific recipe will only import that recipe.
+all the recipes available in the module, whereas, importing a specific recipe will only import that recipe. Here, we import the FreeLigand recipe. 
 
-.. code-block:: python
 
-    from ligandparam.recipes import *
+.. literalinclude :: ../../../../examples/02_FreeLigand/param_thio.py
+    :language: python
+    :end-at: gaussian_scratch
 
 
 The next step is to load the pdb file into the recipe of your choosing, and set various machine parameters. Full parameters that can be selected
 are available in the documentation for the class (for instance, for FreeLigand, see :class:`ligandparam.module.FreeLigand`).
 
-.. code-block:: python
-    
-    inputoptions = {
-        'base_name': 'thiophenol',
-        'net_charge': 0,
-        'mem': '60GB',
-        'nproc': 12
-    }
+.. literalinclude :: ../../../../examples/02_FreeLigand/param_thio.py
+    :language: python
+    :start-at: parametrize_ligand =
+    :end-before: Select the pre-initialized stages
 
-    # Load the pdb as a instance of the FreeLigand class
-    test = FreeLigand(inputoptions = inputoptions)
 
-Note that here, we have chosen the base_name `thiophenol` and set the net charge to 0 using the *netcharge* parameter. If you have a charged ligand, you need to select the
-proper net charge, as later when Gaussian runs it will need to know the net charge of the molecule. The *nproc* and *mem* parameters are used to set the 
-number of processors and the memory to be used by Gaussian, respectively. Note that this class is called nearly identically to the LazyLigand class, 
+Note that here, we have chosen the pdb thiophenol.pdb and set the net charge to 0 using the *net_charge* parameter. If you have a charged ligand, you need to select the
+proper net charge, as later when Gaussian runs it will need to know the net charge of the molecule.  Note that this class is called nearly identically to the LazyLigand class, 
 but with the FreeLigand class used instead.
 
-The next step is to select the pre-initialized stages for the FreeLigand class. This can be done using the *setup* method.
+The next step is to select the pre-initialized stages for the FreeLigand class. This can be done using the *setup* method. The *nproc* and *mem* parameters are used to set the 
+number of processors and the memory to be used by Gaussian, respectively.
 
-.. code-block:: python
 
-    test.setup()
+.. literalinclude :: ../../../../examples/02_FreeLigand/param_thio.py
+    :language: python
+    :start-at: Select the pre-initialized stages
+    :end-at: dry_run=False 
 
 The FreeLigand class has a number of stages that are pre-initialized. 
 
 In brief, these are:
 
-1) :class:`ligandparam.stages.initialize.StageInitialize` - Generates the initial mol2 file with bcc charges using `antechamber`.
+1) Convert the pdb file to a mol2 and assign initial charges
+2) Run Gaussian to assign resp charges
+3) Do a Gaussian rotation calculation where the ligand is rotated in 3D space and RESP calculations are repeated.
+4) Write out lib/frcmod files for the ligand
 
-2) :class:`ligandparam.stages.charge.StageNormalizeCharge` - Ensures that the bcc charges sum to the net charge, and tries to correct for any errors.
-
-3) :class:`ligandparam.stages.gaussian.StageGaussian` - Runs Gaussian to minimize the molecule.
-
-4) :class:`ligandparam.stages.gaussian.StageGaussianRotation` - Runs Gaussian to rotate the molecule and generate multiple conformations.
-
-5) :class:`ligandparam.stages.resp.StageMultiResp` - Uses `ligandparam.multiresp` to generate a mol2 with the RESP charges from the Gaussian calculation.
-
-6) :class:`ligandparam.stages.charge.StageNormalizeCharge` - Ensures that the bcc charges sum to the net charge, and tries to correct for any errors.
-
-7) :class:`ligandparam.stages.typematching.StageUpdate` - Updates the atom names to match the original antechamber atom names in the calculation.
-
-8) :class:`ligandparam.stages.typematching.StageUpdate` - Updates the atom *types* to match the original antechamber atom types in the calculation.
-
-9) :class:`ligandparam.stages.parmchk.StageParmChk` - Generates the frcmod file for the ligand using `parmchk2`.
-
-10) :class:`ligandparam.stages.leap.StageLeap` - Runs `tleap` to generate the final `.off` parameter files for the ligand.
-
-
-To list the stages out to the user, you can use the *list_stages* method.
-
-.. code-block:: python
-
-    test.list_stages()
-
-Finally, to execute the stages in order, you can use the *execute* method. The *dry_run* parameter is used to test the pipeline
- without actually creating any files. This is useful to check if the pipeline is working as expected; however, it has limited functionality 
- as many stages depend on files generated by previous stages.
-
-
-.. code-block:: python
-
-    test.execute(dry_run=False)
-
-This will run the pipeline in order, generating the necessary files for the ligand parameterization.
 
 The output files will be generated in the same directory as the input pdb file, and will have the same name as the pdb file, but with different extensions.
 
@@ -112,28 +76,5 @@ Note that the charges ion the mol2 file should be similar, but not exactly the s
 
 Full code
 ---------
-
-.. code-block:: python
-
-        
-    # Import the module
-    from ligandparam.recipes import FreeLigand
-
-    inputoptions = {
-        'base_name': 'thiophenol',
-        'net_charge': 0,
-        'mem': '60GB',
-        'nproc': 12
-    }
-
-    # Load the pdb as a instance of the FreeLigand class
-    test = FreeLigand(inputoptions = inputoptions)
-
-    # Select the pre-initialized stages for Lazy Ligand
-    test.setup()
-
-    # List the stages out to the user
-    test.list_stages()
-
-    # Execute the stages in order.
-    test.execute(dry_run=False)
+.. literalinclude :: ../../../../examples/02_FreeLigand/param_thio.py
+    :language: python

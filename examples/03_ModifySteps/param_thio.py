@@ -42,6 +42,8 @@ test.insert_stage(
     "MinimizeLowTheory",
 )
 
+# List the stages after inserting.
+
 test.list_stages()
 
 test.execute(nproc=12, mem="8")
