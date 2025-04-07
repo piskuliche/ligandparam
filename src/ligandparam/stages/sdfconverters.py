@@ -8,7 +8,7 @@ import numpy as np
 from typing_extensions import override
 
 from rdkit import Chem
-from openbabel import pybel
+
 from ligandparam.stages import AbstractStage
 from ligandparam.utils import stderr_redirector
 
@@ -76,7 +76,7 @@ class SDFToPDB(AbstractStage):
 
 # noinspection DuplicatedCode
 class SDFToPDBBatch(AbstractStage):
-
+    
     @override
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, main_input, cwd, *args, **kwargs)
@@ -161,7 +161,7 @@ class SDFToPDBBatch(AbstractStage):
 ############
 
 class SDFToMol2(AbstractStage):
-
+    from openbabel import pybel
     @override
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, main_input, cwd, *args, **kwargs)
@@ -205,7 +205,7 @@ class SDFToMol2(AbstractStage):
 
 # noinspection DuplicatedCode
 class SDFToMol2Batch(AbstractStage):
-
+    from openbabel import pybel
     @override
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, main_input, cwd, *args, **kwargs)
