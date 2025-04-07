@@ -1,4 +1,5 @@
 import logging
+import sys
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
@@ -8,6 +9,7 @@ from ligandparam.stages import StageSmilesToPDB
 
 """
 In this example, we're going to parametrize 6 ligands in parallel, starting from their SMILES strings.
+We are also going to set up our own logger, and pass it to the LazyLigand class.
 """
 
 def set_file_logger(
@@ -45,6 +47,7 @@ def worker(mol:str, resname:str, data_cwd: Path):
         charge_model = "bcc",
         logger=logger,
         molname=resname,
+        net_charge = 0,
     )
     recipe.setup()
     recipe.insert_stage(prestage, "Initialize")
@@ -63,7 +66,7 @@ example_set = {
 }
 
 
-cwd = Path(".").resolve()
+cwd = Path(sys.argv[0]).resolve().parent
 with ProcessPoolExecutor(max_workers=6) as ex:
     futuros = {}
     for resname, mol in example_set.items():

@@ -1,4 +1,3 @@
-import logging
 import sys
 from pathlib import Path
 
@@ -14,14 +13,7 @@ gaussian_paths = {
     "gaussian_scratch": "/home/.../GAUSSIAN/g16/scratch",
 }
 
-cwd = Path(".").resolve()
-
-# Send output to stdout
-logger = logging.getLogger("mylog")
-logger.setLevel(logging.INFO)
-stream_handler = logging.StreamHandler(sys.stdout)
-stream_handler.setLevel(logging.INFO)
-logger.addHandler(stream_handler)
+cwd = Path(sys.argv[0]).resolve().parent
 
 # Load the pdb as a instance of the FreeLigand class
 test = LazyLigand(
@@ -29,7 +21,7 @@ test = LazyLigand(
     cwd=cwd,
     net_charge=0,
     atom_type="gaff2",
-    logger=logger,
+    logger="stream",
     # antechamber will name your residue 'MOL' by default, and we follow that standard by default,
     # so you probably want to set it yourself:
     molname="LIG",

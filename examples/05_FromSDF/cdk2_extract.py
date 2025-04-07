@@ -8,19 +8,12 @@ cwd = Path(sys.argv[0]).resolve().parent
 sdf = cwd / "ligands.sdf"
 bad_sdf = cwd / "bad_ligands.sdf"
 
-# Send output to stdout, though SDFToPDBBatch won't print unless there's an error
-logger = logging.getLogger("mylog")
-logger.setLevel(logging.INFO)
-stream_handler = logging.StreamHandler(sys.stdout)
-stream_handler.setLevel(logging.INFO)
-logger.addHandler(stream_handler)
-
 # Quickest way to convert an SDF file to PDB files. Filenames and resnames will be the same as the SDF molecule names
-sdf_to_pdb = SDFToPDBBatch("sdf2pdb", sdf, cwd, logger=logger)
+sdf_to_pdb = SDFToPDBBatch("sdf2pdb", sdf, cwd)
 sdf_to_pdb.execute()
 
 # This will trigger an error, as there are multiple molecules with the same name
-sdf_to_pdb = SDFToPDBBatch("sdf2pdb", bad_sdf, cwd, logger=logger)
+sdf_to_pdb = SDFToPDBBatch("sdf2pdb", bad_sdf, cwd)
 sdf_to_pdb.execute()
 
 """
