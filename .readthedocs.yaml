@@ -10,11 +10,6 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.10"
-  apt_packages:
-    - libopenbabel-dev
-    - swig
-    - openbabel
-    - python3-openbabel
 
 
 
