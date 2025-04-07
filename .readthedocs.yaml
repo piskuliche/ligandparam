@@ -10,10 +10,11 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.10"
-  jobs:
-    pre_create_environment:
-      - apt-get update && apt-get install -y swig libopenbabel-dev openbabel || echo "OpenBabel installation failed, skipping."
-      - conda install -c conda-forge openbabel swig -y || echo "Conda OpenBabel installation failed, skipping."
+  apt_packages:
+    - libopenbabel-dev
+    - swig
+    - openbabel
+
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
