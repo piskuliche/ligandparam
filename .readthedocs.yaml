@@ -30,6 +30,5 @@ sphinx:
 python:
   install:
     - requirements: docs/requirements.txt
-    - method: conda
-    - environment: env.yaml
+    - method: pip
       path: .
