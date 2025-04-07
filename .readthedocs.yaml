@@ -32,7 +32,3 @@ python:
     - requirements: docs/requirements.txt
     - method: pip
       path: .
-
-
-apt_packages:
-  - openbabel
