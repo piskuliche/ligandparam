@@ -31,4 +31,5 @@ python:
   install:
     - requirements: docs/requirements.txt
     - method: conda
-      path: ./env.yaml
+    - environment: env.yaml
+      path: .
