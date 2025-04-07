@@ -25,14 +25,17 @@ dependencies = [
   "pathlib",
   "parmed"
 ]
-extra-dependencies = [
-  "openbabel"
-]
+
 
 urls = { "Homepage" = "https://github.com/piskulichz/ligandparam" }
 
 [project.scripts]
 ligfix = "ligandparam.cli.cli_lighfix:ligfix"
+
+[project.optional-dependencies]
+other = [
+  "openbabel",
+]
 
 [tool.ruff]
 line-length = 120
