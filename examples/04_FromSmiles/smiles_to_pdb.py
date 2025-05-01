@@ -12,6 +12,7 @@ In this example, we're going to parametrize 6 ligands in parallel, starting from
 We are also going to set up our own logger, and pass it to the LazyLigand class.
 """
 
+
 def set_file_logger(
         logfilename: Path, logname: str = None, filemode: str = "a"
 ) -> logging.Logger:
@@ -33,27 +34,29 @@ def set_file_logger(
     return logger
 
 
-def worker(mol:str, resname:str, data_cwd: Path):
+def worker(mol: str, resname: str, data_cwd: Path, reference_pdb: Path) -> Path:
     binder_dir = data_cwd / resname
     binder_dir.mkdir(exist_ok=True)
     binder_pdb = binder_dir / f"{resname}.pdb"
     logger = set_file_logger(binder_dir / f"{resname}.log", filemode="w")
-    prestage = StageSmilesToPDB(f"build_{resname}", mol, binder_dir, out_pdb=binder_pdb, resname=resname, logger=logger)
+    prestage = StageSmilesToPDB(f"build_{resname}", mol, binder_dir, out_pdb=binder_pdb, resname=resname,
+                                reference_pdb=reference_pdb, align=True, logger=logger)
 
     recipe = LazierLigand(
         in_filename=binder_pdb,
         cwd=binder_dir,
         atom_type="gaff2",
-        charge_model = "bcc",
+        charge_model="bcc",
         logger=logger,
         molname=resname,
-        net_charge = 0,
+        net_charge=0,
     )
     recipe.setup()
     recipe.insert_stage(prestage, "Initialize")
     recipe.execute()
 
     return binder_pdb
+
 
 # Here is an initial set of molecules
 example_set = {
@@ -65,12 +68,12 @@ example_set = {
     "LIG": "O=C1NC(NNC2=CC=CC=C2)=NC3=C1N=CN3"
 }
 
-
 cwd = Path(sys.argv[0]).resolve().parent
+reference_pdb = cwd / "guanine.pdb"
 with ProcessPoolExecutor(max_workers=6) as ex:
     futuros = {}
     for resname, mol in example_set.items():
-        futu = ex.submit(worker, mol, resname, cwd)
+        futu = ex.submit(worker, mol, resname, cwd, reference_pdb)
         # Make sure `resname`s are unique!
         futuros[resname] = futu
 
