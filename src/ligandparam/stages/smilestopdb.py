@@ -79,7 +79,7 @@ class StageSmilesToPDB(AbstractStage):
 
     def normalize_to_reference(self, mol: Chem.Mol, reference_pdb: Path, align: bool = False) -> Chem.Mol:
         # Normalize the atom names to match the reference PDB
-        ref_mol = Chem.MolFromPDBFile(reference_pdb)
+        ref_mol = Chem.MolFromPDBFile(str(reference_pdb))
         if not ref_mol:
             raise ValueError(f"Failed to read reference PDB file {reference_pdb}")
 
