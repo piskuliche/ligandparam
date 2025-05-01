@@ -1,16 +1,35 @@
-#!/usr/bin/env python
+from pathlib import Path
+import sys
 
-# Import the module
 from ligandparam.recipes import LazyLigand
 
-# Load the pdb as a instance of the LazyLigand class
-test = LazyLigand('thiophenol.pdb', netcharge=0,nproc=12,mem='60GB')
+cwd = Path(sys.argv[0]).resolve().parent
 
-# Select the pre-initialized stages for Lazy Ligand
-test.setup()
+# Environment variables for Gaussian. If your environment is already set up, you can ignore this.
+gaussian_paths = {
+    "gaussian_root": "/home/.../GAUSSIAN",
+    "gauss_exedir": "/home/.../GAUSSIAN/g16/bsd:/home/.../GAUSSIAN/g16",
+    "gaussian_binary": "/home/.../GAUSSIAN/g16/g16",
+    "gaussian_scratch": "/home/.../GAUSSIAN/g16/scratch",
+}
+
+parametrize_ligand = LazyLigand(
+    in_filename=cwd / "thiophenol.pdb",
+    cwd=cwd,
+    logger="file",
+    net_charge=0,
+    atom_type="gaff2",
+    # antechamber will name your residue 'MOL' by default, and we follow that standard by default,
+    # so you probably want to set it yourself:
+    molname="LIG",
+    # **gaussian_paths,
+)
+
+# Set the pre-initialized stages for Lazy Ligand
+parametrize_ligand.setup()
 
 # List the stages out to the user
-test.list_stages()
+parametrize_ligand.list_stages()
 
-# Execute the stages in order.
-test.execute(dry_run=False)
+# Run the parametrization
+parametrize_ligand.execute(dry_run=False, nproc=12, mem=8)

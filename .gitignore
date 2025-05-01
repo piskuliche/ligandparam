@@ -1,3 +1,6 @@
+# misc
+nohup.out
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -131,6 +134,8 @@ sqm*
 /examples/02_FreeLigand/*
 /examples/03_ModifySteps/*
 /examples/04_MultiResp/*
+/examples/04_FromSmiles/*
+/examples/05_FromSDF/*
 
 # Allow specific files
 !/examples/01_LazyLigand/thiophenol.pdb
@@ -146,3 +151,9 @@ sqm*
 !/examples/04_MultiResp/1Y27_lig.pdb
 !/examples/04_MultiResp/1Y27.pdb
 
+!/examples/04_FromSmiles/*py
+
+!/examples/05_FromSDF/*py
+!/examples/05_FromSDF/*sdf
+
+localtest/
