@@ -47,13 +47,6 @@ class SDFToPDB(AbstractStage):
         mol = mols[self.mol_idx]
         # Set metadata and write away
         mol = set_atom_pdb_info(mol, self.resname)
-        # mol.SetProp("_Name", self.resname)
-        # mi = Chem.AtomPDBResidueInfo()
-        # mi.SetResidueName(self.resname)
-        # mi.SetResidueNumber(1)
-        # mi.SetOccupancy(0.0)
-        # mi.SetTempFactor(0.0)
-        # [a.SetMonomerInfo(mi) for a in mol.GetAtoms()]
         flavor = 0 if self.add_conect else 2
         if self.out_pdb is not None:
             self.write_pdb(mol, flavor=flavor)
@@ -133,13 +126,6 @@ class SDFToPDBBatch(AbstractStage):
         for mol, pdb, resname in zip(mols, self.out_pdbs, self.resnames):
             # Set metadata and write away
             mol = set_atom_pdb_info(mol, self.resname)
-            # mol.SetProp("_Name", resname)
-            # mi = Chem.AtomPDBResidueInfo()
-            # mi.SetResidueName(resname)
-            # mi.SetResidueNumber(1)
-            # mi.SetOccupancy(0.0)
-            # mi.SetTempFactor(0.0)
-            # [a.SetMonomerInfo(mi) for a in mol.GetAtoms()]
             self.logger.info(f"Writing {self.in_sdf} to {pdb}")
 
             try:

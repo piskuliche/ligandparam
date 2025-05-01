@@ -50,13 +50,6 @@ class StageSmilesToPDB(AbstractStage):
 
         # Set metadata
         mol = set_atom_pdb_info(mol, self.resname)
-        # mol.SetProp("_Name", self.resname)
-        # mi = Chem.AtomPDBResidueInfo()
-        # mi.SetResidueName(self.resname)
-        # mi.SetResidueNumber(1)
-        # mi.SetOccupancy(0.0)
-        # mi.SetTempFactor(0.0)
-        # [a.SetMonomerInfo(mi) for a in mol.GetAtoms()]
 
         # Normalize the molecule to match the reference PDB
         if self.normalize_atom_names:
