@@ -1,16 +1,14 @@
-import io
-import warnings
 from collections import Counter
 from pathlib import Path
-from typing import Optional, Union, Any, Sequence
+from typing import Optional, Union, Any
 
 import numpy as np
 from typing_extensions import override
 
 from rdkit import Chem
 
-from ligandparam.stages import AbstractStage
-from ligandparam.utils import stderr_redirector
+from ligandparam.stages import AbstractStage, set_atom_pdb_info
+
 
 
 class SDFToPDB(AbstractStage):
@@ -48,13 +46,14 @@ class SDFToPDB(AbstractStage):
 
         mol = mols[self.mol_idx]
         # Set metadata and write away
-        mol.SetProp("_Name", self.resname)
-        mi = Chem.AtomPDBResidueInfo()
-        mi.SetResidueName(self.resname)
-        mi.SetResidueNumber(1)
-        mi.SetOccupancy(0.0)
-        mi.SetTempFactor(0.0)
-        [a.SetMonomerInfo(mi) for a in mol.GetAtoms()]
+        mol = set_atom_pdb_info(mol, self.resname)
+        # mol.SetProp("_Name", self.resname)
+        # mi = Chem.AtomPDBResidueInfo()
+        # mi.SetResidueName(self.resname)
+        # mi.SetResidueNumber(1)
+        # mi.SetOccupancy(0.0)
+        # mi.SetTempFactor(0.0)
+        # [a.SetMonomerInfo(mi) for a in mol.GetAtoms()]
         flavor = 0 if self.add_conect else 2
         if self.out_pdb is not None:
             self.write_pdb(mol, flavor=flavor)
@@ -133,13 +132,14 @@ class SDFToPDBBatch(AbstractStage):
         flavor = 0 if self.add_conect else 2
         for mol, pdb, resname in zip(mols, self.out_pdbs, self.resnames):
             # Set metadata and write away
-            mol.SetProp("_Name", resname)
-            mi = Chem.AtomPDBResidueInfo()
-            mi.SetResidueName(resname)
-            mi.SetResidueNumber(1)
-            mi.SetOccupancy(0.0)
-            mi.SetTempFactor(0.0)
-            [a.SetMonomerInfo(mi) for a in mol.GetAtoms()]
+            mol = set_atom_pdb_info(mol, self.resname)
+            # mol.SetProp("_Name", resname)
+            # mi = Chem.AtomPDBResidueInfo()
+            # mi.SetResidueName(resname)
+            # mi.SetResidueNumber(1)
+            # mi.SetOccupancy(0.0)
+            # mi.SetTempFactor(0.0)
+            # [a.SetMonomerInfo(mi) for a in mol.GetAtoms()]
             self.logger.info(f"Writing {self.in_sdf} to {pdb}")
 
             try:
