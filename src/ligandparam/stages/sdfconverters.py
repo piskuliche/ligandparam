@@ -157,6 +157,7 @@ class SDFToPDBBatch(AbstractStage):
 
 
 ############
+# Converting SDF to mol2 turned out to be damn near impossible. I'll leave it for now.
 # Known issues:
 #   - openbabel adds a 1 to the residue name and there's nothing to do about that. If we really need these classes,
 #       (SDFToPDBBatch and SDFToPDB), we'll have to edit each output mol2 and remove the resname

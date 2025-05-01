@@ -24,8 +24,7 @@ class Parametrization(Driver):
         Raises:
             ValueError: If neither 'name' nor 'pdb_filename' is provided in inputoptions.
         """
-        self.in_filename = Path(in_filename)
-
+        self.in_filename = Path(in_filename).resolve()
         self.label = kwargs.get("label", self.in_filename.stem)
         self.cwd = Path(cwd)
         self.stages = []

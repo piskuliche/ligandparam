@@ -11,7 +11,7 @@ class AbstractStage(metaclass=ABCMeta):
     """This is an abstract class for all the stages."""
 
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
-        # TODO Fix: we assume that all stages deal with an input file, but don't read it yet. Make in_filename a kwarg.
+        # TODO Fix: we assume that all stages deal with an input file, but don't read it yet. Make `in_filename` a kwarg.
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
@@ -28,6 +28,7 @@ class AbstractStage(metaclass=ABCMeta):
         if not self.cwd.parent.is_dir():
             raise ValueError(f"Bad input `cwd` working dir: {self.cwd}")
 
+        self.main_input = Path(main_input).resolve()
         self.stage_name = stage_name
         self.required = []
         self.logger = kwargs.get("logger", get_logger())
@@ -49,6 +50,7 @@ class AbstractStage(metaclass=ABCMeta):
     def _setup_execution(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> None:
         self.nproc = self.nproc if nproc is None else nproc
         self.mem = self.mem if mem is None else mem
+        self._check_required()
 
     def execute(self, dry_run=False, nproc: Optional[int] = None, mem: Optional[int] = None) -> Any:
         self.logger.info(f"Executing {self.stage_name}")

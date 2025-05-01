@@ -75,6 +75,7 @@ class StageNormalizeCharge(AbstractStage):
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, main_input, cwd, *args, **kwargs)
         self.in_mol2 = Path(main_input)
+
         self.out_mol2 = Path(kwargs["out_mol2"])
         self.tmp_mol2 = self.cwd / f"{self.in_mol2.stem}_tmp_norm.mol2"
 
