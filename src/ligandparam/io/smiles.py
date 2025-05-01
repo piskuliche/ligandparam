@@ -76,26 +76,8 @@ class PDBFromSMILES:
         return 
     
 class MolFromPDB:
-    """ This class generates a molecule from a PDB file.
-
-    It can store both an RDKit and MDAnalysis representation of the molecule.
-    
-    Parameters:
-    -----------
-    pdb_filename : str
-        The name of the PDB file.
-    
-    Attributes:
-    -----------
-    pdb_filename : str
-        The name of the PDB file.
-    rdkit_mol : rdkit.Chem.Mol
-        The RDKit molecule object.
-    mda_universe : MDAnalysis.Universe
-        The MDAnalysis Universe object.
-    
-    """
-    def __init__(self, pdb_filename):
+    def __init__(self, pdb_filename, removeHs=False):
+        self.remove_Hs = removeHs
         self.pdb_filename = pdb_filename
         self._rdkit_representation()
         self._mda_representation()
@@ -104,7 +86,7 @@ class MolFromPDB:
     
     def _rdkit_representation(self):
         """ Generate an RDKit molecule from a PDB file. """
-        self.rdkit_mol = rdkit.Chem.rdmolfiles.MolFromPDBFile(self.pdb_filename, removeHs=False)
+        self.rdkit_mol = rdkit.Chem.rdmolfiles.MolFromPDBFile(self.pdb_filename, removeHs=self.remove_Hs)
         return
     
     def _mda_representation(self):
@@ -162,7 +144,7 @@ class RenamePDBTypes:
     def __init__(self, primary_pdb, resname):
         self.primary_pdb = primary_pdb
         self.mols = []
-        self.mols.append(MolFromPDB(primary_pdb))
+        self.mols.append(MolFromPDB(primary_pdb, removeHs=False))
         self.resname = resname
         return
     
@@ -176,8 +158,11 @@ class RenamePDBTypes:
         if len(self.mols) != 2:
             raise ValueError("ERROR: Only two molecules can be compared for reference.")
         st_comm, rf_comm = self.common_atoms()
-        available_names = set(self.mols[0].names()) | set(self.mols[1].names())
+        codes = [f"C{i}" for i in range(1, 41)]
+        available_names = set(self.mols[0].names()) | set(self.mols[1].names()) | set(codes)
         new_names = np.zeros_like(self.mols[0].names())
+        print(self.mols[0].names()[st_comm])
+        print(self.mols[1].names()[rf_comm])
         for i, j in zip(st_comm, rf_comm):
             new_names[i] = self.mols[1].names()[j]
             available_names.remove(self.mols[1].names()[j])

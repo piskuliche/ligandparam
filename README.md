@@ -6,4 +6,5 @@ key features encountered by users, including...
 
 ## Documentation
 
-HTML documentation can be built 
+The online documentation is located here: https://ligandparam.readthedocs.io/en/latest/
+
