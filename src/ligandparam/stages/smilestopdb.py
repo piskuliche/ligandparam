@@ -60,7 +60,7 @@ class StageSmilesToPDB(AbstractStage):
         self.logger.info(f"Writing {self.in_smiles} to {self.out_pdb}")
 
         try:
-            Chem.MolToPDBFile(mol, self.out_pdb, flavor=flavor)
+            Chem.MolToPDBFile(mol, str(self.out_pdb), flavor=flavor)
         except Exception as e:
             self.logger.error(
                 f"Failed to write to  {self.out_pdb}. Got exception: {e}")
@@ -81,25 +81,69 @@ class StageSmilesToPDB(AbstractStage):
                 f"Reference '{reference_pdb}' does not contain any hydrogen atoms. It's not a good reference PDB.")
 
         mcs_mol = self.get_mcs_mol(ref_mol, mol)
-        mol_substructure = mol.GetSubstructMatch(mcs_mol)
-        ref_substructure = ref_mol.GetSubstructMatch(mcs_mol)
-        assert len(mol_substructure) == len(ref_substructure), \
-            f"Mismatch in number of common atoms. {len(mol_substructure)} vs {len(ref_substructure)}. This is likely a bug."
+        mol_match = mol.GetSubstructMatch(mcs_mol)
+        ref_match = ref_mol.GetSubstructMatch(mcs_mol)
+        assert len(mol_match) == len(ref_match), \
+            f"Mismatch in number of common atoms. {len(mol_match)} vs {len(ref_match)}. This is likely a bug."
 
-        # Get the mapping of the atoms in the target molecule to the reference molecule, and copy names from reference
-        atom_map = list(zip(mol_substructure, ref_substructure))
-        dict_atom_map = dict(zip(mol_substructure, ref_substructure))
+        # Get the mapping of the atoms in the target molecule to the reference molecule
+        atom_map = list(zip(mol_match, ref_match))
+        dict_atom_map = dict(zip(mol_match, ref_match))
         ref_atoms = list(ref_mol.GetAtoms())
+
+        # Atom names will come, either from the reference molecule or from the available names per element.
+        # We do this to avoid repeating atom names in the output molecule.
+        available_names_per_element = self.get_available_names_per_element(ref_mol, ref_match, mol)
         for a in mol.GetAtoms():
+            pdb_info = a.GetPDBResidueInfo()
             if a.GetIdx() in dict_atom_map:
-                pdb_info = a.GetPDBResidueInfo()
                 name = ref_atoms[dict_atom_map[a.GetIdx()]].GetPDBResidueInfo().GetName()
-                pdb_info.SetName(name)
-                a.SetMonomerInfo(pdb_info)
+            else:
+                name = available_names_per_element[a.GetAtomicNum()].pop(0)
+            pdb_info.SetName(self.pad_atom_name(name))
+            a.SetMonomerInfo(pdb_info)
         if align:
             AlignMol(mol, ref_mol, atomMap=atom_map)
         return mol
 
+    @staticmethod
+    def pad_atom_name(name) -> str:
+        name = f" {name}" if len(name) < 4 else name
+        return name.ljust(4)
+
+    
+    def get_available_names_per_element(self, ref_mol: Chem.Mol, ref_match, mol: Chem.Mol) -> dict[int, list[str]]:
+        ref_atoms = list(ref_mol.GetAtoms())
+        mol_atoms = list(mol.GetAtoms())
+        natoms = len(mol_atoms)
+        available_names_per_element = {}
+
+        for atm in mol_atoms:
+            element_number, name, number, element = self.get_element_name_and_number(atm)
+            if element_number not in available_names_per_element:
+                available_names_per_element[element_number] = [ f"{element}{i}" for i in range(1, natoms+1)]
+
+        for idx in ref_match:
+            element_number, name, number, element = self.get_element_name_and_number(ref_atoms[idx])
+            if element_number not in available_names_per_element:
+                available_names_per_element[element_number] = [ f"{element}{i}" for i in range(1, natoms+1)]
+            available_names_per_element[element_number].remove(name)
+
+        return available_names_per_element
+
+    @staticmethod
+    def get_element_name_and_number(atom) -> tuple[int, str, int, str]:
+        element_number = atom.GetAtomicNum()
+        name = atom.GetPDBResidueInfo().GetName().strip()
+        if name == '':
+            name = Chem.GetPeriodicTable().GetElementSymbol(element_number) + "0"
+            number = 0
+            element = Chem.GetPeriodicTable().GetElementSymbol(element_number)
+        else:
+            number = int(''.join(char for char in name if char.isdigit()))
+            element = ''.join(char for char in name if not char.isdigit())
+        return element_number, name, number, element
+    
     @staticmethod
     def get_mcs_mol(ref_mol: Chem.Mol, mol: Chem.Mol) -> Chem.Mol:
         """ Copy the atom names from the reference molecule to the target molecule. """
