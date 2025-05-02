@@ -1,7 +1,7 @@
 from typing import Optional,  Union, Any
 
 from pathlib import Path
-
+import shutil
 from ligandparam.stages.abstractstage import AbstractStage
 from ligandparam.io.leapIO import LeapWriter
 from ligandparam.interfaces import Leap
@@ -50,6 +50,7 @@ class StageLeap(AbstractStage):
         leapgen.write(self.cwd / "tleap.param.in")
         leap_log = Path(self.cwd, "leap.log")
         leap_log.unlink(missing_ok=True)
+        shutil.move(self.out_lib, self.out_lib.with_name(f"backup_{self.out_lib.name}"))
         # Call the leap program
         leap = Leap(cwd=self.cwd, logger=self.logger)
         leap.call(f=self.cwd / "tleap.param.in", dry_run=dry_run)
