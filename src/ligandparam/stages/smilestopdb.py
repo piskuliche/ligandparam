@@ -77,21 +77,22 @@ class StageSmilesToPDB(AbstractStage):
             raise ValueError(f"Failed to read reference PDB file {reference_pdb}")
 
         mcs_mol = self.get_mcs_mol(ref_mol, mol)
+        mol_substructure = mol.GetSubstructMatch(mcs_mol)
         ref_substructure = ref_mol.GetSubstructMatch(mcs_mol)
-        common_atms = set(ref_substructure)
+        assert len(mol_substructure) == len(ref_substructure), \
+            f"Mismatch in number of common atoms. {len(mol_substructure)} vs {len(ref_substructure)}. This is likely a bug."
+
+        # Get the mapping of the atoms in the target molecule to the reference molecule, and copy names from reference
+        atom_map = list(zip(mol_substructure, ref_substructure))
+        dict_atom_map = dict(zip(mol_substructure, ref_substructure))
         ref_atoms = list(ref_mol.GetAtoms())
         for a in mol.GetAtoms():
-            if a.GetIdx() in common_atms:
+            if a.GetIdx() in dict_atom_map:
                 pdb_info = a.GetPDBResidueInfo()
-                name = ref_atoms[a.GetIdx()].GetPDBResidueInfo().GetName()
+                name = ref_atoms[dict_atom_map[a.GetIdx()]].GetPDBResidueInfo().GetName()
                 pdb_info.SetName(name)
                 a.SetMonomerInfo(pdb_info)
-
         if align:
-            mol_substructure = mol.GetSubstructMatch(mcs_mol)
-            assert len(mol_substructure) == len(ref_substructure), \
-                f"Mismatch in number of common atoms. {len(mol_substructure)} vs {len(ref_substructure)}. This is likely a bug."
-            atom_map = list(zip(mol_substructure, ref_substructure))
             AlignMol(mol, ref_mol, atomMap=atom_map)
         return mol
 
