@@ -9,6 +9,7 @@ from typing_extensions import override
 
 from ligandparam.stages import set_atom_pdb_info
 
+
 class StageSmilesToPDB(AbstractStage):
 
     @override
@@ -75,6 +76,9 @@ class StageSmilesToPDB(AbstractStage):
         ref_mol = Chem.MolFromPDBFile(str(reference_pdb))
         if not ref_mol:
             raise ValueError(f"Failed to read reference PDB file {reference_pdb}")
+        if len([at for at in ref_mol.GetAtoms() if at.GetAtomicNum() == 1]) == 0:
+            self.logger.warn(
+                f"Reference '{reference_pdb}' does not contain any hydrogen atoms. It's not a good reference PDB.")
 
         mcs_mol = self.get_mcs_mol(ref_mol, mol)
         mol_substructure = mol.GetSubstructMatch(mcs_mol)
