@@ -50,7 +50,8 @@ class StageLeap(AbstractStage):
         leapgen.write(self.cwd / "tleap.param.in")
         leap_log = Path(self.cwd, "leap.log")
         leap_log.unlink(missing_ok=True)
-        shutil.move(self.out_lib, self.out_lib.with_name(f"backup_{self.out_lib.name}"))
+        if self.out_lib.is_file():
+            shutil.move(self.out_lib, self.out_lib.with_name(f"backup_{self.out_lib.name}"))
         # Call the leap program
         leap = Leap(cwd=self.cwd, logger=self.logger)
         leap.call(f=self.cwd / "tleap.param.in", dry_run=dry_run)
