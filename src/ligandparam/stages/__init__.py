@@ -11,3 +11,4 @@ from .sdfconverters import SDFToPDB, SDFToPDBBatch
 from .smilestopdb import StageSmilesToPDB
 from .lighfix import LigHFix
 from .displacemol import StageDisplaceMol
+from .pdb_names import PDB_Name_Fixer
