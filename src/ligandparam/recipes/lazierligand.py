@@ -4,7 +4,7 @@ from typing import Optional, Union, Any
 from typing_extensions import override
 
 from ligandparam.parametrization import Recipe
-from ligandparam.stages import StageInitialize, StageParmChk, StageLeap
+from ligandparam.stages import StageInitialize, StageParmChk, StageLeap, StageUpdate
 
 
 class LazierLigand(Recipe):
@@ -53,6 +53,34 @@ class LazierLigand(Recipe):
                             **self.kwargs),
             StageParmChk("ParmChk", main_input=nonminimized_mol2, cwd=self.cwd, out_frcmod=frcmod,
                          logger=self.logger, **self.kwargs),
+            StageUpdate(
+                "UpdateNames",
+                main_input=nonminimized_mol2,
+                cwd=self.cwd,
+                source_mol2=nonminimized_mol2,
+                out_mol2=final_mol2,
+                net_charge=self.net_charge,
+                update_names=True,
+                update_types=False,
+                update_resname=True,
+                logger=self.logger,
+                **self.kwargs,
+            ),
+            # Create a `nonminimized_mol2` with `initial_mol2` coordinates and  `final_mol2` charges
+            StageUpdate(
+                "UpdateCharges",
+                main_input=nonminimized_mol2,
+                cwd=self.cwd,
+                source_mol2=final_mol2,
+                out_mol2=nonminimized_mol2,
+                update_charges=True,
+                net_charge=self.net_charge,
+                logger=self.logger,
+                **self.kwargs,
+            ),
+            StageParmChk("ParmChk", main_input=nonminimized_mol2, cwd=self.cwd, out_frcmod=frcmod,
+                         logger=self.logger,
+                         **self.kwargs),
             StageLeap("Leap", main_input=nonminimized_mol2, cwd=self.cwd, in_frcmod=frcmod, out_lib=lib,
                       logger=self.logger, **self.kwargs),
             # TODO: copy `nonminimized_mol2` to `final_mol2`?
