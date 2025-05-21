@@ -80,7 +80,6 @@ class Antechamber(SimpleInterface):
 
         self.logger = kwargs.get("logger", get_logger())
         self.nproc = kwargs.get("nproc", 1)
-
         self.set_method("antechamber")
         return
 

@@ -9,6 +9,7 @@ from ligandparam.log import get_logger
 
 
 class StageInitialize(AbstractStage):
+    """ This class initializes the ligand from a PDB file, and generates a mol2 file."""
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, main_input, cwd, *args, **kwargs)
         self.in_pdb = Path(main_input)
@@ -24,6 +25,8 @@ class StageInitialize(AbstractStage):
             self.additional_args = {"rn": kwargs["molname"]}
         else:
             self.additional_args = {}
+        if "ek" in kwargs:
+            self.additional_args["ek"] = kwargs["ek"]
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """Appends the stage."""
@@ -44,6 +47,7 @@ class StageInitialize(AbstractStage):
         super()._setup_execution(dry_run=dry_run, nproc=nproc, mem=mem)
         Remove_PDB_CONECT(self.in_pdb)
         ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
+        print(self.additional_args)
         ante.call(
             i=self.in_pdb,
             fi="pdb",
