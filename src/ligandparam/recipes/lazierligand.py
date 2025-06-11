@@ -4,7 +4,7 @@ from typing import Optional, Union, Any
 from typing_extensions import override
 
 from ligandparam.parametrization import Recipe
-from ligandparam.stages import StageInitialize, StageParmChk, StageLeap, StageUpdate
+from ligandparam.stages import StageInitialize, StageParmChk, StageLeap, StageUpdate, StageNormalizeCharge
 
 
 class LazierLigand(Recipe):
@@ -46,6 +46,7 @@ class LazierLigand(Recipe):
         frcmod = self.cwd / f"{self.label}.frcmod"
         lib = self.cwd / f"{self.label}.lib"
         final_mol2 = self.cwd / f"final_{self.label}.mol2"
+        fixed_charge_mol2 = self.cwd / f"fixed_charge_{self.label}.mol2"
 
         self.stages = [
             StageInitialize("Initialize", main_input=self.in_filename, cwd=self.cwd, out_mol2=nonminimized_mol2,
@@ -53,11 +54,20 @@ class LazierLigand(Recipe):
                             **self.kwargs),
             StageParmChk("ParmChk", main_input=nonminimized_mol2, cwd=self.cwd, out_frcmod=frcmod,
                          logger=self.logger, **self.kwargs),
+            StageNormalizeCharge(
+                "Normalize2",
+                main_input=nonminimized_mol2,
+                cwd=self.cwd,
+                net_charge=self.net_charge,
+                out_mol2=fixed_charge_mol2,
+                logger=self.logger,
+                **self.kwargs,
+            ),
             StageUpdate(
                 "UpdateNames",
                 main_input=nonminimized_mol2,
                 cwd=self.cwd,
-                source_mol2=nonminimized_mol2,
+                source_mol2=fixed_charge_mol2,
                 out_mol2=final_mol2,
                 net_charge=self.net_charge,
                 update_names=True,
@@ -66,12 +76,12 @@ class LazierLigand(Recipe):
                 logger=self.logger,
                 **self.kwargs,
             ),
-            # Create a `nonminimized_mol2` with `initial_mol2` coordinates and  `final_mol2` charges
+            # Create a `nonminimized_mol2` with `initial_mol2` coordinates and  `fixed_charge_mol2` charges
             StageUpdate(
                 "UpdateCharges",
                 main_input=nonminimized_mol2,
                 cwd=self.cwd,
-                source_mol2=final_mol2,
+                source_mol2=fixed_charge_mol2,
                 out_mol2=nonminimized_mol2,
                 update_charges=True,
                 net_charge=self.net_charge,

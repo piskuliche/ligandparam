@@ -37,7 +37,7 @@ class PDB_Name_Fixer(AbstractStage):
         try:
             mol = Chem.MolFromPDBFile(str(self.in_pdb), removeHs=False)
         except Exception as e:
-            err_msg = f"Failed to generate an rdkit molecule from input SMILES {self.in_smiles}. Got exception: {e}"
+            err_msg = f"Failed to generate an rdkit molecule from input SMILES {self.in_pdb}. Got exception: {e}"
             self.logger.error(err_msg)
             raise RuntimeError(err_msg)
 
@@ -45,10 +45,10 @@ class PDB_Name_Fixer(AbstractStage):
         #if self.reduce:
         #    mol = Chem.rdmolops.AddHs(mol)
         # All the atoms have their coordinates set to zero. Come up with some values
-        params = ETKDGv3()
-        if self.random_seed:
-            params.randomSeed = self.random_seed
-        EmbedMolecule(mol, params)
+        #params = ETKDGv3()
+        #if self.random_seed:
+        #    params.randomSeed = self.random_seed
+        #EmbedMolecule(mol, params)
 
         # Set metadata
         mol = set_atom_pdb_info(mol, self.resname)

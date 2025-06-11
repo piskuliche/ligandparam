@@ -61,6 +61,22 @@ class StageInitialize(AbstractStage):
             dry_run=dry_run,
             **self.additional_args,
         )
+    """
+        second_ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
+        second_ante.call(
+            i="sqm.pdb",
+            fi="pdb",
+            o=self.out_mol2,
+            fo="mol2",
+            c=self.charge_model,
+            nc=self.net_charge,
+            pf="y",
+            at=self.atom_type,
+            an="no",
+            dry_run=dry_run,
+            **self.additional_args,
+        )
+        """
 
     def _clean(self):
         """Clean the files generated during the stage."""
