@@ -30,7 +30,7 @@ dependencies = [
 urls = { "Homepage" = "https://github.com/piskulichz/ligandparam" }
 
 [project.scripts]
-ligfix = "ligandparam.cli.cli_lighfix:ligfix"
+lighfix = "ligandparam.cli.cli_lighfix:lighfix"
 
 [project.optional-dependencies]
 other = [
