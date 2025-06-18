@@ -13,10 +13,11 @@ from ligandparam.stages import (
     StageUpdate,
     StageParmChk,
     StageLeap,
+    DPMinimize,
 )
 
 
-class LazyLigand(Recipe):
+class DPLigand(Recipe):
     """This is a ligand parameterization recipe that uses Gaussian for RESP fitting.
 
     This script is a recipe for parameterizing a ligand using the RESP method with Gaussian. This script is designed to do the main steps of the RESP fitting process, including:
@@ -200,33 +201,16 @@ class LazyLigand(Recipe):
                 out_mol=centered_mol2,
                 logger=self.logger,
             ),
-            GaussianMinimizeRESP(
-                "MinimizeLowTheory",
+            DPMinimize(
+                "DPMinimize",
                 main_input=centered_mol2,
                 cwd=self.cwd,
-                nproc=self.nproc,
-                mem=self.mem,
-                gaussian_root=self.gaussian_root,
-                gauss_exedir=self.gauss_exedir,
-                gaussian_binary=self.gaussian_binary,
-                gaussian_scratch=self.gaussian_scratch,
-                net_charge=self.net_charge,
-                opt_theory=self.theory["low"],
-                resp_theory=self.theory["low"],
-                force_gaussian_rerun=self.force_gaussian_rerun,
-                out_gaussian_log=lowtheory_minimization_gaussian_log,
-                logger=self.logger,
-                minimize=self.kwargs.get("minimize", True),
-                **self.kwargs,
-            ),
-            StageLazyResp(
-                "LazyRespLow",
-                main_input=lowtheory_minimization_gaussian_log,
-                cwd=self.cwd,
-                net_charge=self.net_charge,
+                out_xyz=centered_mol2.with_suffix(".xyz"),
+                model=self.kwargs.get("model", "deepmd_model.pb"),
+                ftol=self.kwargs.get("ftol", 0.05),
+                steps=self.kwargs.get("steps", 1000),
                 out_mol2=resp_mol2_low,
                 logger=self.logger,
-                **self.kwargs,
             ),
             GaussianMinimizeRESP(
                 "MinimizeHighTheory",
@@ -239,11 +223,11 @@ class LazyLigand(Recipe):
                 gaussian_binary=self.gaussian_binary,
                 gaussian_scratch=self.gaussian_scratch,
                 net_charge=self.net_charge,
-                opt_theory=self.theory["high"],
                 resp_theory=self.theory["low"],
                 force_gaussian_rerun=self.force_gaussian_rerun,
                 out_gaussian_log=hightheory_minimization_gaussian_log,
                 logger=self.logger,
+                minimize=False,
                 **self.kwargs,
             ),
             StageLazyResp(

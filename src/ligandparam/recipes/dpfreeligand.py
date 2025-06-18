@@ -13,10 +13,15 @@ from ligandparam.stages import (
     StageUpdate,
     StageParmChk,
     StageLeap,
+    DPMinimize,
+    StageGaussianRotation,
+    StageGaussiantoMol2,
+    StageMultiRespFit,
+    StageUpdateCharge,
 )
 
 
-class LazyLigand(Recipe):
+class DPFreeLigand(Recipe):
     """This is a ligand parameterization recipe that uses Gaussian for RESP fitting.
 
     This script is a recipe for parameterizing a ligand using the RESP method with Gaussian. This script is designed to do the main steps of the RESP fitting process, including:
@@ -173,6 +178,9 @@ class LazyLigand(Recipe):
         nonminimized_mol2 = self.cwd / f"{self.label}.mol2"
         frcmod = self.cwd / f"{self.label}.frcmod"
         lib = self.cwd / f"{self.label}.lib"
+        rotation_label = self.cwd / f"{self.label}.rotation.label"
+        out_respfit = self.cwd / f"{self.label}.respfit"
+
 
         self.stages = [
             StageInitialize(
@@ -200,33 +208,16 @@ class LazyLigand(Recipe):
                 out_mol=centered_mol2,
                 logger=self.logger,
             ),
-            GaussianMinimizeRESP(
-                "MinimizeLowTheory",
+            DPMinimize(
+                "DPMinimize",
                 main_input=centered_mol2,
                 cwd=self.cwd,
-                nproc=self.nproc,
-                mem=self.mem,
-                gaussian_root=self.gaussian_root,
-                gauss_exedir=self.gauss_exedir,
-                gaussian_binary=self.gaussian_binary,
-                gaussian_scratch=self.gaussian_scratch,
-                net_charge=self.net_charge,
-                opt_theory=self.theory["low"],
-                resp_theory=self.theory["low"],
-                force_gaussian_rerun=self.force_gaussian_rerun,
-                out_gaussian_log=lowtheory_minimization_gaussian_log,
-                logger=self.logger,
-                minimize=self.kwargs.get("minimize", True),
-                **self.kwargs,
-            ),
-            StageLazyResp(
-                "LazyRespLow",
-                main_input=lowtheory_minimization_gaussian_log,
-                cwd=self.cwd,
-                net_charge=self.net_charge,
+                out_xyz=centered_mol2.with_suffix(".xyz"),
+                model=self.kwargs.get("model", "deepmd_model.pb"),
+                ftol=self.kwargs.get("ftol", 0.05),
+                steps=self.kwargs.get("steps", 1000),
                 out_mol2=resp_mol2_low,
                 logger=self.logger,
-                **self.kwargs,
             ),
             GaussianMinimizeRESP(
                 "MinimizeHighTheory",
@@ -239,18 +230,69 @@ class LazyLigand(Recipe):
                 gaussian_binary=self.gaussian_binary,
                 gaussian_scratch=self.gaussian_scratch,
                 net_charge=self.net_charge,
-                opt_theory=self.theory["high"],
                 resp_theory=self.theory["low"],
                 force_gaussian_rerun=self.force_gaussian_rerun,
                 out_gaussian_log=hightheory_minimization_gaussian_log,
                 logger=self.logger,
+                minimize=False,
                 **self.kwargs,
             ),
-            StageLazyResp(
-                "LazyRespHigh",
+            StageGaussiantoMol2(
+                "GrabGaussianCharge",
                 main_input=hightheory_minimization_gaussian_log,
                 cwd=self.cwd,
+                nproc=self.nproc,
+                mem=self.mem,
+                gaussian_root=self.gaussian_root,
+                gauss_exedir=self.gauss_exedir,
+                gaussian_binary=self.gaussian_binary,
+                gaussian_scratch=self.gaussian_scratch,
+                net_charge=self.net_charge,
+                theory=self.theory,
+                force_gaussian_rerun=self.force_gaussian_rerun,
+                template_mol2=initial_mol2,
                 out_mol2=resp_mol2_high,
+                logger=self.logger,
+                **self.kwargs,
+            ),
+            StageGaussianRotation(
+                "Rotate",
+                main_input=resp_mol2_high,
+                cwd=self.cwd,
+                nproc=self.nproc,
+                mem=self.mem,
+                gaussian_root=self.gaussian_root,
+                gauss_exedir=self.gauss_exedir,
+                gaussian_binary=self.gaussian_binary,
+                gaussian_scratch=self.gaussian_scratch,
+                net_charge=self.net_charge,
+                theory=self.theory,
+                force_gaussian_rerun=self.force_gaussian_rerun,
+                out_gaussian_label=rotation_label,
+                alpha=[0, 30, 60, 90, 120, 150, 180],
+                beta=[0, 30, 60, 90],
+                gamma=[0],
+                logger=self.logger,
+                **self.kwargs,
+            ),
+            # We know that the gaussian stages work in a "gaussianCalcs" directory. Quite hacky.
+            StageMultiRespFit(
+                "MultiRespFit",
+                main_input=resp_mol2_high,
+                cwd=self.cwd / "gaussianCalcs",
+                in_gaussian_label=rotation_label,
+                out_respfit=out_respfit,
+                net_charge=self.net_charge,
+                logger=self.logger,
+                **self.kwargs,
+            ),
+            StageUpdateCharge(
+                "UpdateCharge",
+                main_input=resp_mol2_high,
+                cwd=self.cwd,
+                out_mol2=resp_mol2,
+                charge_column=3,
+                charge_source=out_respfit,
                 net_charge=self.net_charge,
                 logger=self.logger,
                 **self.kwargs,

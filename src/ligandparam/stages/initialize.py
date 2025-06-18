@@ -19,6 +19,7 @@ class StageInitialize(AbstractStage):
         self.net_charge = kwargs.get("net_charge", 0.0)
         self.atom_type = kwargs.get("atom_type", "gaff2")
         self.charge_model = kwargs.get("charge_model", "bcc")
+        self.secondary = kwargs.get("sqm", False)
         if self.charge_model not in ("bcc", "abcg2"):
             raise ValueError(f"Unknown charge model '{self.charge_model}'. Must be 'bcc' or 'abcg2'")
         if "molname" in kwargs:
@@ -61,22 +62,21 @@ class StageInitialize(AbstractStage):
             dry_run=dry_run,
             **self.additional_args,
         )
-    """
-        second_ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
-        second_ante.call(
-            i="sqm.pdb",
-            fi="pdb",
-            o=self.out_mol2,
-            fo="mol2",
-            c=self.charge_model,
-            nc=self.net_charge,
-            pf="y",
-            at=self.atom_type,
-            an="no",
-            dry_run=dry_run,
-            **self.additional_args,
-        )
-        """
+        if self.secondary:
+            second_ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
+            second_ante.call(
+                i="sqm.pdb",
+                fi="pdb",
+                o=self.out_mol2,
+                fo="mol2",
+                c=self.charge_model,
+                nc=self.net_charge,
+                pf="y",
+                at=self.atom_type,
+                an="no",
+                dry_run=dry_run,
+                **self.additional_args,
+            )
 
     def _clean(self):
         """Clean the files generated during the stage."""

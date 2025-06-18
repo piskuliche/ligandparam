@@ -13,6 +13,9 @@ class BuildLigand(Recipe):
         self.leaprc = kwargs.get("leaprc", None)
         self.target_pdb = kwargs.get("target_pdb")
         self.force_gaussian_rerun = kwargs.get("force_gaussian_rerun", False)
+        raise NotImplementedError(
+            "The BuildLigand recipe is not yet implemented. Please use LazyLigand or another recipe for now."
+        )
 
 """
     def setup(self):

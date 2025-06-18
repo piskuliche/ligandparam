@@ -8,14 +8,46 @@ from ligandparam.stages import StageInitialize, StageParmChk, StageLeap, StageUp
 
 
 class LazierLigand(Recipe):
-    """ This is a class for parametrizing a simple ligand using  Antechamber.
+    """ 
+    LazierLigand is a recipe for parametrizing ligands using Antechamber and LEaP.
 
-    This class is designed to do a quick parametrization of a very standard ligand. If your
-    ligand is weird in any way, you should use a different class. This class does a very simple
-    parametrization using Antechamber. The steps are:
-    1. Use Antechamber to get bcc or abcg2 charges on a mol2 file out of the starting PDB.
-    2. Check missing parameters using ParmChk.
-    3. Generate the Leap input files.
+    It is designed to be a faster and more straightforward alternative to the FreeLigand recipe, which
+    uses ABCGG2 or BCC instead of RESP for charge fitting, but retains the rest of the recipe's steps.
+    
+    Parameters
+    ----------
+    in_filename : Union[Path, str]
+        The input file containing the ligand structure, typically in PDB format.
+    cwd : Union[Path, str]
+        The current working directory where the output files will be saved.
+    net_charge : int
+        The net charge of the ligand. This is a required parameter.
+    nproc : int, optional
+        The number of processors to use for the calculations. Default is 1.
+    kwargs : dict, optional
+        Additional keyword arguments that can be passed to the stages, such as `logger`, `atom_type`, etc.
+    
+    Attributes
+    ----------
+    stages : list
+        A list of stages that will be executed in order to parametrize the ligand.
+    logger : Any
+        The logger instance used for logging messages during the execution of the recipe.
+    label : str      
+        A label for the recipe, typically derived from the input filename.
+    in_filename : Path
+        The input filename as a Path object.
+    cwd : Path
+        The current working directory as a Path object.
+    net_charge : int
+        The net charge of the ligand.
+    nproc : int
+        The number of processors to use for the calculations.
+    kwargs : dict
+        Additional keyword arguments for the stages.
+    
+    
+    
     """
 
     @override
@@ -42,6 +74,22 @@ class LazierLigand(Recipe):
         self.kwargs = kwargs
 
     def setup(self):
+        """ Sets up the stages for the LazierLigand recipe.
+        
+        This method initializes the stages required for the ligand parametrization process.
+        It creates the necessary file paths and configures each stage with the appropriate parameters.
+        
+        The stages include:
+        - StageInitialize: Initializes the ligand from the input file and generates a non-minimized mol2 file.
+        - StageParmChk: Checks the parameters of the non-minimized mol2 file and generates a frcmod file.
+        - StageNormalizeCharge: Normalizes the charges in the non-minimized mol2 file.
+        - StageUpdate: Updates the names and types in the non-minimized mol2 file based on the fixed charge mol2 file.
+        - StageUpdate: Updates the charges in the non-minimized mol2 file using the fixed charge mol2 file.
+        - StageParmChk: Checks the parameters of the updated non-minimized mol2 file and generates a frcmod file.
+        - StageLeap: Generates the leap input files from the non-minimized mol2 file and frcmod file.
+        - StageUpdate: Optionally copies the non-minimized mol2 file to a final mol2 file.
+        
+        """
         nonminimized_mol2 = self.cwd / f"{self.label}.mol2"
         frcmod = self.cwd / f"{self.label}.frcmod"
         lib = self.cwd / f"{self.label}.lib"
@@ -98,6 +146,17 @@ class LazierLigand(Recipe):
 
     @override
     def execute(self, dry_run=False, nproc: Optional[int] = None, mem: Optional[int] = None) -> Any:
+        """Execute the LazierLigand recipe.
+        This method runs the stages defined in the setup method to parametrize the ligand.
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, the stages will not be executed, but the commands that would be run will be printed.
+        nproc : Optional[int], optional
+            The number of processors to use for the calculations. If None, the default value from the recipe will be used.
+        mem : Optional[int], optional
+            The amount of memory to allocate for the calculations. If None, the default value from the recipe will be used.
+        """
         self.logger.info(f"Starting the LazierLigand recipe at {self.cwd}")
         super().execute(dry_run=False, nproc=1, mem=1)
         self.logger.info("Done with the LazierLigand recipe")

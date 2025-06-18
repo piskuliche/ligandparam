@@ -23,7 +23,10 @@ dependencies = [
   "requests",
   "MDAnalysis>2.7.0",
   "pathlib",
-  "parmed"
+  "parmed",
+  "ase",
+  "deepmd-kit",
+  "tensorflow"
 ]
 
 

@@ -21,26 +21,100 @@ from ligandparam.stages import (
 
 
 class FreeLigand(Recipe):
-    """This is a class for parametrizing a ligand that is free in solution.
+    """This is a ligand parameterization recipe that uses Gaussian for RESP fitting.
 
-    This class is designed to follow what has been the York group's best practices for parametrizing ligands.
-    If your ligand is weird in any way, you should use a different class.
+    This script is a recipe for parameterizing a ligand using the RESP method with Gaussian. This script is designed to do the main steps of the RESP fitting process, including:
+    Initializing from a pdb file, assigning atom types, running gaussian optimization, rotating and calculating grid effects on RESP charges, and then generating the final mol2/lib/frcmod files
+    with RESP charges.
 
-    This class does a parametrization using Gaussian and Antechamber, using also a multi-state RESP calculation.
+    Attributes:
+    -----------
+    in_filename : Union[Path, str]
+        The input file containing the ligand structure, typically in PDB format.
+    cwd : Union[Path, str]
+        The current working directory where the output files will be saved.
+    net_charge : int
+        The net charge of the ligand.
+    theory : dict
+        A dictionary containing the low and high theory levels for Gaussian calculations.
+    leaprc : list
+        A list of leaprc files to be used in the Leap stage.
+    force_gaussian_rerun : bool
+        A flag indicating whether to force Gaussian reruns.
+    nproc : int
+        The number of processors to use for Gaussian calculations.
+    mem : int
+        The amount of memory (in GB) to allocate for Gaussian calculations.
+    gaussian_root : Optional[Union[Path, str]]
+        The root directory for Gaussian, if not set, will use the environment variable.
+    gauss_exedir : Optional[Union[Path, str]]
+        The directory containing the Gaussian executables, if not set, will use the environment variable.
+    gaussian_binary : Optional[Union[Path, str]]
+        The path to the Gaussian binary, if not set, will use the environment variable.
+    gaussian_scratch : Optional[Union[Path, str]]
+        The directory for Gaussian scratch files, if not set, will use the environment variable.
+    kwargs : dict
+        Additional keyword arguments that can be passed to the stages.
+    
+    Parameters:
+    -----------
+    in_filename : Union[Path, str]
+        The input file containing the ligand structure, typically in PDB format.
+    cwd : Union[Path, str]
+        The current working directory where the output files will be saved.
+    net_charge : int
+        The net charge of the ligand.
+    theory : dict, optional
+        A dictionary containing the low and high theory levels for Gaussian calculations.
+    leaprc : list, optional
+        A list of leaprc files to be used in the Leap stage. Defaults to ["leaprc.gaff2"].
+    force_gaussian_rerun : bool, optional
+        A flag indicating whether to force Gaussian reruns. Defaults to False.
+    nproc : int, optional
+        The number of processors to use for Gaussian calculations. Defaults to 1.
+    mem : int, optional
+        The amount of memory (in GB) to allocate for Gaussian calculations. Defaults to 1.
+    gaussian_root : Optional[Union[Path, str]], optional
+        The root directory for Gaussian, if not set, will use the environment variable.
+    gauss_exedir : Optional[Union[Path, str]], optional
+        The directory containing the Gaussian executables, if not set, will use the environment variable.
+    gaussian_binary : Optional[Union[Path, str]], optional
+        The path to the Gaussian binary, if not set, will use the environment variable.
+    gaussian_scratch : Optional[Union[Path, str]], optional
+        The directory for Gaussian scratch files, if not set, will use the environment variable.
+    kwargs : dict, optional
+        Additional keyword arguments that can be passed to the stages.
 
-    The steps are:
-
-    1. Initialize the ligand using the PDB file.
-    2. Normalize the charges to preserve neutrality.
-    3. Minimize the ligand using Gaussian (a) At a low level of theory (b) At a high level of theory (c) Calculate the RESP charges using Gaussian at the low level of theory.
-    4. Rotate the ligand to sample grid-based errors in resp charges
-    5. Add the gaussian charges to a mol2 file.
-    6. Perform a multi-state RESP fit.
-    7. Update the charges in the mol2 file from the multistate fit.
-    8. Normalize the charges to preserve neutrality.
-    9. Update the atom types in the mol2 file to match the gaussian output.
-    10. Use parmchk to generate the frcmod file.
-    11. Generate the lib file with leap.
+    Raises:
+    -------
+    KeyError
+        If a required option is missing from the keyword arguments.
+    ValueError
+        If an unknown charge model is specified in the keyword arguments.
+    TypeError
+        If the `theory` parameter is not a dictionary with 'low' and 'high' keys.
+    AttributeError
+        If a required attribute is not set during initialization.
+    
+    Example:
+    --------
+    >>> from ligandparam.recipes import FreeLigand
+    >>> from pathlib import Path
+    >>> recipe = FreeLigand(
+        in_filename=Path("ligand.pdb"),
+        cwd=Path("output_directory"),
+        net_charge=0,
+        theory={"low": "HF/6-31G*", "high": "PBE1PBE/6-31G*"},
+        leaprc=["leaprc.gaff2"],
+        force_gaussian_rerun=False,
+        nproc=4,
+        mem=8,
+        gaussian_root=None,
+        gauss_exedir=None,
+        gaussian_binary=None,
+        gaussian_scratch=None,
+        logger="stream"
+    )
 
     """
 
@@ -76,6 +150,35 @@ class FreeLigand(Recipe):
         self.kwargs = kwargs
 
     def setup(self):
+        """
+        Set up the sequence of parametrization stages for a ligand.
+
+        This method initializes file paths and constructs a list of processing stages,
+        each responsible for a specific step in the ligand parametrization workflow.
+        The stages include initialization, charge normalization, molecular centering,
+        geometry minimization at different theory levels, RESP charge fitting, rotation,
+        charge updating, atom name/type updating, and final parameter/library file generation.
+
+        File paths and labels are constructed based on the current working directory (`self.cwd`)
+        and the ligand label (`self.label`). The workflow uses various theory levels and
+        Gaussian calculation settings as specified in the instance attributes.
+
+        No arguments are taken. The method modifies the instance in place.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        None
+
+
+        """
         initial_mol2 = self.cwd / f"{self.label}.initial.mol2"
         centered_mol2 = self.cwd / f"{self.label}.centered.mol2"
         lowtheory_minimization_gaussian_log = self.cwd / f"{self.label}.lowtheory.minimization.log"
@@ -133,6 +236,7 @@ class FreeLigand(Recipe):
                 force_gaussian_rerun=self.force_gaussian_rerun,
                 out_gaussian_log=lowtheory_minimization_gaussian_log,
                 logger=self.logger,
+                minimize=self.kwargs.get("minimize", True),
                 **self.kwargs,
             ),
             StageLazyResp(
@@ -160,6 +264,7 @@ class FreeLigand(Recipe):
                 force_gaussian_rerun=self.force_gaussian_rerun,
                 out_gaussian_log=hightheory_minimization_gaussian_log,
                 logger=self.logger,
+                minimize=self.kwargs.get("minimize", True),
                 **self.kwargs,
             ),
             StageGaussiantoMol2(
@@ -276,6 +381,18 @@ class FreeLigand(Recipe):
 
     @override
     def execute(self, dry_run=False, nproc: Optional[int] = None, mem: Optional[int] = None) -> Any:
+        """Execute the FreeLigand recipe.
+
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, the recipe will not be executed, but the commands that would be run will be printed.
+        nproc : Optional[int], optional
+            The number of processors to use for the recipe. If None, the value set in the recipe will be used.
+        mem : Optional[int], optional
+            The amount of memory (in GB) to allocate for the recipe. If None, the value set in the recipe will be used.
+            
+        """
         self.logger.info(f"Starting the FreeLigand recipe at {self.cwd}")
         super().execute(dry_run=dry_run, nproc=nproc, mem=mem)
         self.logger.info("Done with the FreeLigand recipe")
