@@ -33,7 +33,7 @@ def get_opts() -> dict:
 def ligfix():
     opts = get_opts()
 
-    # Send output to stdout, though SDFToPDBBatch won't print unless there's an error
+    # Send output to stdout, though it probably won't print anything unless there's an error
     logger = logging.getLogger("mylog")
     logger.setLevel(logging.INFO)
     stream_handler = logging.StreamHandler(sys.stdout)
