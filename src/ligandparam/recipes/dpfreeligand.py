@@ -271,7 +271,7 @@ class DPFreeLigand(Recipe):
                 out_gaussian_label=rotation_label,
                 #alpha=[0, 30, 60, 90, 120, 150, 180],
                 #beta=[0, 30, 60, 90],
-                alpha=[0, 30]
+                alpha=[0,30],
                 beta=[0],
                 gamma=[0],
                 logger=self.logger,
