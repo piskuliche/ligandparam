@@ -26,7 +26,8 @@ dependencies = [
   "parmed",
   "ase",
   "deepmd-kit",
-  "tensorflow"
+  "tensorflow",
+  "tblite"
 ]
 
 

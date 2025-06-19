@@ -215,7 +215,7 @@ class DPFreeLigand(Recipe):
                 out_xyz=centered_mol2.with_suffix(".xyz"),
                 model=self.kwargs.get("model", "deepmd_model.pb"),
                 ftol=self.kwargs.get("ftol", 0.01),
-                steps=self.kwargs.get("steps", 50000),
+                steps=self.kwargs.get("steps", 1000),
                 out_mol2=resp_mol2_low,
                 logger=self.logger,
             ),
