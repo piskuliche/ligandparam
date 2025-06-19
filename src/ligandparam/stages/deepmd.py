@@ -38,9 +38,7 @@ class DPMinimize(AbstractStage):
         self.model = kwargs.get("model", "deepmd_model.pb")
         self.ftol = kwargs.get("ftol", 0.05)
         self.steps = kwargs.get("steps", 1000)
-        if not getattr(self, "coord_object", None):
-            self.coord_object = Coordinates(self.in_mol2, filetype="mol2")
-    
+
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """Appends the stage.
 
@@ -71,6 +69,8 @@ class DPMinimize(AbstractStage):
             print(f"Dry run: would execute with model {self.model}")
             return
         print("Starting execute")
+        if not getattr(self, "coord_object", None):
+            self.coord_object = Coordinates(self.in_mol2, filetype="mol2")
         elements = self.coord_object.u.atoms.elements
         with open("temp.xyz", 'w') as f:
             f.write(f"{len(self.coord_object.u.atoms)}\n\n")
