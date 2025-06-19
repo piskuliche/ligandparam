@@ -47,6 +47,13 @@ def worker(recipe_name: str, mol: str, resname: str, cwd: Path, net_charge: floa
     logger.info(f"Net charge: {net_charge}")
     logger.info(f"Atom type: {atom_type}")
     logger.info(f"Charge model: {charge_model}")
+    if model is not None:
+        logger.info(f"Using DeepMD model: {model}")
+    if sqm:
+        logger.info("Using SQM calculations for geometry optimization.") 
+    else:
+        logger.info("Not using SQM calculations for geometry optimization.")
+    logger.info("Starting recipe execution...")
     
 
     recipe = recipe_selector(
@@ -61,9 +68,11 @@ def worker(recipe_name: str, mol: str, resname: str, cwd: Path, net_charge: floa
         model      = model,
         sqm        = sqm,
     )
-
+    logger.info(f"Recipe selected: {recipe_name}")
     recipe.setup()
+    logger.info("Recipe setup complete. Executing recipe...")
     recipe.execute()
+    logger.info("Recipe execution complete.")
 
 def recipe_selector(recipe_name: str, **kwargs):
     if recipe_name == "lazyligand":
