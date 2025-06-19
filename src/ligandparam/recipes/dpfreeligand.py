@@ -280,7 +280,7 @@ class DPFreeLigand(Recipe):
                 "MultiRespFit",
                 main_input=resp_mol2_high,
                 cwd=self.cwd / "gaussianCalcs",
-                in_gaussian_label=rotation_label,
+                in_gaussian_label=rotation_label.name,
                 out_respfit=out_respfit,
                 net_charge=self.net_charge,
                 logger=self.logger,
