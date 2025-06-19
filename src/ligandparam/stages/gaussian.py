@@ -381,7 +381,7 @@ class StageGaussianRotation(AbstractStage):
                 for g in self.gamma:
                     test_rotation = self.coord_object.rotate(alpha=a, beta=b, gamma=g)
                     store_coords.append(test_rotation)
-                    print(self.guassian_cwd)
+                    print(self.gaussian_cwd)
                     in_com = self.gaussian_cwd / f"{name_template}_rot_{a:0.2f}_{b:0.2f}_{g:0.2f}.com"
                     print(f"--> Writing Gaussian input file: {in_com}")
                     print(self.gaussian_cwd)
