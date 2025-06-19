@@ -110,6 +110,7 @@ class StageMultiRespFit(AbstractStage):
         """
         comp = parmhelper.BASH(12)
         model = ResidueResp(comp, 1)
+        print(f"Adding state {self.in_gaussian_label} with mol2 {self.in_mol2} and glob {self.glob_str}")
         model.add_state(self.in_gaussian_label, str(self.in_mol2), glob.glob(self.glob_str), qmmask="@*")
         model.multimolecule_fit(True)
         model.perform_fit("@*", unique_residues=False)
