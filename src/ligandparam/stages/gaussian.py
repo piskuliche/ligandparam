@@ -383,6 +383,7 @@ class StageGaussianRotation(AbstractStage):
                     store_coords.append(test_rotation)
 
                     in_com = self.gaussian_cwd / f"{name_template}_rot_{a:0.2f}_{b:0.2f}_{g:0.2f}.com"
+                    print(f"--> Writing Gaussian input file: {in_com}")
                     self.in_coms.append(in_com)
                     newgau = GaussianWriter(in_com)
                     newgau.add_block(
