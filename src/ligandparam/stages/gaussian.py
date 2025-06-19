@@ -107,7 +107,7 @@ class GaussianMinimizeRESP(AbstractStage):
         else:
             gau.add_block(
                 GaussianInput(
-                    command=f"#P {self.resp_theory} GEOM(AllCheck) Guess(Read) NoSymm Pop=mk IOp(6/33=2) GFInput GFPrint",
+                    command=f"#P {self.resp_theory} NoSymm Pop=mk IOp(6/33=2) GFInput GFPrint",
                     initial_coordinates=self.coord_object.get_coordinates(),
                     elements=self.coord_object.get_elements(),
                     charge=self.net_charge,
