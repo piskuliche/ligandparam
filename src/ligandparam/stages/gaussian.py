@@ -97,13 +97,23 @@ class GaussianMinimizeRESP(AbstractStage):
                     header=stageheader,
                 )
             )
-        gau.add_block(
-            GaussianInput(
-                command=f"#P {self.resp_theory} GEOM(AllCheck) Guess(Read) NoSymm Pop=mk IOp(6/33=2) GFInput GFPrint",
-                charge=self.net_charge,
-                header=stageheader,
+            gau.add_block(
+                GaussianInput(
+                    command=f"#P {self.resp_theory} GEOM(AllCheck) Guess(Read) NoSymm Pop=mk IOp(6/33=2) GFInput GFPrint",
+                    charge=self.net_charge,
+                    header=stageheader,
+                )
             )
-        )
+        else:
+            gau.add_block(
+                GaussianInput(
+                    command=f"#P {self.resp_theory} GEOM(AllCheck) Guess(Read) NoSymm Pop=mk IOp(6/33=2) GFInput GFPrint",
+                    initial_coordinates=self.coord_object.get_coordinates(),
+                    elements=self.coord_object.get_elements(),
+                    charge=self.net_charge,
+                    header=stageheader,
+                )
+            )
 
         gau_complete = False
         # Check if the Gaussian calculation has already been run
