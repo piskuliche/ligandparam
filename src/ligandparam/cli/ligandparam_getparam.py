@@ -34,6 +34,19 @@ def worker(recipe_name: str, mol: str, resname: str, cwd: Path, net_charge: floa
     logger = set_file_logger(
         binder_dir / f"{resname}.log", filemode="w"
     )
+
+    print("Working on ligand:", resname)
+    if not binder_pdb.is_file():
+        raise FileNotFoundError(f"Input file {binder_pdb} does not exist. Please provide a valid PDB file.")
+    if not binder_dir.is_dir():
+        raise NotADirectoryError(f"Output directory {binder_dir} does not exist. Please provide a valid directory.")
+    
+    logger.info(f"Starting ligand parameterization for {resname} using recipe '{recipe_name}'")
+    logger.info(f"Input file: {binder_pdb}")
+    logger.info(f"Output directory: {binder_dir}")
+    logger.info(f"Net charge: {net_charge}")
+    logger.info(f"Atom type: {atom_type}")
+    logger.info(f"Charge model: {charge_model}")
     
 
     recipe = recipe_selector(
