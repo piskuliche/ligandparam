@@ -180,7 +180,7 @@ class DPFreeLigand(Recipe):
         lib = self.cwd / f"{self.label}.lib"
         rotation_label = self.cwd / f"{self.label}.rotation.label"
         out_respfit = self.cwd / f"{self.label}.respfit"
-
+        print(f"Setting up LazyLigand recipe with label {self.label}")
 
         self.stages = [
             StageInitialize(
@@ -337,6 +337,7 @@ class DPFreeLigand(Recipe):
             StageLeap("Leap", main_input=nonminimized_mol2, cwd=self.cwd, in_frcmod=frcmod, out_lib=lib,
                       logger=self.logger, **self.kwargs),
         ]
+        print(f"Finished setting up {self.label}")
 
     @override
     def execute(self, dry_run=False, nproc: Optional[int] = None, mem: Optional[int] = None) -> Any:
