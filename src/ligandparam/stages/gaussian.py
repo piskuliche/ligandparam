@@ -370,6 +370,7 @@ class StageGaussianRotation(AbstractStage):
         if not getattr(self, "coord_object", None):
             self.coord_object = Coordinates(self.in_mol2, filetype="pdb")
         self.gaussian_cwd.mkdir(exist_ok=True)
+        logger.info(f"Setting up Gaussian calculations in {self.gaussian_cwd}")
 
         store_coords = []
         self.in_coms = []

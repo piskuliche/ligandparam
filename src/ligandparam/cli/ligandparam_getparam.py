@@ -10,6 +10,23 @@ from ligandparam import __version__
 def set_file_logger(
     logfilename: Path, logname: str = None, filemode: str = "a"
     ) -> logging.Logger:
+    """ Set up a file logger for the ligand parameterization process.
+    
+    Parameters
+    ----------
+    logfilename : Path
+        The path to the log file where the logs will be written.
+    logname : str, optional
+        The name of the logger. If None, it will be derived from the log filename.
+    filemode : str, optional
+        The mode in which the log file will be opened. Default is 'a' (append
+        mode). Use 'w' for write mode to overwrite the log file.
+    Returns
+    -------
+    logger : logging.Logger
+        A configured logger instance that writes logs to the specified file.
+    
+    """
     if logname is None:
         logname = Path(logfilename).stem
     logger = logging.getLogger(logname)
@@ -34,6 +51,36 @@ def worker(recipe_name: str, mol: str, resname: str, cwd: Path, net_charge: floa
     logger = set_file_logger(
         binder_dir / f"{resname}.log", filemode="w"
     )
+    """ Worker function to execute the ligand parameterization recipe.
+    
+    Parameters
+    ----------
+    recipe_name : str
+        The name of the recipe to be used for ligand parameterization.
+    mol : str
+        The input PDB file containing the ligand.
+    resname : str
+        The residue name for the ligand.
+    cwd : Path
+        The current working directory where the output files will be stored.
+    net_charge : float
+        The net charge of the ligand.
+    atom_type : str, optional
+        The atom type for the ligand (default is "gaff2").
+    charge_model : str, optional
+        The charge model for the ligand (default is "bcc"). Options are "bcc" or
+        "abcg2".
+    model : str, optional
+        The path to the DeepMD model file (optional).
+    sqm : bool, optional
+        Whether to use SQM calculations for geometry optimization (default is True).
+    data_cwd : str, optional
+        The directory to store output files (default is "param").
+    
+    Returns
+    -------
+    None
+    """
 
     print("Working on ligand:", resname)
     if not binder_pdb.is_file():
@@ -75,6 +122,27 @@ def worker(recipe_name: str, mol: str, resname: str, cwd: Path, net_charge: floa
     logger.info("Recipe execution complete.")
 
 def recipe_selector(recipe_name: str, **kwargs):
+    """ Selects and returns the appropriate recipe class based on the recipe name.
+    
+    Parameters
+    ----------
+    recipe_name : str
+        The name of the recipe to be used for ligand parameterization.
+    **kwargs : dict
+        Additional keyword arguments to be passed to the recipe class constructor.
+    
+    Returns
+    -------
+    AbstractStage
+        An instance of the selected recipe class.
+    
+    Raises
+    ------
+    ValueError
+        If the recipe name is not recognized, a ValueError is raised with a message
+        listing the available recipes.
+    
+    """
     if recipe_name == "lazyligand":
         from ligandparam.recipes.lazyligand import LazyLigand
         return LazyLigand(**kwargs)
@@ -95,6 +163,19 @@ def recipe_selector(recipe_name: str, **kwargs):
 
 
 def main():
+    """ Main function to parse command line arguments and execute the ligand parameterization worker.
+    
+    This function uses argparse to handle command line arguments and calls the worker
+    function with the parsed arguments. It sets up the current working directory and
+    initializes the logger for the ligand parameterization process.
+    
+    Raises
+    ------
+    SystemExit
+        If the command line arguments are not provided correctly, argparse will raise
+        a SystemExit exception, which will terminate the program with an error message.
+    
+    """
     import argparse
 
 
