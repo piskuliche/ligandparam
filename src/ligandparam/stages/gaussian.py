@@ -78,9 +78,8 @@ class GaussianMinimizeRESP(AbstractStage):
         # __init__ tries to set up the coordinates object, but it may not have been available at init time.
         print(f"Setting up Gaussian calculations in {self.gaussian_cwd}")
         self.logger.info(f"Setting up Gaussian calculations in {self.gaussian_cwd}")
-        
-        self.coord_object = Coordinates(self.in_mol2, filetype="mol2")
-        self.logger.info(f"Coordinates object created from {self.in_mol2}")
+        if not getattr(self, "coord_object", None):
+            self.coord_object = Coordinates(self.in_mol2, filetype="pdb")
         self.gaussian_cwd.mkdir(exist_ok=True)
 
         stageheader = [f"%NPROC={self.nproc}, %MEM={self.mem}GB"]
