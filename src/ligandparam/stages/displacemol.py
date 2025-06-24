@@ -44,10 +44,12 @@ class StageDisplaceMol(AbstractStage):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             u = mda.Universe(self.in_molecule)
-            # Guess elements if not present
-            if not hasattr(u.atoms, "elements") or np.all(u.atoms.elements == ""):
-                u.add_TopologyAttr("elements")
-                u.atoms.elements = guess_types(u.atoms.names)
+            if np.any(np.isclose(u.atoms.masses, 0, atol=0.1)):
+                u.guess_TopologyAttrs(to_guess=['elements'], force_guess=['masses'])
+            # We tried to get correct masses but may have failed in the process. Lack of masses will fail
+            # MDAnalysis's center_of_mass(), so just set them to 1.0, since the exact values are not important
+            self.u.atoms.masses[np.isclose(self.u.atoms.masses, 0, atol=0.1)] = 1.0
+            
             if self.center:
                 self.displacement_vtor = -u.atoms.center_of_mass()
             if np.isnan(self.displacement_vtor).any():
