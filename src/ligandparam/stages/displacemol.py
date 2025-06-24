@@ -50,6 +50,7 @@ class StageDisplaceMol(AbstractStage):
                 print("Displacement vector", self.displacement_vtor)
                 print("Input molecule:", self.in_molecule)
                 print("u.atoms.positions", u.atoms.positions)
+                print("u.atoms.masses", u.atoms.masses)
                 print()
                 raise ValueError("Displacement vector contains NaN values.")
             u.atoms.translate(self.displacement_vtor)
