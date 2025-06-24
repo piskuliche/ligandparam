@@ -49,9 +49,16 @@ class StageInitialize(AbstractStage):
         Remove_PDB_CONECT(self.in_pdb)
         ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
         print(self.additional_args)
+        detect_type = self.in_pdb.suffix.lower()
+        if detect_type not in [".pdb", ".mol2"]:
+            raise ValueError(f"Unsupported input file type: {detect_type}. Expected .pdb or .mol2.")
+        if detect_type == ".mol2":
+            ftype= "mol2"
+        else:
+            ftype = "pdb"
         ante.call(
             i=self.in_pdb,
-            fi="pdb",
+            fi=ftype,
             o=self.out_mol2,
             fo="mol2",
             c=self.charge_model,

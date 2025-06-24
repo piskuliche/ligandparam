@@ -44,7 +44,7 @@ def set_file_logger(
 
     return logger
 
-def worker(recipe_name: str, mol: str, resname: str, cwd: Path, net_charge: float, atom_type: str = "gaff2", charge_model: str = "bcc", model: str = None, sqm: str = True, data_cwd: str = "param") -> Path:
+def worker(recipe_name: str, mol: str, resname: str, cwd: Path, net_charge: float, atom_type: str = "gaff2", charge_model: str = "bcc", model: str = None, sqm: str = True, data_cwd: str = "param", nprocs: int = 1, mem: int = 1) -> Path:
     binder_dir = cwd / data_cwd / resname
     binder_dir.mkdir(parents=True, exist_ok=True)
     binder_pdb = cwd / mol
@@ -76,6 +76,10 @@ def worker(recipe_name: str, mol: str, resname: str, cwd: Path, net_charge: floa
         Whether to use SQM calculations for geometry optimization (default is True).
     data_cwd : str, optional
         The directory to store output files (default is "param").
+    nprocs : int, optional
+        The number of processes to use for parallel execution (default is 1).
+    mem : int, optional
+        The amount of memory in GB to allocate for the process (default is 1GB).
     
     Returns
     -------
@@ -114,6 +118,8 @@ def worker(recipe_name: str, mol: str, resname: str, cwd: Path, net_charge: floa
         molname    = resname,
         model      = model,
         sqm        = sqm,
+        nproc      = nprocs,
+        mem        = mem
     )
     logger.info(f"Recipe selected: {recipe_name}")
     recipe.setup()
@@ -189,6 +195,8 @@ def main():
     parser.add_argument("-m", "--model", type=str, default=None, help="DeepMD model file path (optional)")
     parser.add_argument("--sqm", action='store_true', help="Use SQM calculations")
     parser.add_argument("-rn", "--recipe_name", type=str, required=True, help="Recipe name for the ligand processing")
+    parser.add_argument("-n", "--nproc", type=int, default=1, help="Number of processes to use (default: 1)")
+    parser.add_argument("-mem", "--mem", type=int, default=1, help="Memory in GB to allocate for the process (default: 1GB)")
 
     args = parser.parse_args()
 
@@ -197,6 +205,7 @@ def main():
     worker(
         recipe_name=args.recipe_name,
         mol=args.input,
+        cwd=cwd,
         resname=args.resname,
         data_cwd=args.data_cwd,
         net_charge=args.net_charge,
@@ -204,7 +213,8 @@ def main():
         charge_model=args.charge_model,
         model=args.model,
         sqm=args.sqm,
-        cwd=cwd
+        nprocs=args.nproc,
+        mem=args.mem,
     )
 
 if __name__ == "__main__":
