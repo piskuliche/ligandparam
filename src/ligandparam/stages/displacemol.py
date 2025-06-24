@@ -7,6 +7,7 @@ import MDAnalysis as mda
 from pathlib import Path
 
 from ligandparam.stages.abstractstage import AbstractStage
+from MDAnalysis.topology.guessers import guess_masses
 
 class StageDisplaceMol(AbstractStage):
     """Displaces a molecule based on a vector or centers it at the origin.
@@ -42,6 +43,12 @@ class StageDisplaceMol(AbstractStage):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             u = mda.Universe(self.in_molecule)
+            # Guess masses if any are zero
+            if np.any(u.atoms.masses == 0):
+                guessed_masses = guess_masses(u.atoms.names)
+                # Only replace zero masses
+                mask = (u.atoms.masses == 0)
+                u.atoms.masses[mask] = guessed_masses[mask]
             if self.center:
                 self.displacement_vtor = -u.atoms.center_of_mass()
             if np.isnan(self.displacement_vtor).any():
