@@ -79,7 +79,7 @@ class GaussianMinimizeRESP(AbstractStage):
         print(f"Setting up Gaussian calculations in {self.gaussian_cwd}")
         self.logger.info(f"Setting up Gaussian calculations in {self.gaussian_cwd}")
         
-        self.coord_object = Coordinates(self.in_mol2, filetype="pdb")
+        self.coord_object = Coordinates(self.in_mol2, filetype="mol2")
         self.logger.info(f"Coordinates object created from {self.in_mol2}")
         self.gaussian_cwd.mkdir(exist_ok=True)
 
