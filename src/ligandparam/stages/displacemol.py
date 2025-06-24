@@ -44,8 +44,14 @@ class StageDisplaceMol(AbstractStage):
             u = mda.Universe(self.in_molecule)
             if self.center:
                 self.displacement_vtor = -u.atoms.center_of_mass()
+            if np.isnan(self.displacement_vtor).any():
+                print("Displacement vector contains NaN values.")
+                print("Center of mass", u.atoms.center_of_mass())
+                print()
+                raise ValueError("Displacement vector contains NaN values.")
             u.atoms.translate(self.displacement_vtor)
             u.atoms.write(self.out_molecule)
+            
         return self.displacement_vtor
 
 
