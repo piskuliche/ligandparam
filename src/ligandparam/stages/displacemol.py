@@ -48,7 +48,7 @@ class StageDisplaceMol(AbstractStage):
                 u.guess_TopologyAttrs(to_guess=['elements'], force_guess=['masses'])
             # We tried to get correct masses but may have failed in the process. Lack of masses will fail
             # MDAnalysis's center_of_mass(), so just set them to 1.0, since the exact values are not important
-            self.u.atoms.masses[np.isclose(self.u.atoms.masses, 0, atol=0.1)] = 1.0
+            u.atoms.masses[np.isclose(u.atoms.masses, 0, atol=0.1)] = 1.0
             
             if self.center:
                 self.displacement_vtor = -u.atoms.center_of_mass()
