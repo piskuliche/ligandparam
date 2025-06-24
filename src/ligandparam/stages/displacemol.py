@@ -47,6 +47,9 @@ class StageDisplaceMol(AbstractStage):
             if np.isnan(self.displacement_vtor).any():
                 print("Displacement vector contains NaN values.")
                 print("Center of mass", u.atoms.center_of_mass())
+                print("Displacement vector", self.displacement_vtor)
+                print("Input molecule:", self.in_molecule)
+                print("u.atoms.positions", u.atoms.positions)
                 print()
                 raise ValueError("Displacement vector contains NaN values.")
             u.atoms.translate(self.displacement_vtor)
