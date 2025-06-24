@@ -20,6 +20,11 @@ class StageDisplaceMol(AbstractStage):
                                                  Only set if 'vector' is provided in kwargs.
         center (bool): If True, the molecule will be centered at the origin.
                        If False, displacement is done using `displacement_vtor`.
+
+    TODO
+    ----
+    - Generalize the part that guesses types and masses in the execute method.
+    
     """
 
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
