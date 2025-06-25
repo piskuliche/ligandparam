@@ -375,6 +375,13 @@ class StageGaussianRotation(AbstractStage):
         logger.info(f"Setting up Gaussian calculations in {self.gaussian_cwd}")
         print(f"Setting up Gaussian calculations in {self.gaussian_cwd}")
 
+        # This is a work-around, for some reason the dpfree method brings name_templte in as a Path object, whereas regular free ligand
+        # brings it in as a string. This just allows the code to work with both cases.
+        if not isinstance(name_template, Path):
+            name_label = name_template
+        else:
+            name_label = name_template.name
+
         store_coords = []
         self.in_coms = []
         self.out_logs = []
@@ -383,7 +390,7 @@ class StageGaussianRotation(AbstractStage):
                 for g in self.gamma:
                     test_rotation = self.coord_object.rotate(alpha=a, beta=b, gamma=g)
                     store_coords.append(test_rotation)
-                    in_com = self.gaussian_cwd / f"{name_template.name}_rot_{a:0.2f}_{b:0.2f}_{g:0.2f}.com"
+                    in_com = self.gaussian_cwd / f"{name_label}_rot_{a:0.2f}_{b:0.2f}_{g:0.2f}.com"
                     print(f"--> Writing Gaussian input file: {in_com}")
                     self.in_coms.append(in_com)
                     newgau = GaussianWriter(in_com)
@@ -399,12 +406,12 @@ class StageGaussianRotation(AbstractStage):
                     # Always write the Gaussian input file
                     newgau.write(dry_run=False)
 
-                    out_log = self.gaussian_cwd / f"{name_template}_rot_{a:0.2f}_{b:0.2f}_{g:0.2f}.log"
+                    out_log = self.gaussian_cwd / f"{name_label}_rot_{a:0.2f}_{b:0.2f}_{g:0.2f}.log"
                     self.out_logs.append(out_log)
                     self._add_outputs(out_log)
 
         # Write the coordinates to a "trajectory" file
-        self.write_rotation(store_coords, name_template)
+        self.write_rotation(store_coords, name_label)
 
         return False
 
