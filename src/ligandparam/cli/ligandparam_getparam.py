@@ -165,7 +165,7 @@ def recipe_selector(recipe_name: str, **kwargs):
         from ligandparam.recipes.dpfreeligand import DPFreeLigand
         return DPFreeLigand(**kwargs)
     elif recipe_name == "sqmligand":
-        from ligandparam.recipes.sqmligand import SQMLigand
+        from ligandparam.recipes import SQMLigand
         return SQMLigand(**kwargs)
     else:
         raise ValueError(f"Unknown recipe name: {recipe_name}. Available recipes: lazyligand, lazierligand, freeligand, dplazyligand, dpfreeligand.")
