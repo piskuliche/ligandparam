@@ -225,6 +225,9 @@ class GaussianRESP(AbstractStage):
         self.in_com = self.gaussian_cwd / f"{name_template}.com"
         self.out_log = self.gaussian_cwd / f"{name_template}.log"
         self._add_outputs(self.out_log)
+        print(f"Setting up Gaussian calculations in {self.gaussian_cwd}")
+        self.logger.info(f"Setting up Gaussian calculations in {self.gaussian_cwd}")
+        self.logger.info(f"Writing Gaussian input file: {self.in_com}")
 
         # __init__ tries to set up the coordinates object, but it may not have been available at init time.
         if not getattr(self, "coord_object", None):
