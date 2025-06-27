@@ -6,6 +6,8 @@ from ligandparam.stages.abstractstage import AbstractStage
 from ligandparam.interfaces import Antechamber
 from ligandparam.io.coordinates import Remove_PDB_CONECT
 from ligandparam.log import get_logger
+from rdkit import Chem
+from rdkit.Chem import AllChem
 
 
 class StageInitialize(AbstractStage):

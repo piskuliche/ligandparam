@@ -36,6 +36,7 @@ urls = { "Homepage" = "https://github.com/piskulichz/ligandparam" }
 [project.scripts]
 lighfix = "ligandparam.cli.cli_lighfix:lighfix"
 lig-getparam = "ligandparam.cli.ligandparam_getparam:main"
+smiles-to-pdb = "ligandparam.cli.smiles_to_pdb:main"
 
 [project.optional-dependencies]
 other = [
