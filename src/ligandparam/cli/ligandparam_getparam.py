@@ -4,6 +4,7 @@ from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 from ligandparam import __version__
+from ligandparam.stages import PDB_Name_Fixer
 
 
 
@@ -44,7 +45,7 @@ def set_file_logger(
 
     return logger
 
-def worker(recipe_name: str, mol: str, resname: str, cwd: Path, net_charge: float, atom_type: str = "gaff2", charge_model: str = "bcc", model: str = None, sqm: str = True, data_cwd: str = "param", nprocs: int = 1, mem: int = 1) -> Path:
+def worker(recipe_name: str, mol: str, resname: str, cwd: Path, net_charge: float, atom_type: str = "gaff2", charge_model: str = "bcc", model: str = None, sqm: str = True, data_cwd: str = "param", nprocs: int = 1, mem: int = 1, reference_pdb: str = None) -> Path:
     binder_dir = cwd / data_cwd / resname
     binder_dir.mkdir(parents=True, exist_ok=True)
     binder_pdb = cwd / mol
@@ -106,10 +107,18 @@ def worker(recipe_name: str, mol: str, resname: str, cwd: Path, net_charge: floa
         logger.info("Not using SQM calculations for geometry optimization.")
     logger.info("Starting recipe execution...")
     
+    if reference_pdb is not None:
+        logger.info(f"Reference PDB file: {reference_pdb}")
+        fix_pdb_stage = PDB_Name_Fixer(f"build_{resname}", binder_pdb, binder_dir, out_pdb=f"fix_{binder_pdb}", reference_pdb=reference_pdb, align=True, logger=logger)
+        logger.info("PDB name fixing complete.")
+        out_pdb = f"fix_{binder_pdb}"
+    else:
+        out_pdb = binder_pdb
+
 
     recipe = recipe_selector(
         recipe_name,
-        in_filename = f"{binder_pdb}",
+        in_filename = f"{out_pdb}",
         cwd        = binder_dir,
         atom_type  = atom_type,
         charge_model = charge_model,
@@ -123,6 +132,10 @@ def worker(recipe_name: str, mol: str, resname: str, cwd: Path, net_charge: floa
     )
     logger.info(f"Recipe selected: {recipe_name}")
     recipe.setup()
+    if reference_pdb is not None:
+        logger.info(f"Fixing PDB names in {binder_pdb} using reference {reference_pdb}")
+        recipe.insert_stage(fix_pdb_stage, "Initialize")
+        logger.info(f"PDB names fixed. Output file: {fix_pdb_stage.out_pdb}")
     logger.info("Recipe setup complete. Executing recipe...")
     recipe.execute()
     logger.info("Recipe execution complete.")
