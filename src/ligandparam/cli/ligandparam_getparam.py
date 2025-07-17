@@ -213,6 +213,7 @@ def main():
     parser.add_argument("-rn", "--recipe_name", type=str, required=True, help="Recipe name for the ligand processing")
     parser.add_argument("-n", "--nproc", type=int, default=1, help="Number of processes to use (default: 1)")
     parser.add_argument("-mem", "--mem", type=int, default=1, help="Memory in GB to allocate for the process (default: 1GB)")
+    parser.add_argument("-ref", "--reference_pdb", type=str, default=None, help="Reference PDB file for name fixing (optional)")
 
     args = parser.parse_args()
 
@@ -231,6 +232,7 @@ def main():
         sqm=args.sqm,
         nprocs=args.nproc,
         mem=args.mem,
+        reference_pdb=args.reference_pdb
     )
 
 if __name__ == "__main__":
