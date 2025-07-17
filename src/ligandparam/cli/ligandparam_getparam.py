@@ -106,10 +106,13 @@ def worker(recipe_name: str, mol: str, resname: str, cwd: Path, net_charge: floa
     else:
         logger.info("Not using SQM calculations for geometry optimization.")
     logger.info("Starting recipe execution...")
+
+    
     
     if reference_pdb is not None:
         logger.info(f"Reference PDB file: {reference_pdb}")
         fix_pdb_stage = PDB_Name_Fixer(f"build_{resname}", binder_pdb, binder_dir, out_pdb=f"fix_{binder_pdb}", reference_pdb=reference_pdb, align=True, logger=logger)
+        fix_pdb_stage.execute(dry_run=False)
         logger.info("PDB name fixing complete.")
         out_pdb = f"fix_{binder_pdb}"
     else:
@@ -132,11 +135,6 @@ def worker(recipe_name: str, mol: str, resname: str, cwd: Path, net_charge: floa
     )
     logger.info(f"Recipe selected: {recipe_name}")
     recipe.setup()
-    if reference_pdb is not None:
-        logger.info(f"Fixing PDB names in {binder_pdb} using reference {reference_pdb}")
-        recipe.insert_stage(fix_pdb_stage, "Initialize")
-        logger.info(f"PDB names fixed. Output file: {fix_pdb_stage.out_pdb}")
-    logger.info("Recipe setup complete. Executing recipe...")
     recipe.execute()
     logger.info("Recipe execution complete.")
 
