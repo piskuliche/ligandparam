@@ -111,10 +111,10 @@ def worker(recipe_name: str, mol: str, resname: str, cwd: Path, net_charge: floa
     
     if reference_pdb is not None:
         logger.info(f"Reference PDB file: {reference_pdb}")
-        fix_pdb_stage = PDB_Name_Fixer(f"build_{resname}", binder_pdb, binder_dir, out_pdb=f"fix_{binder_pdb}", reference_pdb=reference_pdb, align=True, logger=logger)
+        fix_pdb_stage = PDB_Name_Fixer(f"build_{resname}", binder_pdb, binder_dir, out_pdb=f"{binder_pdb.parent}/fix_{binder_pdb.name}", reference_pdb=reference_pdb, align=True, logger=logger)
         fix_pdb_stage.execute(dry_run=False)
         logger.info("PDB name fixing complete.")
-        out_pdb = f"fix_{binder_pdb}"
+        out_pdb = f"{binder_pdb.parent}/fix_{binder_pdb.name}"
     else:
         out_pdb = binder_pdb
 
