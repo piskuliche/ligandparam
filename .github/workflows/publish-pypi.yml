@@ -1,0 +1,31 @@
+name: publish-pypi
+on:
+  push:
+    tags:
+      - '*'
+
+if: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout_repo
+        uses: actions/checkout@v4
+      - name: checkout_python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ".python-version"
+      - name: install_dependencies
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.8.6"
+      - name:
+        run: uv build
+
+      - name: publish_pypi
+        run: uv publish
+        env:
+          # The API token is stored as a secret in your repository
+          UV_PUBLISH_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+          UV_PUBLISH_USERNAME: "__token__"
