@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ligandparam"
-version = "0.3.0"
+version = "0.3.1"
 description = "A ligand parameterization package for Amber"
 readme = "README.md"
 requires-python = ">=3.6"
@@ -23,29 +23,40 @@ dependencies = [
   "requests",
   "MDAnalysis>2.7.0",
   "pathlib",
-  "parmed",
+  "parmed"
+]
+
+urls = { "Homepage" = "https://github.com/piskulichz/ligandparam" }
+
+[project.optional-dependencies]
+
+ml = [
   "ase",
   "deepmd-kit",
   "tensorflow",
   "tblite"
 ]
 
+misc = [
+  "openbabel",
+]
 
-urls = { "Homepage" = "https://github.com/piskulichz/ligandparam" }
+docs = [
+  "sphinx",
+  "sphinx_rtd_theme",
+]
+
+all = [
+  "ligandparam[ml]",
+  "ligandparam[misc]",
+  "ligandparam[docs]",
+]
 
 [project.scripts]
 lighfix = "ligandparam.cli.cli_lighfix:lighfix"
 lig-getparam = "ligandparam.cli.ligandparam_getparam:main"
 smiles-to-pdb = "ligandparam.cli.smiles_to_pdb:main"
 
-[project.optional-dependencies]
-other = [
-  "openbabel",
-]
-docs = [
-  "sphinx",
-  "sphinx_rtd_theme",
-]
 
 [tool.ruff]
 line-length = 120
