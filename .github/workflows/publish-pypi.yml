@@ -4,10 +4,9 @@ on:
     tags:
       - '*'
 
-  if: false
-
 jobs:
   build:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - name: checkout_repo
