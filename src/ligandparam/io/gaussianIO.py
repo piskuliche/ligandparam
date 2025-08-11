@@ -251,10 +251,11 @@ class GaussianReader:
         multiplicity : int
             The multiplicity of the molecule
 
-        To Do
+        Notes
         -----
-        - Add error handling for missing data
-        - Check that this reads only the FINAL geometry
+        .. todo::
+            - Add error handling for missing data
+            - Check that this reads only the FINAL geometry
 
         """
         atn, coords = [], []

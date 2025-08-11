@@ -20,17 +20,49 @@ logger = logging.getLogger("ligandparam.gaussian")
 
 class GaussianMinimizeRESP(AbstractStage):
     """
-    This is class to run a basic Gaussian calculation on the ligand.
-    This does 2 gaussian steps, a minimization and an ESP calculation for RESP charges.
+    Run a basic Gaussian calculation on the ligand, including minimization and ESP calculation for RESP charges.
 
     Parameters
     ----------
-    inputoptions : dict
-        The input options for the stage
+    stage_name : str
+        The name of the stage.
+    main_input : Union[Path, str]
+        Path to the input mol2 file.
+    cwd : Union[Path, str]
+        Current working directory.
+    out_gaussian_log : str
+        Path to the output Gaussian log file.
+    opt_theory : str, optional
+        Theory for optimization (default: 'PBE1PBE/6-31G*').
+    resp_theory : str, optional
+        Theory for RESP calculation (default: 'HF/6-31G*').
+    net_charge : float, optional
+        Net charge for the molecule (default: 0.0).
+    force_gaussian_rerun : bool, optional
+        Whether to force rerun of Gaussian (default: False).
+    minimize : bool, optional
+        Whether to perform minimization (default: True).
 
-    Returns
-    -------
-    None
+    Attributes
+    ----------
+    in_mol2 : Path
+        Path to the input mol2 file.
+    out_gaussian_log : Path
+        Path to the output Gaussian log file.
+    opt_theory : str
+        Theory for optimization.
+    resp_theory : str
+        Theory for RESP calculation.
+    net_charge : float
+        Net charge for the molecule.
+    force_gaussian_rerun : bool
+        Whether to force rerun of Gaussian.
+    gaussian_cwd : Path
+        Directory for Gaussian calculations.
+    minimize : bool
+        Whether to perform minimization.
+    label : str
+        Label for the calculation.
     """
 
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
@@ -51,6 +83,19 @@ class GaussianMinimizeRESP(AbstractStage):
         return
 
     def _validate_input_paths(self, **kwargs):
+        """
+        Validate and set input paths for Gaussian execution.
+
+        Parameters
+        ----------
+        **kwargs
+            Keyword arguments containing Gaussian path options.
+
+        Raises
+        ------
+        ValueError
+            If a required option is missing.
+        """
         for opt in ("gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
             try:
                 setattr(self, opt, kwargs.get(opt, ""))
@@ -71,6 +116,19 @@ class GaussianMinimizeRESP(AbstractStage):
         return stage
 
     def setup(self, name_template: str) -> bool:
+        """
+        Set up Gaussian input and output files for the calculation.
+
+        Parameters
+        ----------
+        name_template : str
+            Template name for input/output files.
+
+        Returns
+        -------
+        bool
+            True if Gaussian calculation is already complete, False otherwise.
+        """
         self.in_com = self.gaussian_cwd / f"{name_template}.com"
         self.out_log = self.gaussian_cwd / f"{name_template}.log"
         self._add_outputs(self.out_log)
@@ -173,17 +231,41 @@ class GaussianMinimizeRESP(AbstractStage):
 
 class GaussianRESP(AbstractStage):
     """
-    This is class to run a basic Gaussian calculation on the ligand.
-    This only does the RESP calculation for the ligand.
+    Run a basic Gaussian calculation on the ligand (RESP calculation only).
 
     Parameters
     ----------
-    inputoptions : dict
-        The input options for the stage
+    stage_name : str
+        The name of the stage.
+    main_input : Union[Path, str]
+        Path to the input mol2 file.
+    cwd : Union[Path, str]
+        Current working directory.
+    out_gaussian_log : str
+        Path to the output Gaussian log file.
+    resp_theory : str, optional
+        Theory for RESP calculation (default: 'HF/6-31G*').
+    net_charge : float, optional
+        Net charge for the molecule (default: 0.0).
+    force_gaussian_rerun : bool, optional
+        Whether to force rerun of Gaussian (default: False).
 
-    Returns
-    -------
-    None
+    Attributes
+    ----------
+    in_mol2 : Path
+        Path to the input mol2 file.
+    out_gaussian_log : Path
+        Path to the output Gaussian log file.
+    resp_theory : str
+        Theory for RESP calculation.
+    net_charge : float
+        Net charge for the molecule.
+    force_gaussian_rerun : bool
+        Whether to force rerun of Gaussian.
+    gaussian_cwd : Path
+        Directory for Gaussian calculations.
+    label : str
+        Label for the calculation.
     """
 
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
@@ -202,6 +284,19 @@ class GaussianRESP(AbstractStage):
         return
 
     def _validate_input_paths(self, **kwargs):
+        """
+        Validate and set input paths for Gaussian execution.
+
+        Parameters
+        ----------
+        **kwargs
+            Keyword arguments containing Gaussian path options.
+
+        Raises
+        ------
+        ValueError
+            If a required option is missing.
+        """
         for opt in ("gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
             try:
                 setattr(self, opt, kwargs.get(opt, ""))
@@ -222,6 +317,19 @@ class GaussianRESP(AbstractStage):
         return stage
 
     def setup(self, name_template: str) -> bool:
+        """
+        Set up Gaussian input and output files for the RESP calculation.
+
+        Parameters
+        ----------
+        name_template : str
+            Template name for input/output files.
+
+        Returns
+        -------
+        bool
+            True if Gaussian calculation is already complete, False otherwise.
+        """
         self.in_com = self.gaussian_cwd / f"{name_template}.com"
         self.out_log = self.gaussian_cwd / f"{name_template}.log"
         self._add_outputs(self.out_log)
@@ -308,21 +416,60 @@ class GaussianRESP(AbstractStage):
 
 class StageGaussianRotation(AbstractStage):
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
-        """This is class to rotate the ligand and run Gaussian calculations of the resp charges
-        for each rotated ligand.
+        """
+        Rotate the ligand and run Gaussian calculations of the RESP charges for each rotated ligand.
 
         Parameters
         ----------
-        name : str
-            The name of the stage
+        stage_name : str
+            The name of the stage.
+        main_input : Union[Path, str]
+            Path to the input mol2 file.
+        cwd : Union[Path, str]
+            Current working directory.
+        out_gaussian_label : str
+            Label for the output Gaussian files.
         alpha : list
-            The list of alpha angles to rotate the ligand
+            List of alpha angles to rotate the ligand.
         beta : list
-            The list of beta angles to rotate the ligand
+            List of beta angles to rotate the ligand.
         gamma : list
-            The list of gamma angles to rotate the ligand
-        inputoptions : dict
-            The input options for the stage
+            List of gamma angles to rotate the ligand.
+        opt_theory : str, optional
+            Theory for optimization (default: 'HF/6-31G*').
+        resp_theory : str, optional
+            Theory for RESP calculation (default: 'HF/6-31G*').
+        net_charge : float, optional
+            Net charge for the molecule (default: 0.0).
+        force_gaussian_rerun : bool, optional
+            Whether to force rerun of Gaussian (default: False).
+
+        Attributes
+        ----------
+        in_mol2 : Path
+            Path to the input mol2 file.
+        out_gaussian_label : str
+            Label for the output Gaussian files.
+        alpha : list
+            List of alpha angles to rotate the ligand.
+        beta : list
+            List of beta angles to rotate the ligand.
+        gamma : list
+            List of gamma angles to rotate the ligand.
+        opt_theory : str
+            Theory for optimization.
+        resp_theory : str
+            Theory for RESP calculation.
+        net_charge : float
+            Net charge for the molecule.
+        force_gaussian_rerun : bool
+            Whether to force rerun of Gaussian.
+        gaussian_cwd : Path
+            Directory for Gaussian calculations.
+        in_com_template : Path
+            Template for input Gaussian .com files.
+        xyz : Path
+            Path to the output XYZ file for rotations.
         """
 
         super().__init__(stage_name, main_input, cwd, *args, **kwargs)
@@ -349,6 +496,19 @@ class StageGaussianRotation(AbstractStage):
         return
 
     def _validate_input_paths(self, **kwargs):
+        """
+        Validate and set input paths for Gaussian execution.
+
+        Parameters
+        ----------
+        **kwargs
+            Keyword arguments containing Gaussian path options.
+
+        Raises
+        ------
+        ValueError
+            If a required option is missing.
+        """
         for opt in ("gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
             try:
                 setattr(self, opt, kwargs.get(opt, ""))
@@ -369,6 +529,19 @@ class StageGaussianRotation(AbstractStage):
         return stage
 
     def setup(self, name_template: str) -> bool:
+        """
+        Set up Gaussian input and output files for the rotation calculations.
+
+        Parameters
+        ----------
+        name_template : str
+            Template name for input/output files.
+
+        Returns
+        -------
+        bool
+            Always returns False (rotation calculations are not pre-completed).
+        """
         self.header = [f"%NPROC={self.nproc}, %MEM={self.mem}GB"]
 
         # __init__ tries to set up the coordinates object, but it may not have been available at init time.
@@ -447,7 +620,18 @@ class StageGaussianRotation(AbstractStage):
         return
 
     def _print_rotation(self, alpha, beta, gamma):
-        """Print the rotation to the user."""
+        """
+        Print the rotation angles to the user.
+
+        Parameters
+        ----------
+        alpha : float
+            Alpha rotation angle.
+        beta : float
+            Beta rotation angle.
+        gamma : float
+            Gamma rotation angle.
+        """
         self.logger.info(f"---> Rotation: alpha={alpha}, beta={beta}, gamma={gamma}")
         return
 
@@ -471,7 +655,16 @@ class StageGaussianRotation(AbstractStage):
         return
 
     def write_rotation(self, coords, name_template: str):
-        """Write the rotation to a file."""
+        """
+        Write the rotated coordinates to a trajectory file.
+
+        Parameters
+        ----------
+        coords : list
+            List of rotated coordinates.
+        name_template : str
+            Template name for the output file.
+        """
         self.logger.info(f"--> Writing rotations to file: gaussianCalcs/{name_template}_rotations.xyz")
         with open(self.xyz, "w") as file_obj:
             for frame in coords:
@@ -483,22 +676,48 @@ class StageGaussianRotation(AbstractStage):
 
 
 class StageGaussiantoMol2(AbstractStage):
-    """Convert Gaussian output to mol2 format.
-
-    This class converts the Gaussian output to mol2 format, and assigns the charges to the mol2 file.
+    """
+    Convert Gaussian output to mol2 format and assign charges to the mol2 file.
 
     Parameters
     ----------
-    name : str
-        The name of the stage
-    inputoptions : dict
-        The input options for the stage
-    dry_run : bool, optional
-        If True, the stage will not be executed, but the function will print the commands that would
+    stage_name : str
+        The name of the stage.
+    main_input : Union[Path, str]
+        Path to the input Gaussian log file.
+    cwd : Union[Path, str]
+        Current working directory.
+    template_mol2 : str
+        Path to the template mol2 file.
+    out_mol2 : str
+        Path to the output mol2 file.
+    net_charge : float, optional
+        Net charge for the molecule (default: 0.0).
+    atom_type : str, optional
+        Atom type (default: 'gaff2').
+    force_gaussian_rerun : bool, optional
+        Whether to force rerun of Gaussian (default: False).
 
-    Returns
-    -------
-    None
+    Attributes
+    ----------
+    in_log : Path
+        Path to the input Gaussian log file.
+    template_mol2 : Path
+        Path to the template mol2 file.
+    out_mol2 : Path
+        Path to the output mol2 file.
+    temp1_mol2 : Path
+        Path to the first temporary mol2 file.
+    temp2_mol2 : Path
+        Path to the second temporary mol2 file.
+    net_charge : float
+        Net charge for the molecule.
+    atom_type : str
+        Atom type.
+    force_gaussian_rerun : bool
+        Whether to force rerun of Gaussian.
+    gaussian_cwd : Path
+        Directory for Gaussian calculations.
     """
 
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
@@ -519,6 +738,19 @@ class StageGaussiantoMol2(AbstractStage):
         self._add_outputs(self.out_mol2)
 
     def _validate_input_paths(self, **kwargs) -> None:
+        """
+        Validate and set input paths for Gaussian execution.
+
+        Parameters
+        ----------
+        **kwargs
+            Keyword arguments containing Gaussian path options.
+
+        Raises
+        ------
+        ValueError
+            If a required option is missing.
+        """
         for opt in ("gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
             try:
                 setattr(self, opt, kwargs.get(opt, ""))
@@ -532,6 +764,19 @@ class StageGaussiantoMol2(AbstractStage):
         return stage
 
     def setup(self, name_template: str) -> bool:
+        """
+        Set up required files and headers for Gaussian to mol2 conversion.
+
+        Parameters
+        ----------
+        name_template : str
+            Template name for input/output files.
+
+        Returns
+        -------
+        bool
+            Always returns None (setup does not check completion).
+        """
         self.add_required(self.in_log)
 
         self.header = [f"%NPROC={self.nproc}, %MEM={self.mem}GB"]

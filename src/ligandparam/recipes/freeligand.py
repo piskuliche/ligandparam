@@ -27,8 +27,8 @@ class FreeLigand(Recipe):
     Initializing from a pdb file, assigning atom types, running gaussian optimization, rotating and calculating grid effects on RESP charges, and then generating the final mol2/lib/frcmod files
     with RESP charges.
 
-    Attributes:
-    -----------
+    Attributes
+    ----------
     in_filename : Union[Path, str]
         The input file containing the ligand structure, typically in PDB format.
     cwd : Union[Path, str]
@@ -56,8 +56,8 @@ class FreeLigand(Recipe):
     kwargs : dict
         Additional keyword arguments that can be passed to the stages.
     
-    Parameters:
-    -----------
+    Parameters
+    ----------
     in_filename : Union[Path, str]
         The input file containing the ligand structure, typically in PDB format.
     cwd : Union[Path, str]
@@ -85,8 +85,8 @@ class FreeLigand(Recipe):
     kwargs : dict, optional
         Additional keyword arguments that can be passed to the stages.
 
-    Raises:
-    -------
+    Raises
+    ------
     KeyError
         If a required option is missing from the keyword arguments.
     ValueError
@@ -96,7 +96,7 @@ class FreeLigand(Recipe):
     AttributeError
         If a required attribute is not set during initialization.
     
-    Example:
+    Examples
     --------
     >>> from ligandparam.recipes import FreeLigand
     >>> from pathlib import Path

@@ -4,6 +4,33 @@ from pathlib import Path
 
 
 class Driver:
+    """ Base class for all parametrization drivers.
+    
+    This class is the base class for all parametrizations. It is designed to be subclassed, and the subclass should
+    implement the stages that are needed to complete the parametrization.
+
+    Parameters
+    ----------
+    in_filename : str or Path
+        The input filename for the parametrization.
+    cwd : str or Path
+        The current working directory for the parametrization.
+    *args : list
+        Additional arguments to pass to the subclass.
+    **kwargs : dict
+        Additional keyword arguments to pass to the subclass.
+    
+    
+    Attributes
+    ----------
+    in_filename : str or Path
+        The input filename for the parametrization.
+    cwd : str or Path
+        The current working directory for the parametrization.
+    stages : list
+        The list of stages to run for the parametrization.
+    
+    """
     @abstractmethod
     def __init__(self, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs):
         """Initialize the Driver class object.
@@ -50,10 +77,21 @@ class Driver:
         ----------
         dry_run : bool, optional
             If True, the stages will not be executed, but the function will print the commands that would be executed.
+        nproc : int, optional
+            The number of processors to use for the stages that support parallel execution.
+        mem : int, optional
+            The amount of memory to use for the stages that support memory specification.
 
         Returns
         -------
         None
+
+        Raises
+        ------
+        RuntimeError
+            If a stage fails, a RuntimeError is raised with the error message from the stage.
+        
+            
         """
         for stage in self.stages:
             try:
@@ -72,6 +110,12 @@ class Driver:
         Returns
         -------
         None
+
+        Raises
+        ------
+        RuntimeError
+            If a stage fails, a RuntimeError is raised with the error message from the stage.
+        
         """
 
         for stage in reversed(self.stages):
@@ -96,6 +140,7 @@ class Driver:
         Returns
         -------
         None
+
         """
         print("List of Stages to Run")
         for stage in self.stages:
@@ -116,6 +161,7 @@ class Driver:
         Returns
         -------
         None
+
         """
         for stage in self.stages:
             if stage.stage_name == stage_name:
@@ -136,6 +182,20 @@ class Driver:
         ----------
         stage_name : str
             The name of the stage to insert into the list of stages to run.
+        newstage : Stage
+            The stage object to insert into the list of stages to run.
+        print_info : bool, optional
+            If True, the function will print the list of stages after the new stage is inserted.
+        
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        ValueError
+            If the specified stage is not in the list, a ValueError is raised.
+            
         """
         idx = -1
         for stage in self.stages:

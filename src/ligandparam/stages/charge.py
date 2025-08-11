@@ -12,7 +12,45 @@ from ligandparam.io.coordinates import Mol2Writer
 
 
 class StageUpdateCharge(AbstractStage):
-    """This class creates a new mol2 file with updated charges."""
+    """
+    Create a new mol2 file with updated charges.
+
+    Parameters
+    ----------
+    stage_name : str
+        The name of the stage.
+    main_input : Union[Path, str]
+        Path to the input mol2 file.
+    cwd : Union[Path, str]
+        Current working directory.
+    charge_source : str
+        Path to the file containing charges.
+    charge_column : int, optional
+        Column index in charge_source to use for charges (default: 3).
+    out_mol2 : str
+        Path to the output mol2 file.
+    net_charge : float, optional
+        Net charge for the molecule (default: 0.0).
+    atom_type : str, optional
+        Atom type (default: 'gaff2').
+
+    Attributes
+    ----------
+    in_mol2 : Path
+        Path to the input mol2 file.
+    charge_source : str
+        Path to the file containing charges.
+    charge_column : int
+        Column index in charge_source to use for charges.
+    out_mol2 : Path
+        Path to the output mol2 file.
+    tmp_mol2 : Path
+        Path to the temporary mol2 file.
+    net_charge : float
+        Net charge for the molecule.
+    atom_type : str
+        Atom type.
+    """
 
     @override
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
@@ -66,11 +104,47 @@ class StageUpdateCharge(AbstractStage):
 
 
 class StageNormalizeCharge(AbstractStage):
-    """This class normalizes the charges to the net charge.
+    """
+    Normalize the charges in a mol2 file to the specified net charge.
 
     This class works by calculating the charge difference, and then normalizing the charges
     based on the overall precision that you select, by adjusting each atom charge by the precision
-    until the charge difference is zero."""
+    until the charge difference is zero.
+
+    Parameters
+    ----------
+    stage_name : str
+        The name of the stage.
+    main_input : Union[Path, str]
+        Path to the input mol2 file.
+    cwd : Union[Path, str]
+        Current working directory.
+    out_mol2 : str
+        Path to the output mol2 file.
+    atom_type : str, optional
+        Atom type (default: 'gaff2').
+    net_charge : float, optional
+        Net charge for the molecule (default: 0.0).
+    precision : float, optional
+        Precision for charge normalization (default: 0.0001).
+
+    Attributes
+    ----------
+    in_mol2 : Path
+        Path to the input mol2 file.
+    out_mol2 : Path
+        Path to the output mol2 file.
+    tmp_mol2 : Path
+        Path to the temporary mol2 file.
+    atom_type : str
+        Atom type.
+    net_charge : float
+        Net charge for the molecule.
+    precision : float
+        Precision for charge normalization.
+    decimals : int
+        Number of decimals for rounding charges.
+    """
 
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, main_input, cwd, *args, **kwargs)
@@ -93,16 +167,27 @@ class StageNormalizeCharge(AbstractStage):
         return stage
 
     def execute(self, dry_run=False, nproc: Optional[int] = None, mem: Optional[int] = None) -> Any:
-        """Execute the stage.
+        """
+        Execute the charge normalization stage.
+
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, the stage will not be executed, but the function will print the commands that would be run.
+        nproc : int, optional
+            Number of processors to use.
+        mem : int, optional
+            Amount of memory to use (in GB).
 
         Raises
         ------
         ValueError
-            If the charge normalization fails
+            If the charge normalization fails.
 
-        TODO: Check what happens when netcharge is nonzero
-        TODO: Check what happens when charge difference is larger than the number of atoms
-
+        Notes
+        -----
+        TODO: Check what happens when netcharge is nonzero.
+        TODO: Check what happens when charge difference is larger than the number of atoms.
         """
         super()._setup_execution(dry_run=dry_run, nproc=nproc, mem=mem)
         with warnings.catch_warnings():
@@ -139,19 +224,20 @@ class StageNormalizeCharge(AbstractStage):
         raise NotImplementedError("clean method not implemented")
 
     def normalize(self, charges, charge_difference):
-        """This function normalizes the charges to the net charge.
+        """
+        Normalize the charges to the net charge.
 
         Parameters
         ----------
-        charges : np.array
-            The charges
+        charges : np.ndarray
+            Array of atomic charges.
         charge_difference : float
-            The charge difference
+            The charge difference to be corrected.
 
         Returns
         -------
-        charges : np.array
-            The normalized charges
+        np.ndarray
+            The normalized charges.
         """
 
         count = np.round(np.abs(charge_difference) / self.precision)
@@ -167,19 +253,23 @@ class StageNormalizeCharge(AbstractStage):
         return charges
 
     def check_charge(self, charges):
-        """This function checks the total charge and the charge difference.
+        """
+        Check the total charge and the charge difference.
 
         Parameters
         ----------
-        charges : np.array
-            The charges
+        charges : np.ndarray
+            Array of atomic charges.
 
         Returns
         -------
-        total_charge : float
-            The total charge
-        charge_difference : float
-            The charge difference
+        tuple
+            charges : np.ndarray
+                Rounded charges.
+            total_charge : float
+                The total charge.
+            charge_difference : float
+                The charge difference.
         """
         charges = np.round(charges, self.decimals)
         total_charge = np.sum(charges)

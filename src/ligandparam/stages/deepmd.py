@@ -21,14 +21,45 @@ from ligandparam.log import get_logger
 
 class DPMinimize(AbstractStage):
     """
-    This class uses DeepMD to minimize the ligand structure.
+    Minimize the ligand structure using DeepMD.
 
     Parameters
     ----------
+    stage_name : str
+        The name of the stage.
+    main_input : Union[Path, str]
+        Path to the input mol2 file.
+    cwd : Union[Path, str]
+        Current working directory.
+    out_xyz : str
+        Path to the output XYZ file.
+    out_mol2 : str
+        Path to the output mol2 file.
+    model : str, optional
+        DeepMD model file (default: 'deepmd_model.pb').
+    ftol : float, optional
+        Force tolerance for minimization (default: 0.05).
+    steps : int, optional
+        Number of optimization steps (default: 1000).
+    charge : int, optional
+        System charge (default: 0).
 
-    Returns
-    -------
-
+    Attributes
+    ----------
+    in_mol2 : Path
+        Path to the input mol2 file.
+    out_xyz : Path
+        Path to the output XYZ file.
+    out_mol2 : Path
+        Path to the output mol2 file.
+    model : str
+        DeepMD model file.
+    ftol : float
+        Force tolerance for minimization.
+    steps : int
+        Number of optimization steps.
+    charge : int
+        System charge.
     """
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
         super().__init__(stage_name, main_input, cwd, *args, **kwargs)
@@ -42,30 +73,37 @@ class DPMinimize(AbstractStage):
         self.charge = kwargs.get("charge", 0)
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
-        """Appends the stage.
+        """
+        Append a stage to the current stage.
 
-        Args:
-            stage (AbstractStage): _description_
+        Parameters
+        ----------
+        stage : AbstractStage
+            The stage to append.
 
-        Returns:
-            AbstractStage: _description_
+        Returns
+        -------
+        AbstractStage
+            The appended stage.
         """
         return stage
 
     def execute(self, dry_run=False, nproc: Optional[int] = None, mem: Optional[int] = None) -> Any:
-        """Execute the Gaussian calculations.
+        """
+        Execute the DeepMD minimization.
 
         Parameters
         ----------
         dry_run : bool, optional
-            If True, the stage will not be executed, but the function will print the commands that would
-        model : str, optional
-            The model to be used for the calculations.
+            If True, the stage will not be executed, but the function will print the commands that would be run.
+        nproc : int, optional
+            Number of processors to use.
+        mem : int, optional
+            Amount of memory to use (in GB).
 
         Returns
         -------
         None
-
         """
         if dry_run:
             print(f"Dry run: would execute with model {self.model}")
@@ -94,8 +132,14 @@ class DPMinimize(AbstractStage):
         return
     
     def _choose_calculator(self):
-        """Choose the calculator based on the model.
-        
+        """
+        Choose the calculator based on the model type.
+
+        Returns
+        -------
+        Calculator
+            The selected calculator instance.
+
         Raises
         ------
         ValueError
@@ -118,7 +162,8 @@ class DPMinimize(AbstractStage):
         
     @staticmethod
     def replace_mol2_coords(mol2_in, xyz_in, mol2_out):
-        """Replace coordinates in a MOL2 file with those from an XYZ file.
+        """
+        Replace coordinates in a MOL2 file with those from an XYZ file.
 
         Parameters
         ----------
@@ -166,7 +211,9 @@ class DPMinimize(AbstractStage):
 
     
     def _clean(self):
-        """Clean the files generated during the stage."""
+        """
+        Clean the files generated during the stage.
+        """
         raise NotImplementedError("clean method not implemented")
 
 

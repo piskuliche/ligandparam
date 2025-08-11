@@ -9,22 +9,68 @@ from ligandparam.log import get_logger
 
 
 class SimpleInterface:
+    """
+    A simple interface to call external programs.
+
+    This class is designed to be subclassed, with the `method` attribute set to the desired program. The `call` method will then execute the program with the specified arguments.
+
+    Parameters
+    ----------
+    *args : list
+        Additional arguments to pass to the subclass.
+    **kwargs : dict
+        Additional keyword arguments to pass to the subclass.
+
+    Attributes
+    ----------
+    method : str
+        The method to call the external program.
+    logger : logging.Logger
+        The logger to use for logging.
+    cwd : Path
+        The current working directory to run the program in.
+    nproc : int
+        The number of processors to use for the program.
+    """
+
     @abstractmethod
     def __init__(self, *args, **kwargs) -> None:
-        """This class is a simple interface to call external programs.
+        """
+        Initialize the SimpleInterface class.
 
-        This class is a simple interface to call external programs. It is designed to be subclassed
-        and the method attribute set to the desired program. The call method will then call the program
-        with the specified arguments.
-
+        This class is designed to be subclassed, with the `method` attribute set to the desired program. The `call` method will then execute the program with the specified arguments.
         """
         pass
 
     def set_method(self, method):
+        """
+        Set the method to call the external program.
+
+        Parameters
+        ----------
+        method : str
+            The name of the external program to call.
+        """
         self.method = method
         return
 
     def call(self, **kwargs):
+        """
+        Call the external program with the specified arguments.
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Keyword arguments to pass to the external program. Special keys include:
+            - `dry_run` (bool): If True, log the command without executing it.
+            - `inp_pipe` (str): Input file to pipe into the program.
+            - `out_pipe` (str): Output file to pipe the program's output.
+
+        Raises
+        ------
+        RuntimeError
+            If the external program returns a non-zero exit code.
+        """
         dry_run = False
         if "dry_run" in kwargs:
             dry_run = kwargs["dry_run"]
@@ -34,10 +80,10 @@ class SimpleInterface:
         shell = False
         for key, value in kwargs.items():
             if key == "inp_pipe":
-                command.extend([f"<", str(value)])
+                command.extend(["<", str(value)])
                 shell = True
             elif key == "out_pipe":
-                command.extend([f">", str(value)])
+                command.extend([">", str(value)])
                 shell = True
             else:
                 if value is not None:
@@ -70,9 +116,47 @@ class SimpleInterface:
 
 
 class Antechamber(SimpleInterface):
+    """
+    Interface to call the Antechamber program.
+
+    This class provides a simple interface to execute the Antechamber program.
+
+    Parameters
+    ----------
+    *args : list
+        Additional arguments to pass to the interface.
+    **kwargs : dict
+        Additional keyword arguments. Must include:
+        - `cwd` (str): Path to the working directory.
+
+    Attributes
+    ----------
+    cwd : Path
+        The current working directory to run the program in.
+    logger : logging.Logger
+        The logger to use for logging.
+    nproc : int
+        The number of processors to use for the program.
+    """
+
     @override
     def __init__(self, *args, **kwargs) -> None:
-        """This class is a simple interface to call the Antechamber program."""
+        """
+        Initialize the Antechamber interface.
+
+        Parameters
+        ----------
+        *args : list
+            Additional arguments to pass to the interface.
+        **kwargs : dict
+            Additional keyword arguments. Must include:
+            - `cwd` (str): Path to the working directory.
+
+        Raises
+        ------
+        ValueError
+            If the `cwd` argument is missing.
+        """
         try:
             self.cwd = Path(kwargs["cwd"])
         except KeyError:

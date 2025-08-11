@@ -13,14 +13,54 @@ from ligandparam.io.coordinates import Mol2Writer
 
 
 class StageUpdate(AbstractStage):
-    """This class updates either (or both) the atom types and names in a mol2 file to match another mol2 file.
+    """
+    Updates atom types, names, charges, or residue names in a mol2 file to match another mol2 file.
 
     Parameters
     ----------
-
+    stage_name : str
+        Name of the stage.
+    main_input : Union[Path, str]
+        Path to the input mol2 file.
+    cwd : Union[Path, str]
+        Current working directory.
+    out_mol2 : str
+        Path to the output mol2 file (from kwargs).
+    source_mol2 : str
+        Path to the source mol2 file (from kwargs).
+    net_charge : float, optional
+        Net charge for the molecule (default is 0.0).
+    update_names : bool, optional
+        Whether to update atom names (default is False).
+    update_types : bool, optional
+        Whether to update atom types (default is False).
+    update_resname : bool, optional
+        Whether to update residue names (default is False).
+    update_charges : bool, optional
+        Whether to update atom charges (default is False).
+    atom_type : str, optional
+        Atom type for antechamber (default is 'gaff2').
+    molname : str, optional
+        Molecule name (from kwargs).
     """
 
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        """
+        Initialize the StageUpdate stage.
+
+        Parameters
+        ----------
+        stage_name : str
+            Name of the stage.
+        main_input : Union[Path, str]
+            Path to the input mol2 file.
+        cwd : Union[Path, str]
+            Current working directory.
+        *args
+            Additional positional arguments.
+        **kwargs
+            Additional keyword arguments. Must include 'out_mol2' and 'source_mol2'.
+        """
         super().__init__(stage_name, main_input, cwd, *args, **kwargs)
         self.in_mol2 = Path(main_input)
         self.out_mol2 = Path(kwargs["out_mol2"])
@@ -41,9 +81,39 @@ class StageUpdate(AbstractStage):
         self.add_required(Path(self.source_mol2))
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
+        """
+        Appends the stage to the workflow.
+
+        Parameters
+        ----------
+        stage : AbstractStage
+            Stage to append.
+
+        Returns
+        -------
+        AbstractStage
+            The appended stage.
+        """
         return stage
 
     def execute(self, dry_run=False, nproc: Optional[int] = None, mem: Optional[int] = None) -> Any:
+        """
+        Execute the update of atom types, names, charges, or residue names in a mol2 file.
+
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, do not perform actual execution (default is False).
+        nproc : int, optional
+            Number of processors to use (default is None).
+        mem : int, optional
+            Memory to use in MB (default is None).
+
+        Returns
+        -------
+        Any
+            None
+        """
         super()._setup_execution(dry_run=dry_run, nproc=nproc, mem=mem)
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -100,19 +170,47 @@ class StageUpdate(AbstractStage):
             )
 
     def _clean(self):
+        """
+        Not implemented. Cleans up after stage execution.
+        """
         raise NotImplementedError
 
 
 class StageMatchAtomNames(AbstractStage):
-    """This class updates the atom names in a mol2 file to match those of another source structure file.
-    It does this through text editing.
+    """
+    Updates the atom names in a mol2 file to match those of another source structure file via text editing.
 
     Parameters
     ----------
-
+    stage_name : str
+        Name of the stage.
+    main_input : Union[Path, str]
+        Path to the input mol2 file.
+    cwd : Union[Path, str]
+        Current working directory.
+    out_mol2 : str
+        Path to the output mol2 file (from kwargs).
+    source_mol : str
+        Path to the source structure file (from kwargs).
     """
 
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        """
+        Initialize the StageMatchAtomNames stage.
+
+        Parameters
+        ----------
+        stage_name : str
+            Name of the stage.
+        main_input : Union[Path, str]
+            Path to the input mol2 file.
+        cwd : Union[Path, str]
+            Current working directory.
+        *args
+            Additional positional arguments.
+        **kwargs
+            Additional keyword arguments. Must include 'out_mol2' and 'source_mol'.
+        """
         super().__init__(stage_name, main_input, cwd, *args, **kwargs)
         self.in_mol2 = Path(main_input)
         self.out_mol2 = Path(kwargs["out_mol2"])
@@ -121,9 +219,39 @@ class StageMatchAtomNames(AbstractStage):
         self.add_required(Path(self.source_mol))
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
+        """
+        Appends the stage to the workflow.
+
+        Parameters
+        ----------
+        stage : AbstractStage
+            Stage to append.
+
+        Returns
+        -------
+        AbstractStage
+            The appended stage.
+        """
         return stage
 
     def execute(self, dry_run=False, nproc: Optional[int] = None, mem: Optional[int] = None) -> Any:
+        """
+        Execute the update of atom names in a mol2 file to match a source structure file.
+
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, do not perform actual execution (default is False).
+        nproc : int, optional
+            Number of processors to use (default is None).
+        mem : int, optional
+            Memory to use in MB (default is None).
+
+        Returns
+        -------
+        Any
+            None
+        """
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             source_u = mda.Universe(self.source_mol)
@@ -156,4 +284,7 @@ class StageMatchAtomNames(AbstractStage):
 
 
     def _clean(self):
+        """
+        Not implemented. Cleans up after stage execution.
+        """
         raise NotImplementedError

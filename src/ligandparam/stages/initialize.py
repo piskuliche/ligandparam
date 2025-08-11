@@ -1,3 +1,10 @@
+
+"""
+StageInitialize module
+----------------------
+This module provides the StageInitialize class for initializing a ligand from a PDB file and generating a mol2 file.
+"""
+
 from typing import Optional,  Union, Any
 
 from pathlib import Path
@@ -11,8 +18,66 @@ from rdkit.Chem import AllChem
 
 
 class StageInitialize(AbstractStage):
-    """ This class initializes the ligand from a PDB file, and generates a mol2 file."""
+    """
+    Initialize the ligand from a PDB file and generate a mol2 file.
+
+    Parameters
+    ----------
+    stage_name : str
+        The name of the stage.
+    main_input : Union[Path, str]
+        Path to the input PDB file.
+    cwd : Union[Path, str]
+        Current working directory.
+    out_mol2 : str
+        Path to the output mol2 file.
+    net_charge : float, optional
+        Net charge for the molecule (default: 0.0).
+    atom_type : str, optional
+        Atom type (default: 'gaff2').
+    charge_model : str, optional
+        Charge model to use ('bcc' or 'abcg2', default: 'bcc').
+    sqm : bool, optional
+        Whether to run secondary SQM calculation (default: False).
+    molname : str, optional
+        Molecule name for additional arguments.
+    ek : any, optional
+        Additional argument for Antechamber.
+
+    Attributes
+    ----------
+    in_pdb : Path
+        Path to the input PDB file.
+    out_mol2 : Path
+        Path to the output mol2 file.
+    net_charge : float
+        Net charge for the molecule.
+    atom_type : str
+        Atom type.
+    charge_model : str
+        Charge model to use.
+    secondary : bool
+        Whether to run secondary SQM calculation.
+    additional_args : dict
+        Additional arguments for Antechamber.
+    """
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        """
+        Initialize the StageInitialize class.
+
+        Parameters
+        ----------
+        stage_name : str
+            The name of the stage.
+        main_input : Union[Path, str]
+            Path to the input PDB file.
+        cwd : Union[Path, str]
+            Current working directory.
+        *args
+            Additional positional arguments.
+        **kwargs
+            Additional keyword arguments.
+        """
         super().__init__(stage_name, main_input, cwd, *args, **kwargs)
         self.in_pdb = Path(main_input)
         self.add_required(self.in_pdb)
@@ -32,20 +97,42 @@ class StageInitialize(AbstractStage):
             self.additional_args["ek"] = kwargs["ek"]
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
-        """Appends the stage."""
+        """
+        Append a stage to the current stage.
+
+        Parameters
+        ----------
+        stage : AbstractStage
+            The stage to append.
+
+        Returns
+        -------
+        AbstractStage
+            The appended stage.
+        """
         return stage
 
     def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
-        """Execute the Gaussian calculations.
+        """
+        Execute the initialization stage to generate a mol2 file from a PDB file.
 
         Parameters
         ----------
         dry_run : bool, optional
-            If True, the stage will not be executed, but the function will print the commands that would
+            If True, the stage will not be executed, but the function will print the commands that would be run.
+        nproc : int, optional
+            Number of processors to use.
+        mem : int, optional
+            Amount of memory to use (in GB).
 
         Returns
         -------
         None
+
+        Raises
+        ------
+        ValueError
+            If the input file type is not supported.
         """
         super()._setup_execution(dry_run=dry_run, nproc=nproc, mem=mem)
         Remove_PDB_CONECT(self.in_pdb)
@@ -87,7 +174,9 @@ class StageInitialize(AbstractStage):
             )
 
     def _clean(self):
-        """Clean the files generated during the stage."""
+        """
+        Clean the files generated during the stage.
+        """
         raise NotImplementedError("clean method not implemented")
 
 

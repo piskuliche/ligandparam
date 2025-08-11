@@ -18,6 +18,18 @@ def find_word_and_get_line(filepath: Union[Path, str], word: str):
     """
     Finds a word in a file using memory mapping and returns the full lines
     containing the word.
+
+    Parameters
+    ----------
+    filepath : Union[Path, str]
+        The path to the file to search.
+    word : str
+        The word to search for in the file.
+
+    Returns
+    -------
+    list of str
+        A list of lines containing the word.
     """
     word_b = word.encode()  # Encode the word to bytes for searching in mmap
     lines_found = []
@@ -47,6 +59,23 @@ def find_word_and_get_line(filepath: Union[Path, str], word: str):
 
 
 def modify_gaussian_com(filepath: Path, nproc: int, mem: int):
+    """
+    Modifies a Gaussian input file to update the number of processors and memory allocation.
+
+    Parameters
+    ----------
+    filepath : Path
+        The path to the Gaussian input file.
+    nproc : int
+        The number of processors to set in the file.
+    mem : int
+        The amount of memory (in GB) to set in the file.
+
+    Returns
+    -------
+    bool
+        True if the file was successfully modified, False otherwise.
+    """
     config_line_regex = re.compile(b"%NPROC=\d+, %MEM=\d+GB")
     nproc_bytes = str(nproc).encode()
     mem_bytes = str(mem).encode()
@@ -81,6 +110,19 @@ def modify_gaussian_com(filepath: Path, nproc: int, mem: int):
 
 @contextmanager
 def stderr_redirector(stream):
+    """
+    Redirects stderr to a given stream within a context.
+
+    Parameters
+    ----------
+    stream : io.IOBase
+        The stream to which stderr will be redirected.
+
+    Yields
+    ------
+    None
+        Allows the caller to execute code with stderr redirected.
+    """
     # The original fd stderr points to. Usually 1 on POSIX systems.
     original_stderr_fd = sys.stderr.fileno()
 

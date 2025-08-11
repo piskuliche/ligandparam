@@ -18,7 +18,7 @@ import os
 from typing import Dict
 import sys
 
-sys.path.insert(0, os.path.abspath("../../"))
+sys.path.insert(0, os.path.abspath("../../src/"))
 
 import ligandparam
 
@@ -45,7 +45,9 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.todo",
     "sphinx.ext.autosectionlabel",
-    "numpydoc"
+    "numpydoc",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.todo"
 ]
 
 autosectionlabel_prefix_document = True

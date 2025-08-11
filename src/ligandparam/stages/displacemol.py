@@ -11,20 +11,36 @@ from MDAnalysis.topology.guessers import guess_masses
 from MDAnalysis.topology.guessers import guess_types
 
 class StageDisplaceMol(AbstractStage):
-    """Displaces a molecule based on a vector or centers it at the origin.
+    """
+    Displace a molecule based on a vector or center it at the origin.
 
-    Attributes:
-        in_molecule (Path): Path to the input molecule file.
-        out_molecule (Path): Path where the displaced/centered molecule will be written.
-        displacement_vtor (Optional[np.ndarray]): The vector used for displacement.
-                                                 Only set if 'vector' is provided in kwargs.
-        center (bool): If True, the molecule will be centered at the origin.
-                       If False, displacement is done using `displacement_vtor`.
+    Parameters
+    ----------
+    stage_name : str
+        The name of the stage.
+    main_input : Union[Path, str]
+        Path to the input molecule file.
+    cwd : Union[Path, str]
+        Current working directory.
+    out_mol : str
+        Path where the displaced/centered molecule will be written.
+    vector : Optional[np.ndarray], optional
+        The vector used for displacement. Only set if 'vector' is provided in kwargs.
 
-    TODO
-    ----
-    - Generalize the part that guesses types and masses in the execute method.
-    
+    Attributes
+    ----------
+    in_molecule : Path
+        Path to the input molecule file.
+    out_molecule : Path
+        Path where the displaced/centered molecule will be written.
+    displacement_vtor : Optional[np.ndarray]
+        The vector used for displacement.
+    center : bool
+        If True, the molecule will be centered at the origin. If False, displacement is done using `displacement_vtor`.
+
+    Notes
+    -----
+    Generalize the part that guesses types and masses in the execute method.
     """
 
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
@@ -42,10 +58,44 @@ class StageDisplaceMol(AbstractStage):
         self.add_required(Path(self.in_molecule))
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
+        """
+        Append a stage to the current stage.
+
+        Parameters
+        ----------
+        stage : AbstractStage
+            The stage to append.
+
+        Returns
+        -------
+        AbstractStage
+            The appended stage.
+        """
         return stage
 
     def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> np.ndarray:
+        """
+        Execute the displacement or centering of the molecule.
 
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, the stage will not be executed, but the function will print the commands that would be run.
+        nproc : int, optional
+            Number of processors to use.
+        mem : int, optional
+            Amount of memory to use (in GB).
+
+        Returns
+        -------
+        np.ndarray
+            The displacement vector applied to the molecule.
+
+        Raises
+        ------
+        ValueError
+            If the displacement vector contains NaN values.
+        """
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             u = mda.Universe(self.in_molecule)
@@ -73,4 +123,7 @@ class StageDisplaceMol(AbstractStage):
 
 
     def _clean(self):
+        """
+        Clean the files generated during the stage.
+        """
         raise NotImplementedError("clean method not implemented")

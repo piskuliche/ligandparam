@@ -12,6 +12,22 @@ from ligandparam.log import get_logger
 
 
 class StageBuild(AbstractStage):
+    """
+    A stage for building molecular systems using Antechamber and Leap.
+
+    Attributes
+    ----------
+    target_pdb : str
+        The target PDB file.
+    build_type : int
+        The type of build to perform (0 for aqueous, 1 for gas, 2 for target).
+    concentration : float
+        The concentration of ions.
+    rbuffer : float
+        The buffer radius.
+    leaprc : list of str
+        The Leaprc configuration files.
+    """
 
     @override
     def __init__(self, stage_name: str, name: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
@@ -49,7 +65,24 @@ class StageBuild(AbstractStage):
         self.add_required(f"{self.name}.lib")
 
     def _validate_build_type(self, build_type: str) -> int:
-        """ Validate the build type. """
+        """
+        Validate the build type.
+
+        Parameters
+        ----------
+        build_type : str
+            The build type to validate ('aq', 'gas', or 'target').
+
+        Returns
+        -------
+        int
+            The validated build type as an integer.
+
+        Raises
+        ------
+        ValueError
+            If the build type is not valid.
+        """
         if build_type.lower() == 'aq':
             return 0
         elif build_type.lower() == 'gas':
@@ -61,17 +94,34 @@ class StageBuild(AbstractStage):
             raise ValueError("ERROR: Please provide a valid build type: aq, gas, or target")
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
-        """ Appends the stage. """
+        """
+        Append a stage to the current stage.
+
+        Parameters
+        ----------
+        stage : AbstractStage
+            The stage to append.
+
+        Returns
+        -------
+        AbstractStage
+            The appended stage.
+        """
         return stage
 
     def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
-        """ Execute the Gaussian calculations.
-        
+        """
+        Execute the Gaussian calculations.
+
         Parameters
         ----------
         dry_run : bool, optional
-            If True, the stage will not be executed, but the function will print the commands that would
-        
+            If True, the stage will not be executed, but the function will print the commands that would be run.
+        nproc : int, optional
+            The number of processors to use (default is None).
+        mem : int, optional
+            The amount of memory to use (in GB, default is None).
+
         Returns
         -------
         None
@@ -84,11 +134,25 @@ class StageBuild(AbstractStage):
             self._target_build(dry_run=dry_run)
 
     def _clean(self):
-        """ Clean the files generated during the stage. """
+        """
+        Clean the files generated during the stage.
+
+        Raises
+        ------
+        NotImplementedError
+            If the method is not implemented.
+        """
         raise NotImplementedError("clean method not implemented")
 
     def _aq_build(self, dry_run=False):
-        """ Build the ligand in aqueous environment. """
+        """
+        Build the ligand in an aqueous environment.
+
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, the stage will not be executed, but the function will print the commands that would be run.
+        """
         aqleap = LeapWriter("aq")
         # Add the leaprc files
         for rc in self.leaprc:
@@ -133,7 +197,14 @@ class StageBuild(AbstractStage):
             leap.call(f="tleap.aq.in", dry_run=dry_run)
 
     def _gas_build(self, dry_run=False):
-        """ Build the ligand in gas environment. """
+        """
+        Build the ligand in a gas environment.
+
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, the stage will not be executed, but the function will print the commands that would be run.
+        """
         gasleap = LeapWriter("gas")
         # Add the leaprc files
         for rc in self.leaprc:
@@ -152,7 +223,14 @@ class StageBuild(AbstractStage):
         leap.call(f="tleap.gas.in", dry_run=dry_run)
 
     def _target_build(self, dry_run=False):
-        """ Build the ligand in the target environment. """
+        """
+        Build the ligand in the target environment.
+
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, the stage will not be executed, but the function will print the commands that would be run.
+        """
         self.check_target()
         targetleap = LeapWriter("target")
         # Add the leaprc files
@@ -203,7 +281,26 @@ class StageBuild(AbstractStage):
             leap.call(f="tleap.target.in", dry_run=dry_run)
 
     def Get_Num_Ions(self, parm7, wat_resname="WAT"):
-        """ Get the number of ions needed for the system. """
+        """
+        Get the number of ions needed for the system.
+
+        Parameters
+        ----------
+        parm7 : str
+            The parameter file for the system.
+        wat_resname : str, optional
+            The residue name for water molecules (default is 'WAT').
+
+        Returns
+        -------
+        tuple of int
+            The number of sodium (NA) and chloride (CL) ions needed.
+
+        Raises
+        ------
+        ValueError
+            If the concentration of ions is negative.
+        """
         water_concentration = 55.
         u = mda.Universe(parm7)
         total_charge = sum(u.atoms.charges)
@@ -238,7 +335,14 @@ class StageBuild(AbstractStage):
         return num_NA, num_CL
 
     def check_target(self):
-        """ Check that the target pdb file is correct. """
+        """
+        Check that the target PDB file is correct.
+
+        Raises
+        ------
+        ValueError
+            If the ligand residue name is not in the target PDB file.
+        """
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             u = mda.Universe(self.target_pdb)

@@ -1,3 +1,10 @@
+
+"""
+LigHFix module
+--------------
+This module provides the LigHFix class for hydrogen fixing and metadata assignment for ligands using RDKit and RCSB queries.
+"""
+
 import io
 import json
 from pathlib import Path
@@ -14,8 +21,65 @@ from typing_extensions import override
 
 
 class LigHFix(AbstractStage):
+    """
+    Hydrogen fixing and metadata assignment for ligands using RDKit and RCSB queries.
+
+    Parameters
+    ----------
+    stage_name : str
+        The name of the stage.
+    main_input : Union[Path, str]
+        Ligand ID (RCSB 3-letter code).
+    cwd : Union[Path, str]
+        Current working directory.
+    in_pdb : str
+        Path to the input PDB file.
+    out_pdb : str
+        Path to the output PDB file.
+    resname : str, optional
+        Residue name (default: 'LIG').
+    reduce : bool, optional
+        Whether to reduce hydrogens (default: True).
+    add_conect : bool, optional
+        Whether to add CONECT records (default: True).
+    random_seed : int, optional
+        Random seed for reproducibility.
+
+    Attributes
+    ----------
+    lig_id : str
+        Ligand ID.
+    in_pdb : Path
+        Path to the input PDB file.
+    out_pdb : Path
+        Path to the output PDB file.
+    resname : str
+        Residue name.
+    reduce : bool
+        Whether to reduce hydrogens.
+    add_conect : bool
+        Whether to add CONECT records.
+    random_seed : int or None
+        Random seed for reproducibility.
+    """
     @override
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        """
+        Initialize the LigHFix class.
+
+        Parameters
+        ----------
+        stage_name : str
+            The name of the stage.
+        main_input : Union[Path, str]
+            Ligand ID (RCSB 3-letter code).
+        cwd : Union[Path, str]
+            Current working directory.
+        *args
+            Additional positional arguments.
+        **kwargs
+            Additional keyword arguments.
+        """
         super().__init__(stage_name, main_input, cwd, *args, **kwargs)
         self.lig_id = main_input
         self.in_pdb = Path(kwargs["in_pdb"])
@@ -26,6 +90,27 @@ class LigHFix(AbstractStage):
         self.random_seed = kwargs.get("random_seed", None)
 
     def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
+        """
+        Execute the hydrogen fixing and metadata assignment for the ligand.
+
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, the stage will not be executed, but the function will print the commands that would be run.
+        nproc : int, optional
+            Number of processors to use.
+        mem : int, optional
+            Amount of memory to use (in GB).
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        ValueError
+            If ligand information or InChI cannot be retrieved or processed.
+        """
         ligand_info = self.get_rcsb_small_molecule_info(ligand_id=self.lig_id)
         try:
             descriptors = ligand_info["rcsb_chem_comp_descriptor"]
@@ -54,15 +139,20 @@ class LigHFix(AbstractStage):
 
     def set_metadata(self, new_mol: Mol, template_mol: Mol, match: list[str]) -> Mol:
         """
-        Sets atom names, resnames, etc. for the new molecule based on the template molecule.
-        Hydrogens atom names are not copied from the template molecule.
+        Set atom names, residue names, and other metadata for the new molecule based on the template molecule.
 
-        Args:
-            new_mol: The RDKit molecule object to which metadata will be assigned.
-            template_mol: The RDKit molecule object from which metadata will be derived.
-            match: A list of atom indices that map the template molecule to the new molecule.
+        Parameters
+        ----------
+        new_mol : Mol
+            The RDKit molecule object to which metadata will be assigned.
+        template_mol : Mol
+            The RDKit molecule object from which metadata will be derived.
+        match : list of int
+            List of atom indices mapping the template molecule to the new molecule.
 
-        Returns:
+        Returns
+        -------
+        Mol
             A new RDKit molecule object with the assigned metadata.
         """
         new_mol.SetProp("_Name", self.resname)
@@ -88,6 +178,23 @@ class LigHFix(AbstractStage):
         return new_mol
 
     def write_mol(self, mol: Mol) -> None:
+        """
+        Write the molecule to a PDB file.
+
+        Parameters
+        ----------
+        mol : Mol
+            The RDKit molecule object to write.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        Exception
+            If writing to the PDB file fails.
+        """
         flavor = 0 if self.add_conect else 2
         self.logger.info(f"Writing {self.in_pdb} to {self.out_pdb}")
 
@@ -98,15 +205,24 @@ class LigHFix(AbstractStage):
 
     def assign_coordinates_and_names(self, template_mol, target_mol) -> Mol:
         """
-        Assigns coordinates from a template molecule to a target molecule using RDKit.
+        Assign coordinates from a template molecule to a target molecule using RDKit.
 
-        Args:
-            template_mol: The RDKit molecule object with the desired coordinates.
-            target_mol: The RDKit molecule object to which coordinates will be assigned.
+        Parameters
+        ----------
+        template_mol : Mol
+            The RDKit molecule object with the desired coordinates.
+        target_mol : Mol
+            The RDKit molecule object to which coordinates will be assigned.
 
-        Returns:
-            A new RDKit molecule object with the assigned coordinates, or None if the
-            alignment fails or if either input molecule is None.
+        Returns
+        -------
+        Mol
+            A new RDKit molecule object with the assigned coordinates, or None if alignment fails or inputs are None.
+
+        Raises
+        ------
+        ValueError
+            If template or target molecule is None, or if atom counts do not match, or if substructure match fails.
         """
         if template_mol is None or target_mol is None:
             err_msg = "Nor `template_mol` or `target_mol` can be None."
@@ -161,15 +277,24 @@ class LigHFix(AbstractStage):
             self, ligand_id: str, base_url: str = "https://data.rcsb.org/rest/v1/core/chemcomp/"
     ):
         """
-        Queries the RCSB REST API for detailed information about a small molecule (ligand).
+        Query the RCSB REST API for detailed information about a small molecule (ligand).
 
-        Args:
-            ligand_id: The 3-letter RCSB ligand ID (e.g., "NOV").
-            base_url: The base URL for the RCSB REST API (default: "https://data.rcsb.org/rest/v1/core/chemcomp/").
+        Parameters
+        ----------
+        ligand_id : str
+            The 3-letter RCSB ligand ID (e.g., 'NOV').
+        base_url : str, optional
+            The base URL for the RCSB REST API (default: 'https://data.rcsb.org/rest/v1/core/chemcomp/').
 
-        Returns:
-            A dictionary containing the ligand information, or None if the query fails.
-            Raises a ValueError if `ligand_id` is bad or if it can't find it.
+        Returns
+        -------
+        dict
+            Dictionary containing the ligand information.
+
+        Raises
+        ------
+        ValueError
+            If ligand_id is invalid or the query fails.
         """
         if not isinstance(ligand_id, str) or len(ligand_id) != 3:
             raise ValueError(f"Bad ligand id ({ligand_id}). Must be a 3-character string.")
@@ -197,7 +322,20 @@ class LigHFix(AbstractStage):
 
     @staticmethod
     def draw(mol, filepath: Path):
-        # Helper method for debugging purposes
+        """
+        Draw a molecule and save it as a PNG file.
+
+        Parameters
+        ----------
+        mol : Mol
+            The RDKit molecule object to draw.
+        filepath : Path
+            Path to the output PNG file (must have .png extension).
+
+        Returns
+        -------
+        None
+        """
         from rdkit.Chem import Draw
         assert filepath.suffix == ".png"
         dm = Draw.PrepareMolForDrawing(mol)

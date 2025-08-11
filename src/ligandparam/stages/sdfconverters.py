@@ -11,10 +11,51 @@ from ligandparam.stages import AbstractStage, set_atom_pdb_info
 
 
 
+
 class SDFToPDB(AbstractStage):
+    """
+    Converts a molecule from SDF format to PDB or mol2 format.
+
+    Parameters
+    ----------
+    stage_name : str
+        Name of the stage.
+    main_input : Union[Path, str]
+        Path to the input SDF file.
+    cwd : Union[Path, str]
+        Current working directory.
+    out_pdb : str, optional
+        Path to the output PDB file (from kwargs).
+    out_mol2 : str, optional
+        Path to the output mol2 file (from kwargs).
+    resname : str, optional
+        Residue name to use (default is 'LIG').
+    removeHs : bool, optional
+        Whether to remove hydrogens (default is False).
+    add_conect : bool, optional
+        Whether to add CONECT records (default is True).
+    mol_idx : int, optional
+        Index of molecule in SDF to convert (default is 0).
+    """
 
     @override
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        """
+        Initialize the SDFToPDB stage.
+
+        Parameters
+        ----------
+        stage_name : str
+            Name of the stage.
+        main_input : Union[Path, str]
+            Path to the input SDF file.
+        cwd : Union[Path, str]
+            Current working directory.
+        *args
+            Additional positional arguments.
+        **kwargs
+            Additional keyword arguments. Must include 'out_pdb' or 'out_mol2'.
+        """
         super().__init__(stage_name, main_input, cwd, *args, **kwargs)
         self.in_sdf = Path(main_input)
         try:
@@ -36,6 +77,23 @@ class SDFToPDB(AbstractStage):
         self.mol_idx = kwargs.get("mol_idx", 0)
 
     def execute(self, dry_run=False, nproc: Optional[int] = None, mem: Optional[int] = None) -> Any:
+        """
+        Execute the conversion from SDF to PDB or mol2 format.
+
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, do not perform actual execution (default is False).
+        nproc : int, optional
+            Number of processors to use (default is None).
+        mem : int, optional
+            Memory to use in MB (default is None).
+
+        Returns
+        -------
+        Any
+            None
+        """
         # First, create the molecule
         try:
             mols = Chem.SDMolSupplier(str(self.in_sdf), removeHs=False)
@@ -52,6 +110,16 @@ class SDFToPDB(AbstractStage):
             self.write_pdb(mol, flavor=flavor)
 
     def write_pdb(self, mol: Chem.Mol, flavor: int = 0):
+        """
+        Write a molecule to a PDB file.
+
+        Parameters
+        ----------
+        mol : Chem.Mol
+            Molecule to write.
+        flavor : int, optional
+            PDB flavor (default is 0).
+        """
         self.logger.info(f"Writing {self.in_sdf} to {self.out_pdb}")
         try:
             Chem.MolToPDBFile(mol, str(self.out_pdb), flavor=flavor)
@@ -60,18 +128,79 @@ class SDFToPDB(AbstractStage):
                 f"Failed to write to  {self.out_pdb}. Got exception: {e}")
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
+        """
+        Not implemented. Appends a stage to the workflow.
+
+        Parameters
+        ----------
+        stage : AbstractStage
+            Stage to append.
+
+        Returns
+        -------
+        AbstractStage
+            The appended stage.
+        """
         raise NotImplementedError
 
     def _clean(self):
+        """
+        Not implemented. Cleans up after stage execution.
+        """
         raise NotImplementedError
 
 
 
 # noinspection DuplicatedCode
+
 class SDFToPDBBatch(AbstractStage):
+    """
+    Converts a batch of molecules from SDF format to PDB format.
+
+    Parameters
+    ----------
+    stage_name : str
+        Name of the stage.
+    main_input : Union[Path, str]
+        Path to the input SDF file.
+    cwd : Union[Path, str]
+        Current working directory.
+    removeHs : bool, optional
+        Whether to remove hydrogens (default is False).
+    add_conect : bool, optional
+        Whether to add CONECT records (default is True).
+    out_pdb_template : str, optional
+        Template for output PDB filenames (from kwargs).
+    out_pdbs : list, optional
+        List of output PDB filenames (from kwargs).
+    out_pdb_read_field : str, optional
+        Field to read for output PDB names (default is '_Name').
+    resnames : list, optional
+        List of residue names (from kwargs).
+    resname : str, optional
+        Residue name to use (from kwargs).
+    resname_read_field : str, optional
+        Field to read for residue names (default is '_Name').
+    """
     
     @override
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        """
+        Initialize the SDFToPDBBatch stage.
+
+        Parameters
+        ----------
+        stage_name : str
+            Name of the stage.
+        main_input : Union[Path, str]
+            Path to the input SDF file.
+        cwd : Union[Path, str]
+            Current working directory.
+        *args
+            Additional positional arguments.
+        **kwargs
+            Additional keyword arguments for batch settings.
+        """
         super().__init__(stage_name, main_input, cwd, *args, **kwargs)
         self.in_sdf = Path(main_input)
 
@@ -87,6 +216,23 @@ class SDFToPDBBatch(AbstractStage):
         self.resname_read_field = kwargs.get("resname_read_field", "_Name")
 
     def execute(self, dry_run=False, nproc: Optional[int] = None, mem: Optional[int] = None) -> Any:
+        """
+        Execute the batch conversion from SDF to PDB format.
+
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, do not perform actual execution (default is False).
+        nproc : int, optional
+            Number of processors to use (default is None).
+        mem : int, optional
+            Memory to use in MB (default is None).
+
+        Returns
+        -------
+        Any
+            None
+        """
         # First, create the molecule
         try:
             mols = Chem.SDMolSupplier(str(self.in_sdf), removeHs=False)
@@ -135,9 +281,25 @@ class SDFToPDBBatch(AbstractStage):
                     f"Failed to write to  {pdb}. Got exception: {e}")
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
+        """
+        Not implemented. Appends a stage to the workflow.
+
+        Parameters
+        ----------
+        stage : AbstractStage
+            Stage to append.
+
+        Returns
+        -------
+        AbstractStage
+            The appended stage.
+        """
         raise NotImplementedError
 
     def _clean(self):
+        """
+        Not implemented. Cleans up after stage execution.
+        """
         raise NotImplementedError
 
 

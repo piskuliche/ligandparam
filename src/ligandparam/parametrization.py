@@ -1,6 +1,18 @@
+"""
+This module provides classes for parametrizing ligands and managing recipes.
+
+Classes
+-------
+Parametrization
+    A class for parametrizing ligands using various stages.
+
+Recipe
+    A subclass of Parametrization for managing ligand recipes.
+"""
+
 import logging
 from pathlib import Path
-from typing import Optional,  Union
+from typing import Optional, Union
 from typing_extensions import override
 
 from ligandparam.driver import Driver
@@ -8,21 +20,80 @@ from ligandparam.log import get_logger, set_stream_logger, set_file_logger
 
 
 class Parametrization(Driver):
+    """
+    A class for parametrizing ligands using various stages.
+
+    Parameters
+    ----------
+    in_filename : Union[Path, str]
+        The input filename of the ligand.
+    cwd : Union[Path, str]
+        The current working directory.
+    *args : tuple
+        Additional positional arguments.
+    **kwargs : dict
+        Additional keyword arguments.
+
+    Keyword Args
+    ------------
+    label : str, optional
+        A label for the ligand, by default the stem of `in_filename`.
+    leaprc : list, optional
+        A list of leaprc files to use, by default ["leaprc.gaff2"].
+    logger : Union[str, logging.Logger], optional
+        The logger to use. Can be "file", "stream", or a logging.Logger instance.
+
+    Attributes
+    ----------
+    in_filename : Path
+        The resolved path to the input file.
+    label : str
+        The label for the ligand.
+    cwd : Path
+        The current working directory.
+    stages : list
+        A list of stages to run.
+    leaprc : list
+        A list of leaprc files to use.
+    logger : logging.Logger
+        The logger instance.
+
+    Raises
+    ------
+    ValueError
+        If an invalid logger type is provided.
+    """
+
     @override
     def __init__(self, in_filename: Union[Path, str], cwd: Union[Path, str], *args, **kwargs):
         """
         The rough approach to using this class is to generate a new Parametrization class, and then generate self.stages as a list
         of stages that you want to run.
-        Args:
-            in_filename (str): The in_filename of the ligand.
-            cwd (Union[Path, str]): The current working directory.
-            *args: Additional positional arguments.
-            **kwargs: Additional keyword arguments.
-        Keyword Args:
-            name (str): The base name for the ligand.
-            inputoptions (dict): A dictionary of input options, which should include 'name' or 'pdb_filename'.
-        Raises:
-            ValueError: If neither 'name' nor 'pdb_filename' is provided in inputoptions.
+
+        Parameters
+        ----------
+        in_filename : Union[Path, str]
+            The input filename of the ligand.
+        cwd : Union[Path, str]
+            The current working directory.
+        *args : tuple
+            Additional positional arguments.
+        **kwargs : dict
+            Additional keyword arguments.
+
+        Keyword Args
+        ------------
+        label : str, optional
+            A label for the ligand, by default the stem of `in_filename`.
+        leaprc : list, optional
+            A list of leaprc files to use, by default ["leaprc.gaff2"].
+        logger : Union[str, logging.Logger], optional
+            The logger to use. Can be "file", "stream", or a logging.Logger instance.
+
+        Raises
+        ------
+        ValueError
+            If an invalid logger type is provided.
         """
         self.in_filename = Path(in_filename).resolve()
         self.label = kwargs.get("label", self.in_filename.stem)
@@ -46,8 +117,19 @@ class Parametrization(Driver):
             self.logger = get_logger()
 
     def add_leaprc(self, leaprc) -> None:
+        """
+        Add a leaprc file to the list of leaprc files.
+
+        Parameters
+        ----------
+        leaprc : str
+            The name of the leaprc file to add.
+        """
         self.leaprc.append(leaprc)
 
 
 class Recipe(Parametrization):
+    """
+    A subclass of Parametrization for managing ligand recipes.
+    """
     pass

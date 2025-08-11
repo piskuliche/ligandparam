@@ -23,8 +23,8 @@ class LazyLigand(Recipe):
     Initializing from a pdb file, assigning atom types, running gaussian optimization, and calculating RESP charges, and then generating the final mol2/lib/frcmod files
     with RESP charges.
 
-    Attributes:
-    -----------
+    Attributes
+    ----------
     in_filename : Union[Path, str]
         The input file containing the ligand structure, typically in PDB format.
     cwd : Union[Path, str]
@@ -51,9 +51,9 @@ class LazyLigand(Recipe):
         The directory for Gaussian scratch files, if not set, will use the environment variable.
     kwargs : dict
         Additional keyword arguments that can be passed to the stages.
-    
-    Parameters:
-    -----------
+
+    Parameters
+    ----------
     in_filename : Union[Path, str]
         The input file containing the ligand structure, typically in PDB format.
     cwd : Union[Path, str]
@@ -81,8 +81,8 @@ class LazyLigand(Recipe):
     kwargs : dict, optional
         Additional keyword arguments that can be passed to the stages.
 
-    Raises:
-    -------
+    Raises
+    ------
     KeyError
         If a required option is missing from the keyword arguments.
     ValueError
@@ -92,7 +92,7 @@ class LazyLigand(Recipe):
     AttributeError
         If a required attribute is not set during initialization.
     
-    Example:
+    Examples
     --------
     >>> from ligandparam.recipes import LazyLigand
     >>> from pathlib import Path
@@ -302,7 +302,7 @@ class LazyLigand(Recipe):
         
         This method executes the LazyLigand recipe, which includes running all the stages defined in the setup method.
         
-        Parameters:
+        Parameters
         ----------
         dry_run : bool, optional
             If True, the stages will not be executed, but the commands that would be run will be printed.
@@ -311,7 +311,7 @@ class LazyLigand(Recipe):
         mem : Optional[int], optional
             The amount of memory (in GB) to allocate for the calculations. If None, will use the value set in the recipe.
         
-        Returns:
+        Returns
         -------
         None
         """

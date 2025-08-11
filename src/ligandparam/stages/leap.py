@@ -1,3 +1,10 @@
+
+"""
+StageLeap module
+----------------
+This module provides the StageLeap class for generating leap library files for molecular systems.
+"""
+
 from typing import Optional,  Union, Any
 
 from pathlib import Path
@@ -9,7 +16,58 @@ from ligandparam.utils import find_word_and_get_line
 
 
 class StageLeap(AbstractStage):
+    """
+    Generate leap library files for molecular systems using AmberTools.
+
+    Parameters
+    ----------
+    stage_name : str
+        The name of the stage.
+    main_input : Union[Path, str]
+        Path to the input mol2 file.
+    cwd : Union[Path, str]
+        Current working directory.
+    in_frcmod : str
+        Path to the input frcmod file.
+    out_lib : str
+        Path to the output library file.
+    molname : str, optional
+        Molecule name (default: 'MOL').
+    leaprc : list, optional
+        List of leaprc configuration files (default: ['leaprc.gaff2']).
+
+    Attributes
+    ----------
+    in_mol2 : Path
+        Path to the input mol2 file.
+    in_frcmod : str
+        Path to the input frcmod file.
+    out_lib : Path
+        Path to the output library file.
+    molname : str
+        Molecule name.
+    leaprc : list
+        List of leaprc configuration files.
+    out_pdb : Path
+        Path to the output pdb file.
+    """
     def __init__(self, stage_name: str, main_input: Union[Path, str], cwd: Union[Path, str], *args, **kwargs) -> None:
+        """
+        Initialize the StageLeap class.
+
+        Parameters
+        ----------
+        stage_name : str
+            The name of the stage.
+        main_input : Union[Path, str]
+            Path to the input mol2 file.
+        cwd : Union[Path, str]
+            Current working directory.
+        *args
+            Additional positional arguments.
+        **kwargs
+            Additional keyword arguments.
+        """
         super().__init__(stage_name, main_input, cwd, *args, **kwargs)
         self.in_mol2 = Path(main_input)
         self.add_required(self.in_mol2)
@@ -17,17 +75,43 @@ class StageLeap(AbstractStage):
         self.add_required(self.in_frcmod)
         self.out_lib = Path(kwargs["out_lib"])
         self.molname = kwargs.get("molname", "MOL")
-
         self.leaprc = kwargs.get("leaprc", ["leaprc.gaff2"])
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
-        """Appends the stage."""
+        """
+        Append a stage to the current stage.
+
+        Parameters
+        ----------
+        stage : AbstractStage
+            The stage to append.
+
+        Returns
+        -------
+        AbstractStage
+            The appended stage.
+        """
         return stage
 
 
 
     def execute(self, dry_run=False, nproc: Optional[int]=None, mem: Optional[int]=None) -> Any:
-        """Setup and execute the leap lib file generation"""
+        """
+        Setup and execute the leap library file generation.
+
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, the stage will not be executed, but the function will print the commands that would be run.
+        nproc : int, optional
+            Number of processors to use.
+        mem : int, optional
+            Amount of memory to use (in GB).
+
+        Returns
+        -------
+        None
+        """
         # Generate the leap input file
         leapgen = LeapWriter("param")
         # Add the leaprc files
@@ -62,5 +146,7 @@ class StageLeap(AbstractStage):
         return
 
     def _clean(self):
-        """Clean the files generated during the stage."""
+        """
+        Clean the files generated during the stage.
+        """
         raise NotImplementedError("clean method not implemented")
