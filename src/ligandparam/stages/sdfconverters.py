@@ -271,7 +271,7 @@ class SDFToPDBBatch(AbstractStage):
         flavor = 0 if self.add_conect else 2
         for mol, pdb, resname in zip(mols, self.out_pdbs, self.resnames):
             # Set metadata and write away
-            mol = set_atom_pdb_info(mol, self.resname)
+            mol = set_atom_pdb_info(mol, resname)
             self.logger.info(f"Writing {self.in_sdf} to {pdb}")
 
             try:
