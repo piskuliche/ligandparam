@@ -1029,7 +1029,7 @@ class FragmentedSys(object):
         slurm.write("REFTRAJ=%s\n"%(reftraj))
         slurm.write("REFMDIN=%s\n"%(refmdin))
         slurm.write("##############################################\n")
-        slurm.write("""
+        slurm.write(r"""
 start=${REFBASE}.sele.frcmod
 reqfiles=(${start} ${REFTRAJ} ${REFBASE}.lib ${REFBASE}.notsele.frcmod ${REFBASE}.pdb)
 for f in ${reqfiles[@]}; do
