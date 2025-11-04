@@ -8,7 +8,12 @@ import tempfile
 from contextlib import contextmanager
 
 libc = ctypes.CDLL(None)
-c_stderr = ctypes.c_void_p.in_dll(libc, 'stderr')
+if sys.platform == "darwin":
+    c_stderr = ctypes.c_void_p.in_dll(libc, "__stderrp")
+elif sys.platform.startswith("linux"):
+    c_stderr = ctypes.c_void_p.in_dll(libc, "stderr")
+else:
+    print(f"Got unsupported platform: {sys.platform}")
 
 from pathlib import Path
 from typing import Optional,  Union
