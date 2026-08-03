@@ -80,7 +80,7 @@ class DPMinimize(AbstractStage):
         self.out_xyz = Path(kwargs["out_xyz"])
         self.out_mol2 = Path(kwargs["out_mol2"])
 
-        self.model = kwargs.get("model", "deepmd_model.pb")
+        self.model = kwargs.get("model") or "deepmd_model.pb"
         self.ftol = kwargs.get("ftol", 0.05)
         self.steps = kwargs.get("steps", 1000)
         self.charge = kwargs.get("charge", 0)
@@ -119,21 +119,25 @@ class DPMinimize(AbstractStage):
         None
         """
         if dry_run:
-            print(f"Dry run: would execute with model {self.model}")
+            self.logger.info(f"Dry run: would execute with model {self.model}")
             return
-        print("Starting execute")
+        self.logger.info("Starting execute")
         if not getattr(self, "coord_object", None):
             self.coord_object = Coordinates(self.in_mol2, filetype="mol2")
         elements = self.coord_object.u.atoms.elements
-        with open("temp.xyz", 'w') as f:
+        # Keep the scratch geometry inside the stage's cwd: a bare "temp.xyz" resolves
+        # against the process working directory, so concurrent ligands clobbered each
+        # other's coordinates and littered the launch directory.
+        temp_xyz = Path(self.cwd, "temp.xyz")
+        with open(temp_xyz, 'w') as f:
             f.write(f"{len(self.coord_object.u.atoms)}\n\n")
             for atom in self.coord_object.u.atoms:
                 f.write(f"{elements[atom.index]} {atom.position[0]} {atom.position[1]} {atom.position[2]}\n")
         calculator = self._choose_calculator()
         try:
-            atoms = read("temp.xyz", format='xyz')
+            atoms = read(temp_xyz, format='xyz')
         except Exception as e:
-            print(f"Error reading input XYZ file: {e}")
+            self.logger.error(f"Error reading input XYZ file {temp_xyz}: {e}")
             return
         atoms.calc = calculator
         optimizer = BFGS(atoms, maxstep=0.1)
@@ -160,8 +164,12 @@ class DPMinimize(AbstractStage):
         ImportError
             If DeepMD or MACE is not installed.
         """
+        if not self.model:
+            raise ValueError(
+                "No ML model given. Pass `model=` (a .pb DeepMD model or a .model MACE model), "
+                "e.g. via `lig-getparam -m <model>`.")
         try:
-            if '.pb' in self.model:
+            if '.pb' in str(self.model):
                 mlp_calc = None
                 mlp = DPModel(self.model)
                 return QDpi2Calculator(mlp, self.charge)

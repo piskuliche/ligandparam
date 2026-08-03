@@ -170,7 +170,7 @@ class PDB_Name_Fixer(AbstractStage):
         if not ref_mol:
             raise ValueError(f"Failed to read reference PDB file {reference_pdb}")
         if len([at for at in ref_mol.GetAtoms() if at.GetAtomicNum() == 1]) == 0:
-            self.logger.warn(
+            self.logger.warning(
                 f"Reference '{reference_pdb}' does not contain any hydrogen atoms. It's not a good reference PDB.")
 
         mcs_mol = self.get_mcs_mol(ref_mol, mol)
@@ -250,16 +250,19 @@ class PDB_Name_Fixer(AbstractStage):
             element_number, name, number, element = self.get_element_name_and_number(ref_atoms[idx])
             if element_number not in available_names_per_element:
                 available_names_per_element[element_number] = [ f"{element}{i}" for i in range(1, natoms+1)]
-            if number not in available_names_per_element[element_number]:
-                available_names_per_element[element_number].append(f"{element}{number}")
+            # `number` is an int and the pool holds strings, so comparing them directly
+            # was always true and appended duplicates -- which let .pop(0) hand the same
+            # PDB atom name to two different atoms.
+            candidate = f"{element}{number}"
+            if candidate not in available_names_per_element[element_number]:
+                available_names_per_element[element_number].append(candidate)
             try:
                 available_names_per_element[element_number].remove(name)
-            except ValueError as e:
-                print(name)
-                print(available_names_per_element)
-                print("element_number", element_number, "name", name, "number", number, "element", element)
-                self.logger.warn(f"Name '{name}' not found in available names for element {element_number}.")
-                raise e
+            except ValueError:
+                self.logger.error(
+                    f"Name '{name}' (element {element}, number {number}) not found in the available "
+                    f"names for element {element_number}: {available_names_per_element[element_number]}")
+                raise
 
         return available_names_per_element
 
@@ -285,7 +288,10 @@ class PDB_Name_Fixer(AbstractStage):
             number = 0
             element = Chem.GetPeriodicTable().GetElementSymbol(element_number)
         else:
-            number = int(''.join(char for char in name if char.isdigit()))
+            # Standard PDB atom names are frequently digit-free (N, CA, C, O, OXT, SG),
+            # in which case int('') would raise; treat them as number 0.
+            digits = ''.join(char for char in name if char.isdigit())
+            number = int(digits) if digits else 0
             element = ''.join(char for char in name if not char.isdigit())
         return element_number, name, number, element
     

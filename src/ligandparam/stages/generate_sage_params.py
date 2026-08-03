@@ -60,9 +60,11 @@ class StageSageCreate(AbstractStage):
         super().__init__(stage_name, main_input, cwd, *args, **kwargs)
         self.in_mol2 = Path(main_input)
         self.out_parm = Path(kwargs["out_parm"])
-        self.out_rst7 = Path(kwargs["out_parm"].replace(".parm7", ".rst7"))
         if ".parm7" not in self.out_parm.name:
             raise ValueError("Output parameter file must have .parm7 extension")
+        # str() first: out_parm is routinely passed as a Path, and Path.replace() is
+        # the filesystem rename, not string substitution.
+        self.out_rst7 = Path(str(self.out_parm).replace(".parm7", ".rst7"))
         self.ff_name = kwargs.get("ff_name", "openff-2.2.0.offxml")
         self.use_mol2_charges = kwargs.get("use_mol2_charges", False)
         self.resname = kwargs.get("resname", None)

@@ -11,6 +11,62 @@ from ligandparam.stages.abstractstage import AbstractStage
 from ligandparam.interfaces import Antechamber
 from ligandparam.io.coordinates import Mol2Writer
 
+# Matches the atom-name field (the second whitespace-delimited column) of a mol2 record.
+_MOL2_NAME_RE = re.compile(r"^\s*\S+\s+(\S+)")
+
+
+def rename_mol2_atom_names(lines, new_names):
+    """Rewrite the atom names in the ``@<TRIPOS>ATOM`` block of a mol2 file.
+
+    Parameters
+    ----------
+    lines : list of str
+        The lines of the mol2 file, as returned by ``readlines()``.
+    new_names : list of str
+        Replacement names, consumed in order, one per ATOM record.
+
+    Returns
+    -------
+    tuple of (list of str, bool)
+        The rewritten lines, and True if ``new_names`` ran out before the ATOM
+        records did.
+
+    Notes
+    -----
+    The name field is replaced over the extent of the *old* name. Slicing by the
+    length of the *new* name instead corrupted the output: replacing "C12" with "CA"
+    produced "CA2", and a longer replacement ate into the coordinate column. Renaming
+    also has to stop at the next section header, or every ``@<TRIPOS>BOND`` record
+    matches the regex and drains ``new_names``.
+    """
+    pending = list(new_names)
+    out = []
+    ite = iter(lines)
+
+    for line in ite:
+        out.append(line)
+        if line.startswith("@<TRIPOS>ATOM"):
+            break
+
+    exhausted = False
+    renaming = True
+    for line in ite:
+        if line.startswith("@<TRIPOS>"):
+            renaming = False
+        if renaming:
+            match = _MOL2_NAME_RE.search(line)
+            if match:
+                if pending:
+                    old_name = match.group(1)
+                    # Pad to the old width so the remaining columns stay aligned.
+                    replacement = pending.pop(0).ljust(len(old_name))
+                    line = line[:match.start(1)] + replacement + line[match.end(1):]
+                else:
+                    exhausted = True
+        out.append(line)
+
+    return out, exhausted
+
 
 class StageUpdate(AbstractStage):
     """
@@ -118,7 +174,7 @@ class StageUpdate(AbstractStage):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
 
-            if not (self.update_names or self.update_types or self.update_charges):
+            if not (self.update_names or self.update_types or self.update_charges or self.update_resname):
                 self.logger.debug("No updates requested. Exiting.")
                 return
             if self.update_names and self.update_types:
@@ -145,7 +201,7 @@ class StageUpdate(AbstractStage):
                     new_atom.name = orig_atom.name
                 if self.update_charges:
                     self.logger.debug(
-                        f"Atom {new_atom.name}'s charge ({orig_atom.charge}) will be updated to {orig_atom.name}"
+                        f"Atom {new_atom.name}'s charge ({new_atom.charge}) will be updated to {orig_atom.charge}"
                     )
                     new_atom.charge = orig_atom.charge
 
@@ -262,25 +318,13 @@ class StageMatchAtomNames(AbstractStage):
             lines = f.readlines()
 
 
+        new_lines, exhausted = rename_mol2_atom_names(lines, source_names)
+        if exhausted:
+            self.logger.warning(
+                f"Source structure ({self.source_mol}) has fewer atoms than input mol2 file ({self.in_mol2})")
+
         with open(self.out_mol2, "w") as f:
-            ite = iter(lines)
-            while True:
-                for line in ite:
-                    f.write(line)
-                    if line.startswith("@<TRIPOS>ATOM"):
-                        break
-                for line in ite:
-                    match = re.search(r"^\s*\S+\s+(\S+)", line)
-                    if match:
-                        try:
-                            name_idx = match.start(1)
-                            new_name = source_names.pop(0)
-                            line = line[:name_idx] + new_name + line[name_idx + len(new_name):]
-                        except IndexError:
-                            self.logger.warning(
-                                f"Source structure ({self.source_mol}) has fewer atoms than input mol2 file ({self.in_mol2})")
-                    f.write(line)
-                break
+            f.writelines(new_lines)
 
 
     def _clean(self):

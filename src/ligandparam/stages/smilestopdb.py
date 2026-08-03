@@ -169,7 +169,7 @@ class StageSmilesToPDB(AbstractStage):
         if not ref_mol:
             raise ValueError(f"Failed to read reference PDB file {reference_pdb}")
         if len([at for at in ref_mol.GetAtoms() if at.GetAtomicNum() == 1]) == 0:
-            self.logger.warn(
+            self.logger.warning(
                 f"Reference '{reference_pdb}' does not contain any hydrogen atoms. It's not a good reference PDB.")
 
         mcs_mol = self.get_mcs_mol(ref_mol, mol)
@@ -275,7 +275,10 @@ class StageSmilesToPDB(AbstractStage):
             number = 0
             element = Chem.GetPeriodicTable().GetElementSymbol(element_number)
         else:
-            number = int(''.join(char for char in name if char.isdigit()))
+            # Standard PDB atom names are frequently digit-free (N, CA, C, O, OXT, SG),
+            # in which case int('') would raise; treat them as number 0.
+            digits = ''.join(char for char in name if char.isdigit())
+            number = int(digits) if digits else 0
             element = ''.join(char for char in name if not char.isdigit())
         return element_number, name, number, element
     

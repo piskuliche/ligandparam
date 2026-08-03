@@ -135,7 +135,12 @@ class StageInitialize(AbstractStage):
             If the input file type is not supported.
         """
         super()._setup_execution(dry_run=dry_run, nproc=nproc, mem=mem)
-        Remove_PDB_CONECT(self.in_pdb)
+        # This rewrites the user's input file in place, so it must not happen during a
+        # dry run -- a dry run previously stripped the CONECT records for good.
+        if dry_run:
+            self.logger.info(f"Would remove CONECT records from {self.in_pdb}")
+        else:
+            Remove_PDB_CONECT(self.in_pdb)
         ante = Antechamber(cwd=self.cwd, logger=self.logger, nproc=self.nproc)
         detect_type = self.in_pdb.suffix.lower()
         if detect_type not in [".pdb", ".mol2"]:

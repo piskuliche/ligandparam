@@ -2,6 +2,8 @@ from abc import abstractmethod
 from typing import Optional,  Union, Any
 from pathlib import Path
 
+from ligandparam.log import get_logger
+
 
 class Driver:
     """ Base class for all parametrization drivers.
@@ -118,17 +120,19 @@ class Driver:
         
         """
 
+        # Driver.__init__ is abstract, so a subclass may not have set a logger.
+        logger = getattr(self, "logger", None) or get_logger()
         for stage in reversed(self.stages):
             try:
                 stage.clean()
             except NotImplementedError:
-                print(f"Clean method not implemented for stage {stage.name}")
-                print("Skipping...")
+                # Stages expose `stage_name`, not `name`. Using the wrong attribute here
+                # raised AttributeError from inside the handler and masked the real state.
+                logger.info(f"Clean method not implemented for stage {stage.stage_name}. Skipping...")
                 continue
             except Exception as e:
-                print(f"Error in stage {stage.name}: {e}")
-                print("Exiting")
-                raise e
+                logger.error(f"Error in stage {stage.stage_name}: {e}")
+                raise
         return
 
     def list_stages(self):

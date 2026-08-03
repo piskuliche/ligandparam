@@ -133,7 +133,7 @@ class AbstractStage(metaclass=ABCMeta):
         """
         self.nproc = self.nproc if nproc is None else nproc
         self.mem = self.mem if mem is None else mem
-        self._check_required()
+        self._check_required(dry_run=dry_run)
 
     def execute(self, dry_run=False, nproc: Optional[int] = None, mem: Optional[int] = None) -> Any:
         """
@@ -153,15 +153,11 @@ class AbstractStage(metaclass=ABCMeta):
         Any
             The result of the execution.
         """
-        self.logger.info(f"Executing {self.stage_name}")
-        starting_files = self.list_files_in_directory(self.cwd)
-        self._check_required()
-
-        self._setup_execution(dry_run=dry_run, nproc=nproc, mem=mem)
-        self.execute(self, nproc=self.nproc, mem=self.mem)
-        ending_files = self.list_files_in_directory(self.cwd)
-        self.new_files = [f for f in ending_files if f not in starting_files]
-        return
+        # Every concrete stage overrides execute(), so this body is unreachable. It used
+        # to call self.execute(self, ...) -- itself, with `self` as the dry_run argument
+        # -- which would recurse until the stack blew for any subclass that relied on it.
+        raise NotImplementedError(
+            f"{type(self).__name__} must override execute().")
 
     def clean(self) -> None:
         """
@@ -202,19 +198,34 @@ class AbstractStage(metaclass=ABCMeta):
             self.required.append(Path(filename))
         return
 
-    def _check_required(self):
+    def _check_required(self, dry_run: bool = False):
         """
         Check if the required files are present.
+
+        Parameters
+        ----------
+        dry_run : bool, optional
+            If True, missing inputs are reported but not treated as an error.
 
         Raises
         ------
         FileNotFoundError
-            If any of the required files are not found.
+            If any of the required files are not found and this is not a dry run.
+
+        Notes
+        -----
+        Under a dry run the earlier stages never write their outputs, so every stage
+        after the first is missing its inputs by construction. Raising there made it
+        impossible to dry-run a recipe past its first stage.
         """
-        for fname in self.required:
-            if not Path(fname).exists():
-                raise FileNotFoundError(f"ERROR: File {fname} not found.")
-        return
+        missing = [fname for fname in self.required if not Path(fname).exists()]
+        if not missing:
+            return
+        if dry_run:
+            for fname in missing:
+                self.logger.info(f"Dry run: {fname} would be produced by an earlier stage.")
+            return
+        raise FileNotFoundError(f"ERROR: File {missing[0]} not found.")
 
     def _add_outputs(self, outputs):
         """

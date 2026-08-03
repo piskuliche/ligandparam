@@ -154,9 +154,9 @@ class GaussianInput:
         return
     
     def __str__(self):
-        print(self)
-        return
-    
+        # print(self) called back into __str__ and recursed until the stack blew.
+        return "\n".join(self.generate_block())
+
     def generate_block(self):
         """ Generates the gaussina input block as a list of strings
 

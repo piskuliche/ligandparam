@@ -7,6 +7,7 @@ import MDAnalysis as mda
 from pathlib import Path
 
 from ligandparam.stages.abstractstage import AbstractStage
+from ligandparam.io.coordinates import repair_zero_masses
 from MDAnalysis.topology.guessers import guess_masses
 from MDAnalysis.topology.guessers import guess_types
 
@@ -99,22 +100,15 @@ class StageDisplaceMol(AbstractStage):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             u = mda.Universe(self.in_molecule)
-            if np.any(np.isclose(u.atoms.masses, 0, atol=0.1)):
-                u.guess_TopologyAttrs(to_guess=['elements'], force_guess=['masses'])
-            # We tried to get correct masses but may have failed in the process. Lack of masses will fail
-            # MDAnalysis's center_of_mass(), so just set them to 1.0, since the exact values are not important
-            u.atoms.masses[np.isclose(u.atoms.masses, 0, atol=0.1)] = 1.0
-            
+            repair_zero_masses(u)
+
             if self.center:
                 self.displacement_vtor = -u.atoms.center_of_mass()
             if np.isnan(self.displacement_vtor).any():
-                print("Displacement vector contains NaN values.")
-                print("Center of mass", u.atoms.center_of_mass())
-                print("Displacement vector", self.displacement_vtor)
-                print("Input molecule:", self.in_molecule)
-                print("u.atoms.positions", u.atoms.positions)
-                print("u.atoms.masses", u.atoms.masses)
-                print()
+                self.logger.error(f"Displacement vector contains NaN values for {self.in_molecule}.")
+                self.logger.error(f"Center of mass: {u.atoms.center_of_mass()}")
+                self.logger.error(f"Displacement vector: {self.displacement_vtor}")
+                self.logger.error(f"Masses: {u.atoms.masses}")
                 raise ValueError("Displacement vector contains NaN values.")
             u.atoms.translate(self.displacement_vtor)
             u.atoms.write(self.out_molecule)

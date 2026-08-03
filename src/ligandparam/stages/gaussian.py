@@ -18,6 +18,31 @@ from ligandparam.log import get_logger
 logger = logging.getLogger("ligandparam.gaussian")
 
 
+def assign_gaussian_paths(stage, **kwargs) -> None:
+    """Copy the Gaussian path options from ``kwargs`` onto ``stage``.
+
+    Parameters
+    ----------
+    stage : AbstractStage
+        The stage to set the attributes on.
+    **kwargs
+        Keyword arguments that may contain `gaussian_root`, `gauss_exedir`,
+        `gaussian_binary` and `gaussian_scratch`.
+
+    Notes
+    -----
+    Missing options become ``None`` rather than ``""``. The empty string is truthy
+    enough to pass an ``is None`` check but produces a submit script consisting of a
+    bare redirect, which exits 0 and leaves an empty log for the next stage to
+    consume. `gaussian_binary` falls back to "g16" when not supplied.
+    """
+    for opt in ("gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
+        setattr(stage, opt, kwargs.get(opt))
+    if not stage.gaussian_binary:
+        stage.gaussian_binary = "g16"
+
+
+
 class GaussianMinimizeRESP(AbstractStage):
     """
     Run a basic Gaussian calculation on the ligand, including minimization and ESP calculation for RESP charges.
@@ -96,13 +121,7 @@ class GaussianMinimizeRESP(AbstractStage):
         ValueError
             If a required option is missing.
         """
-        for opt in ("gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
-            try:
-                setattr(self, opt, kwargs.get(opt, ""))
-            except KeyError:
-                raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
-        if self.gaussian_binary is None:
-            self.gaussian_binary = "g16"
+        assign_gaussian_paths(self, **kwargs)
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """Appends the stage.
@@ -297,13 +316,7 @@ class GaussianRESP(AbstractStage):
         ValueError
             If a required option is missing.
         """
-        for opt in ("gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
-            try:
-                setattr(self, opt, kwargs.get(opt, ""))
-            except KeyError:
-                raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
-        if self.gaussian_binary is None:
-            self.gaussian_binary = "g16"
+        assign_gaussian_paths(self, **kwargs)
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """Appends the stage.
@@ -350,9 +363,12 @@ class GaussianRESP(AbstractStage):
         # so this part can be set up before the Gaussian calculations are run.
         gau = GaussianWriter(self.in_com)
 
+        # This stage writes a single block and supplies its own geometry, so the route
+        # section must not use GEOM(AllCheck)/Guess(Read) -- there is no preceding
+        # optimisation in this stage to have written a checkpoint to read from.
         gau.add_block(
             GaussianInput(
-                command=f"#P {self.resp_theory} GEOM(AllCheck) Guess(Read) NoSymm Pop=mk IOp(6/33=2) GFInput GFPrint",
+                command=f"#P {self.resp_theory} NoSymm Pop=mk IOp(6/33=2) GFInput GFPrint",
                 initial_coordinates=self.coord_object.get_coordinates(),
                 elements=self.coord_object.get_elements(),
                 charge=self.net_charge,
@@ -509,13 +525,7 @@ class StageGaussianRotation(AbstractStage):
         ValueError
             If a required option is missing.
         """
-        for opt in ("gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
-            try:
-                setattr(self, opt, kwargs.get(opt, ""))
-            except KeyError:
-                raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
-        if self.gaussian_binary is None:
-            self.gaussian_binary = "g16"
+        assign_gaussian_paths(self, **kwargs)
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """Append the stage to the current stage.
@@ -751,13 +761,7 @@ class StageGaussiantoMol2(AbstractStage):
         ValueError
             If a required option is missing.
         """
-        for opt in ("gaussian_root", "gauss_exedir", "gaussian_binary", "gaussian_scratch"):
-            try:
-                setattr(self, opt, kwargs.get(opt, ""))
-            except KeyError:
-                raise ValueError(f"ERROR: Please provide {opt} option as a keyword argument.")
-        if self.gaussian_binary is None:
-            self.gaussian_binary = "g16"
+        assign_gaussian_paths(self, **kwargs)
 
     def _append_stage(self, stage: "AbstractStage") -> "AbstractStage":
         """Append the stage to the current stage."""

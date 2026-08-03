@@ -9,6 +9,42 @@ import MDAnalysis as mda
 from MDAnalysis.topology.guessers import guess_atom_element, guess_masses
 
 
+def repair_zero_masses(universe: mda.Universe, atol: float = 0.1) -> None:
+    """Ensure every atom in ``universe`` has a non-zero mass, in place.
+
+    Mol2 files written by antechamber often carry unusable atom names, so MDAnalysis
+    cannot guess masses and leaves them at zero. A zero total mass makes
+    ``center_of_mass()`` return NaN, which breaks centering and rotation. The exact
+    values do not matter for those operations, so unresolved masses are set to 1.0.
+
+    Parameters
+    ----------
+    universe : MDAnalysis.Universe
+        The universe to repair. Modified in place.
+    atol : float, optional
+        Absolute tolerance for treating a mass as zero (default 0.1).
+
+    Notes
+    -----
+    ``AtomGroup.masses`` returns a *copy*, so ``u.atoms.masses[mask] = 1.0`` writes to
+    a temporary and silently does nothing. The read-modify-write below is required.
+    """
+    if np.any(np.isclose(universe.atoms.masses, 0, atol=atol)):
+        try:
+            universe.guess_TopologyAttrs(to_guess=['elements'], force_guess=['masses'])
+        except Exception:
+            # Guessing needs names or types to work from and raises when it has
+            # neither. That is the case this function exists to survive, so fall
+            # through to the 1.0 default below.
+            pass
+
+    masses = universe.atoms.masses
+    zero = np.isclose(masses, 0, atol=atol)
+    if np.any(zero):
+        masses[zero] = 1.0
+        universe.atoms.masses = masses
+
+
 class Coordinates:
 
     def __init__(self, filename: Union[Path, str], filetype: str = 'pdb'):
@@ -31,11 +67,7 @@ class Coordinates:
         self.original_coords = self.get_coordinates()
 
         # If the mol2 comes from antechaamber, then the atom names are weird and both rdkit and mda will have trouble
-        if np.any(np.isclose(self.u.atoms.masses, 0, atol=0.1)):
-            self.u.guess_TopologyAttrs(to_guess=['elements'], force_guess=['masses'])
-        # We tried to get correct masses but may have failed in the process. Lack of masses will fail
-        # MDAnalysis's center_of_mass(), so just set them to 1.0, since the exact values are not important
-        self.u.atoms.masses[np.isclose(self.u.atoms.masses, 0, atol=0.1)] = 1.0
+        repair_zero_masses(self.u)
 
         return
 

@@ -20,6 +20,27 @@ from pathlib import Path
 from . import __logging_name__
 
 
+def _has_equivalent_handler(logger: logging.Logger, handler: logging.Handler) -> bool:
+    """Return True if ``logger`` already has a handler writing to the same place.
+
+    These setup functions are called once per stage and once per interface, always
+    against the same package-wide logger name. Without this check the handlers
+    accumulate, so after N stages every record is emitted N times.
+    """
+    for existing in logger.handlers:
+        if type(existing) is not type(handler):
+            continue
+        if isinstance(handler, logging.FileHandler):
+            if Path(existing.baseFilename) == Path(handler.baseFilename):
+                return True
+        elif isinstance(handler, logging.StreamHandler):
+            if getattr(existing, "stream", None) is getattr(handler, "stream", None):
+                return True
+        else:
+            return True
+    return False
+
+
 def get_logger() -> logging.Logger:
     """
     Get a logger with a null handler.
@@ -31,7 +52,9 @@ def get_logger() -> logging.Logger:
     """
     logger = logging.getLogger(__logging_name__)
     logger.setLevel(logging.INFO)
-    logger.addHandler(logging.NullHandler())
+    handler = logging.NullHandler()
+    if not _has_equivalent_handler(logger, handler):
+        logger.addHandler(handler)
     return logger
 
 def set_stream_logger(logging_level: int = logging.INFO) -> logging.Logger:
@@ -52,7 +75,8 @@ def set_stream_logger(logging_level: int = logging.INFO) -> logging.Logger:
     logger.setLevel(logging_level)
     stream_handler = logging.StreamHandler(sys.stdout)
     stream_handler.setLevel(logging_level)
-    logger.addHandler(stream_handler)
+    if not _has_equivalent_handler(logger, stream_handler):
+        logger.addHandler(stream_handler)
 
     return logger
 
@@ -86,6 +110,9 @@ def set_file_logger(logfilename: Path, logname: str = None, filemode: str = 'a')
     file_handler = logging.FileHandler(filename=logfilename, mode=filemode)
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
+    if _has_equivalent_handler(logger, file_handler):
+        file_handler.close()
+    else:
+        logger.addHandler(file_handler)
 
     return logger

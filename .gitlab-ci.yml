@@ -1,4 +1,5 @@
 stages:
+  - test
   - publish
 
 variables:
@@ -11,9 +12,26 @@ variables:
   UV_PUBLISH_USERNAME: "__token__"
   UV_PUBLISH_PASSWORD: "$UV_PUBLISH_PASSWORD_LIGANDPARAM"
 
+pytest:
+  stage: test
+  image: ghcr.io/astral-sh/uv:$UV_VERSION-python$PYTHON_VERSION-$BASE_LAYER
+  script:
+    # A non-editable install so the tests exercise what actually ships: the console
+    # script entry points and the declared dependencies, not the source tree.
+    - uv pip install --system ".[test]"
+    - python -m pytest tests/ -v
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_TAG
+
 uv:
   stage: publish
   image: ghcr.io/astral-sh/uv:$UV_VERSION-python$PYTHON_VERSION-$BASE_LAYER
+  # Publishing is gated on the test stage: 1.0.0 shipped with a console script that
+  # could not start, which the smoke tests now catch.
+  needs:
+    - pytest
   script:
     - uv build
     - uv publish

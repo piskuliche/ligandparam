@@ -106,9 +106,11 @@ class StageParmChk(AbstractStage):
         parm = ParmChk(cwd=self.cwd, logger=self.logger)
         parm.call(i=self.in_mol2, f="mol2", o=self.out_frcmod, s=2, dry_run=dry_run)
 
-        if lines := find_word_and_get_line(self.out_frcmod, "ATTN"):
-            self.logger.error(f"ATTN found in {self.out_frcmod}\n{lines}")
-            raise RuntimeError(f"ATTN found in {self.out_frcmod}\n{lines}")
+        # parmchk did not run under a dry run, so out_frcmod does not exist yet.
+        if not dry_run:
+            if lines := find_word_and_get_line(self.out_frcmod, "ATTN"):
+                self.logger.error(f"ATTN found in {self.out_frcmod}\n{lines}")
+                raise RuntimeError(f"ATTN found in {self.out_frcmod}\n{lines}")
         return
 
     def _clean(self):

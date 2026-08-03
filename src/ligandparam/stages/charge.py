@@ -190,6 +190,13 @@ class StageNormalizeCharge(AbstractStage):
         TODO: Check what happens when charge difference is larger than the number of atoms.
         """
         super()._setup_execution(dry_run=dry_run, nproc=nproc, mem=mem)
+        if dry_run and not Path(self.in_mol2).is_file():
+            # Under a dry run the upstream stage never wrote this file, and the charges
+            # cannot be inspected without it. Report the intent and move on.
+            self.logger.info(
+                f"Dry run: would normalize the charges in {self.in_mol2} to "
+                f"{self.net_charge} and write {self.out_mol2}")
+            return
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             self.logger.debug("Checking charges")
@@ -241,6 +248,14 @@ class StageNormalizeCharge(AbstractStage):
         """
 
         count = np.round(np.abs(charge_difference) / self.precision)
+        if count == 0:
+            # The residual is smaller than a single precision step, so there is nothing
+            # to spread over the atoms. Dividing by zero here produced adjust=inf, a
+            # loop that ran zero times, and a misleading "normalization failed" error.
+            self.logger.debug(
+                f"Charge difference {charge_difference} is below one precision step "
+                f"({self.precision}); leaving charges unchanged.")
+            return charges
         adjust = np.round(charge_difference / count, self.decimals)
         natoms = len(charges)
         # Choosing charges closest to zero.

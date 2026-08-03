@@ -1046,7 +1046,7 @@ if [ ! -e trial.mdin ]; then
         sed -i 's|ifqnt *= *[0-9]*|ifqnt = 0|' trial.mdin
         sed -i 's|nmropt *= *[0-9]*|nmropt = 0|' trial.mdin
         sed -i 's|ntwx *= *[0-9]*|ntwx = 50|' trial.mdin
-        sed -i 's|xpol_c|\!xpol_c|' trial.mdin
+        sed -i 's|xpol_c|\\!xpol_c|' trial.mdin
     else
         echo "trial.mdin not found"
         exit 1

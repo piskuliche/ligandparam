@@ -140,8 +140,10 @@ class StageLeap(AbstractStage):
         leap = Leap(cwd=self.cwd, logger=self.logger)
         leap.call(f=self.cwd / "tleap.param.in", dry_run=dry_run)
 
-        if lines := find_word_and_get_line(leap_log, "Warning!"):
-            self.logger.warning(f"Warning! found in {leap_log}\n{lines}")
+        # tleap did not run under a dry run, so there is no log to inspect.
+        if not dry_run:
+            if lines := find_word_and_get_line(leap_log, "Warning!"):
+                self.logger.warning(f"Warning! found in {leap_log}\n{lines}")
 
         return
 

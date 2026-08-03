@@ -158,5 +158,5 @@ class LazierLigand(Recipe):
             The amount of memory to allocate for the calculations. If None, the default value from the recipe will be used.
         """
         self.logger.info(f"Starting the LazierLigand recipe at {self.cwd}")
-        super().execute(dry_run=False, nproc=1, mem=1)
+        super().execute(dry_run=dry_run, nproc=nproc, mem=mem)
         self.logger.info("Done with the LazierLigand recipe")

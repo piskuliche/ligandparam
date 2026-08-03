@@ -30,7 +30,7 @@ def get_opts() -> dict:
     return opts
 
 
-def ligfix():
+def lighfix():
     opts = get_opts()
 
     # Send output to stdout, though it probably won't print anything unless there's an error

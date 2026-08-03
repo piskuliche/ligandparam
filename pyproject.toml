@@ -1,44 +1,41 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "ligandparam"
-version = "1.0.0"
+version = "1.0.1"
 description = "A ligand parameterization package for Amber"
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "MIT"}
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
   {name = "Zeke Piskulich", email = "piskulichz@gmail.com"}
 ]
 classifiers = [
   "Programming Language :: Python :: 3",
-  "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent"
 ]
 dependencies = [
   "numpy<2",
-  "pandas",
   "requests",
   "MDAnalysis>2.7.0",
   "parmed",
   "rdkit",
-  "ase"
+  "ase",
+  "typing_extensions"
 ]
 
-urls = { "Homepage" = "https://github.com/piskulichz/ligandparam" }
+urls = { "Homepage" = "https://gitlab.com/RutgersLBSR/ligandparam", "Documentation" = "https://ligandparam.readthedocs.io" }
 
 [project.optional-dependencies]
 
 ml = [
   "deepmd-kit",
   "tensorflow",
-  "tblite"
-]
-
-misc = [
-  "openbabel",
+  "tblite",
+  "mace-torch",
 ]
 
 sage = [
@@ -48,11 +45,15 @@ sage = [
 docs = [
   "sphinx",
   "sphinx_rtd_theme",
+  "numpydoc",
+]
+
+test = [
+  "pytest",
 ]
 
 all = [
   "ligandparam[ml]",
-  "ligandparam[misc]",
   "ligandparam[sage]",
   "ligandparam[docs]",
 ]
@@ -63,7 +64,15 @@ lig-getparam = "ligandparam.cli.ligandparam_getparam:main"
 smiles-to-pdb = "ligandparam.cli.smiles_to_pdb:main"
 lig-to-sage = "ligandparam.cli.mol2_to_sage:main"
 
+# `namespaces = false` restricts discovery to real packages (those with an
+# __init__.py). This keeps src/ligandparam/deprecated/ -- whose modules import
+# pre-reorganisation paths and fail on import -- out of the built wheel.
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = false
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 120
