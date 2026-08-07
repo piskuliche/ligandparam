@@ -15,6 +15,10 @@ variables:
 pytest:
   stage: test
   image: ghcr.io/astral-sh/uv:$UV_VERSION-python$PYTHON_VERSION-$BASE_LAYER
+  before_script:
+    # parmed publishes an sdist only -- no wheels for any Python version -- so it
+    # compiles a C++ extension at install time, and the slim image has no compiler.
+    - apt-get update -qq && apt-get install -y -qq --no-install-recommends g++
   script:
     # A non-editable install so the tests exercise what actually ships: the console
     # script entry points and the declared dependencies, not the source tree.
