@@ -179,6 +179,15 @@ class GaussianInput:
         lines.append("Gaussian Calculation\n")
         lines.append(f"{int(self.charge)} {self.multiplicity}")
         if self.elements is not None:
+            # An empty element yields a coordinate line with no element column, which
+            # Gaussian cannot read. Refuse to write it rather than emit a .com that
+            # only fails later, inside Gaussian, with an obscure message.
+            blank = [i for i, e in enumerate(self.elements) if not str(e).strip()]
+            if blank:
+                raise ValueError(
+                    f"Missing element symbol for atom index(es) {blank} of "
+                    f"{len(self.elements)}. Refusing to write a Gaussian input with a "
+                    f"blank element column.")
             for i, element in enumerate(self.elements):
                 lines.append(f"     {element} {self.coords[i][0]: >8.5f} {self.coords[i][1]: >8.5f} {self.coords[i][2]: >8.5f} ")
         lines.append("\n")

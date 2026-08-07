@@ -1,4 +1,5 @@
 import warnings
+from functools import lru_cache
 from typing import Optional,  Union
 import shutil
 from pathlib import Path
@@ -7,6 +8,45 @@ import numpy as np
 
 import MDAnalysis as mda
 from MDAnalysis.topology.guessers import guess_atom_element, guess_masses
+
+
+@lru_cache(maxsize=1)
+def _ELEMENT_SYMBOLS() -> frozenset:
+    """The set of real element symbols, built once from RDKit's periodic table.
+
+    Looked up by symbol rather than probed with ``GetAtomicNumber``, which raises a
+    C++ post-condition violation (and prints a long stack trace) for unknown input.
+    """
+    from rdkit import Chem
+    table = Chem.GetPeriodicTable()
+    return frozenset(table.GetElementSymbol(z) for z in range(1, 119))
+
+
+def normalize_element(symbol) -> str:
+    """Return ``symbol`` as a canonical element symbol, or "" if it is not one.
+
+    Parameters
+    ----------
+    symbol : str
+        A candidate element symbol, e.g. "N", "cl", "CL".
+
+    Returns
+    -------
+    str
+        The canonical symbol ("N", "Cl"), or an empty string if `symbol` does not
+        name a real element.
+
+    Notes
+    -----
+    MDAnalysis's name-based guesser returns whatever letters it finds rather than
+    failing, so an atom named "??" guesses to "?". Validating here keeps such values
+    out of the Gaussian input.
+    """
+    text = str(symbol).strip()
+    if not text or not text.isalpha():
+        return ""
+    candidate = text[0].upper() + text[1:].lower()
+    return candidate if candidate in _ELEMENT_SYMBOLS() else ""
 
 
 def repair_zero_masses(universe: mda.Universe, atol: float = 0.1) -> None:
@@ -88,35 +128,85 @@ class Coordinates:
     def get_elements(self):
         """ Grabs the elements
 
+        Every atom is resolved individually: the topology's `elements` attribute is
+        used where it holds a value, and the atom name is used to guess the rest.
+
         Parameters
         ----------
         None
 
         Returns
         -------
-        elements : list
-            The elements of the atoms in the structure
+        elements : list of str
+            The element symbol of each atom in the structure.
+
+        Raises
+        ------
+        ValueError
+            If any atom's element cannot be determined.
+
+        Notes
+        -----
+        Reading the `elements` attribute wholesale inside a try/except is
+        all-or-nothing: it catches the attribute being absent, but not the far more
+        common case of it being *partially* populated. MDAnalysis leaves an empty
+        string for any atom it could not resolve -- notably for mol2 files written by
+        antechamber, whose GAFF atom types ("na", "cc", "hn") are not element symbols.
+        Those empty strings used to flow straight into the Gaussian input, producing
+        coordinate lines with no element column at all.
         """
-        try:
-            return [atom.element for atom in self.u.atoms]
-        except:
-            return self._get_elements_from_topology()
+        natoms = len(self.u.atoms)
+        raw = getattr(self.u.atoms, "elements", None)
+        if raw is None:
+            elements = [""] * natoms
+        else:
+            elements = [normalize_element(e) for e in raw]
+
+        missing = [i for i, e in enumerate(elements) if not e]
+        if missing:
+            guessed = self._get_elements_from_topology()
+            for i in missing:
+                if i < len(guessed):
+                    elements[i] = normalize_element(guessed[i])
+
+        unresolved = [i for i, e in enumerate(elements) if not e]
+        if unresolved:
+            names = [str(self.u.atoms[i].name) for i in unresolved]
+            raise ValueError(
+                f"Could not determine the element for {len(unresolved)} atom(s) in "
+                f"{self.filename}: {names}. Writing them out would produce a Gaussian "
+                f"input with a blank element column.")
+
+        return elements
 
     def _get_elements_from_topology(self):
-        """ Grabs the elements from the topology
-        
+        """ Guesses the elements from the atom names in the topology
+
         Parameters
         ----------
         None
 
         Returns
         -------
-        elements : list
-            The elements of the atoms in the structure
+        elements : list of str
+            The guessed element symbol of each atom. An entry may be empty if the
+            name could not be interpreted.
         """
-        from MDAnalysis.topology.guessers import guess_types
-        elements = guess_types(self.u.atoms.names)
-        return elements
+        names = self.u.atoms.names
+        # MDAnalysis.topology.guessers is deprecated and scheduled for removal in
+        # 3.0.0, so prefer the Guesser API and fall back only if it is unavailable.
+        try:
+            from MDAnalysis.guesser import DefaultGuesser
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                return list(DefaultGuesser(None).guess_atom_element(name) for name in names)
+        except ImportError:
+            pass
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            from MDAnalysis.topology.guessers import guess_types
+            return list(guess_types(names))
 
     def update_coordinates(self, coords, original=False):
         """ Updates the coordinates
