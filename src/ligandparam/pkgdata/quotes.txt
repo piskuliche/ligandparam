@@ -1,0 +1,102 @@
+# One quote per line. Empty lines and lines starting with # are ignored.
+# Paste quotes below this line.
+"There is some good in this world, and it's worth fighting for." - J.R.R. Tolkien, The Two Towers
+"Beware; for I am fearless, and therefore powerful." - Mary Shelley, Frankenstein
+"The only way out of the labyrinth of suffering is to forgive." - John Green, Looking for Alaska
+"I took a deep breath and listened to the old brag of my heart: I am, I am, I am." - Sylvia Plath, The Bell Jar
+"Love is, or it ain't. Thin love ain't love at all." - Toni Morrison, Beloved
+"We accept the love we think we deserve." - Stephen Chbosky, The Perks of Being a Wallflower
+"There are years that ask questions and years that answer." - Zora Neale Hurston, Their Eyes Were Watching God
+"I am not afraid of storms, for I am learning how to sail my ship." - Louisa May Alcott, Little Women
+"All happy families are alike; each unhappy family is unhappy in its own way." - Leo Tolstoy, Anna Karenina
+"Memories warm you up from the inside. But they also tear you apart." - Haruki Murakami, Kafka on the Shore
+"It is nothing to die; it is dreadful not to live." - Victor Hugo, Les Miserables
+"Don't ever tell anybody anything. If you do, you start missing everybody." - J. D. Salinger, The Catcher in the Rye
+"It does not do to dwell on dreams and forget to live." - J.K. Rowling, Harry Potter and the Sorcerer's Stone
+"So it goes..." - Kurt Vonnegut, Slaughterhouse-Five
+"There are some things you learn best in calm, and some in storm." - Willa Cather, The Song of the Lark
+"When you play the game of thrones you win, or you die." - George R. R. Martin, A Game of Thrones
+"The world breaks everyone, and afterward, many are strong at the broken places." - Ernest Hemingway, A Farewell to Arms
+"Anyone who ever gave you confidence, you owe them a lot." - Truman Capote, Breakfast at Tiffany's
+"Isn't it nice to think that tomorrow is a new day with no mistakes in it yet?" - L. M. Montgomery, Anne of Green Gables
+"You forget what you want to remember, and you remember what you want to forget." - Cormac McCarthy, The Road
+"Call me Ishmael." - Herman Melville, Moby Dick
+"It was a pleasure to burn." - Ray Bradbury, Fahrenheit 451
+"The past is not dead. In fact, it's not even past." - William Faulkner, Requiem for a Nun
+"'And now,' cried Max, 'let the wild rumpus start!'" - Maurice Sendak, Where the Wild Things Are
+"Nowadays people know the price of everything and the value of nothing." - Oscar Wilde, The Picture of Dorian Grey
+"Time is the longest distance between two places." - Tennessee Williams, The Glass Menagerie
+"We dream in our waking moments, and walk in our sleep." - Nathaniel Hawthorne, The Scarlet Letter
+"So many things are possible just as long as you don't know they're impossible." - Norton Juster, The Phantom Tollbooth
+"Each time you happen to me all over again." - Edith Wharton, The Age of Innocence
+"Brave doesn't mean you're not scared. It means you go on even though you're scared." - Angie Thomas, The Hate U Give
+"And, when you want something, all the universe conspires in helping you to achieve it." - Paulo Coelho, The Alchemist
+"There is always something left to love." - Gabriel Garcia Marquez, One Hundred Years of Solitude
+"Stay gold, Ponyboy, stay gold." - S. E. Hinton, The Outsiders
+"Time moves slowly, but passes quickly." - Alice Walker, The Color Purple
+"And may the odds be ever in your favor." - Suzanne Collins, The Hunger Games
+"All human wisdom is summed up in these two words - 'Wait and hope.'" - Alexandre Dumas, The Count of Monte Cristo
+"Open your eyes and see what you can with them before they close forever." - Anthony Doerr, All the Light We Cannot See
+"If you have the guts to be yourself, other people'll pay your price." - John Updike, Rabbit, Run
+"What does the brain matter compared with the heart?" - Virginia Woolf, Mrs. Dalloway
+"There is no greater agony than bearing an untold story inside you." - Maya Angelou, I Know Why the Caged Bird Sings
+"Anything worth dying for is certainly worth living for." - Joseph Heller, Catch-22
+"All the world is made of faith, and trust, and pixie dust." - J.M. Barrie, Peter Pan
+"Get busy living or get busy dying." - Stephen King, Rita Hayworth and Shawshank Redemption
+"All we can know is that we know nothing. And that's the height of human wisdom." - Leo Tolstoy, War and Peace
+"Life offers up these moments of joy despite everything." - Sally Rooney, Normal People
+"The world may be mean, but people don't have to be, not if they refuse." - Colson Whitehead, The Underground Railroad
+"Life changes in the instant. The ordinary instant." - Joan Didion, The Year of Magical Thinking
+"I have a theory that selflessness and bravery aren't all that different." - Veronica Roth, Divergent
+"That's the thing about books. They let you travel without moving your feet." - Jhumpa Lahiri, The Namesake
+"I have been bent and broken, but - I hope - into a better shape." - Charles Dickens, Great Expectations
+"Though sympathy alone can't alter facts, it can help to make them more bearable." - Bram Stoker, Dracula
+"I never sleep 'cause sleep is the cousin of death." - Nas, N.Y. State of Mind
+"Sometimes you make choices in life and sometimes choices make you." - Gayle Forman, If I Stay
+"Sometimes the questions are complicated and the answers are simple." - Dr. Seuss, The Cat in the Hat
+"Life is not a paragraph, and death is no parenthesis." - E.E. Cummings, A Miscellany
+"Life is a banquet, and most poor suckers are starving to death!" - Rosalind Russell, Auntie Mame
+"When I'm writing, I'm trapped in between the lines / I escape when I finish the rhyme." - Rakim, I Know You Got Soul
+"If I told you that a flower bloomed in a dark room, would you trust it?" - Kendrick Lamar, Poetic Justice
+"Frankly, my dear, I don't give a damn." - Rhett Butler, Gone with the Wind
+"Here's looking at you, kid." - Rick Blaine, Casablanca
+"May the Force be with you." - Obi-Wan Kenobi, Star Wars
+"There's no place like home." - Dorothy Gale, The Wizard of Oz
+"Life is like a box of chocolates; you never know what you're gonna get." - Forrest Gump, Forrest Gump
+"To infinity and beyond!" - Buzz Lightyear, Toy Story
+"Why so serious?" - The Joker, The Dark Knight
+"Just keep swimming." - Dory, Finding Nemo
+"After all, tomorrow is another day." - Scarlett O'Hara, Gone with the Wind
+"All right, Mr. DeMille, I'm ready for my close-up." - Norma Desmond, Sunset Boulevard
+"Rosebud." - Charles Foster Kane, Citizen Kane
+"Louis, I think this is the beginning of a beautiful friendship." - Rick Blaine, Casablanca
+"There's no crying in baseball!" - Jimmy Dugan, A League of Their Own
+"What a dump." - Rosa Moline, Beyond the Forest
+"Open the pod bay doors, HAL." - Dave Bowman, 2001: A Space Odyssey
+"Hello, gorgeous." - Fanny Brice, Funny Girl
+"Toga! Toga!" - John "Bluto" Blutarsky, National Lampoon's Animal House
+"Nobody puts Baby in a corner." - Johnny Castle, Dirty Dancing
+"Walking on water and developing software from a specification are easy if both are frozen." - Edward V Berard
+"Talk is cheap. Show me the code." - Linus Torvalds
+"In God we trust. All others must bring data." - W. Edwards Demming
+"In theory, theory and practice are the same. In practice, they're not." - Yoggi Berra
+"You can't have great software without a great team, and most software teams behave like dysfunctional families." - Jim McCarthy
+"Most of you are familiar with the virtues of a programmer. There are three, of course: laziness, impatience, and hubris." - Larry Wall
+"Nine people can't make a baby in a month." (regarding the addition of more programmers to get a project completed faster) - Fred Brooks
+"Any fool can write code that a computer can understand. Good programmers write code that humans can understand." - Martin Fowler
+"Programming is like sex. One mistake, and you have to support it for the rest of your life." - Michael Sinz
+"You can use an eraser on the drafting table or a sledgehammer on the construction site" - Frank Lloyd Wright
+"There are only two kinds of languages: the ones people complain about and the ones nobody uses." - Bjarne Stroustrup
+"It's all talk until the code runs." - Ward Cunningham
+"Given enough eyeballs, all bugs are shallow." - Linus Torvalds
+"A clever person solves a problem. A wise person avoids it." - Albert Einstein
+"Being a good software engineer is 3% talent, 97% not being distracted by the internet." - Unknown
+"Any sufficiently advanced technology is indistinguishable from magic." - Arthur C. Clarke
+"A ship in port is safe, but that's not what ships are built for." - Grace Hopper
+"The imposter syndrome is real. Luckily, it goes away." - Kimber Lockhart
+"Know how to learn. Then, want to learn." - Katherine Johnson
+"Never trust a computer you can't throw out a window." - Steve Wozniak
+"When in doubt, use brute force." - Ken Thompson
+"Once a new technology starts rolling, if you're not part of the steamroller, you're part of the road." - Stewart Brand
+"The most disastrous thing that you can ever learn is your first programming language." - Alan Kay
+"Optimism is an occupational hazard of programming. Feedback is the treatment." - Kent Beck
