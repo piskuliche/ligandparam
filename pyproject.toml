@@ -18,10 +18,10 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "numpy<2",
+  "numpy",
   "pandas",
   "requests",
-  "MDAnalysis>2.7.0",
+  "MDAnalysis",
   "parmed",
   "rdkit",
   "ase"
