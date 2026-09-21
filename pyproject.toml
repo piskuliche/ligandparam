@@ -1,21 +1,22 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "ligandparam"
-version = "1.0.0"
-description = "A ligand parameterization package for Amber"
+version = "1.6.1"
+description = "Stage-based Amber ligand parameterization (Gaussian RESP, Leap, recipes)"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [
-  {name = "Zeke Piskulich", email = "piskulichz@gmail.com"}
+  {name = "Zeke Piskulich", email = "piskulichz@gmail.com"},
+  {name = "Nate Levinzon", email = "ndlevinzon@gmail.com"},
 ]
 classifiers = [
   "Programming Language :: Python :: 3",
   "License :: OSI Approved :: MIT License",
-  "Operating System :: OS Independent"
+  "Operating System :: OS Independent",
 ]
 dependencies = [
   "numpy<2",
@@ -24,32 +25,26 @@ dependencies = [
   "MDAnalysis>2.7.0",
   "parmed",
   "rdkit",
-  "ase"
+  "ase",
+  "typing_extensions",
 ]
 
-urls = { "Homepage" = "https://github.com/piskulichz/ligandparam" }
+urls = { "Homepage" = "https://github.com/ndlevinzon/ligandparam" }
 
 [project.optional-dependencies]
-
 ml = [
   "deepmd-kit",
-  "tensorflow",
-  "tblite"
 ]
-
 misc = [
   "openbabel",
 ]
-
 sage = [
   "openff-toolkit",
 ]
-
 docs = [
   "sphinx",
   "sphinx_rtd_theme",
 ]
-
 all = [
   "ligandparam[ml]",
   "ligandparam[misc]",
@@ -58,12 +53,28 @@ all = [
 ]
 
 [project.scripts]
-lighfix = "ligandparam.cli.cli_lighfix:lighfix"
-lig-getparam = "ligandparam.cli.ligandparam_getparam:main"
-smiles-to-pdb = "ligandparam.cli.smiles_to_pdb:main"
-lig-to-sage = "ligandparam.cli.mol2_to_sage:main"
+lighfix = "ligandparam.cli.CliLigHFix:lighfix"
+lig-getparam = "ligandparam.cli.LigGetParam:main"
+smiles-to-pdb = "ligandparam.cli.SmilesToPdb:main"
+lig-to-sage = "ligandparam.cli.Mol2ToSage:main"
 
+# This directory is both the project root and the import package.
+# `pip install -e .` from this checkout, or `pip install -e ligandparam`
+# from the ALPS workspace.
+[tool.setuptools]
+package-dir = { "ligandparam" = "." }
+packages = [
+  "ligandparam",
+  "ligandparam.cli",
+  "ligandparam.io",
+  "ligandparam.multiresp",
+  "ligandparam.recipes",
+  "ligandparam.runtime",
+  "ligandparam.stages",
+]
 
+[tool.setuptools.package-data]
+ligandparam = ["pkgdata/**/*"]
 
 [tool.ruff]
 line-length = 120
